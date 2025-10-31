@@ -234,7 +234,7 @@ summary = summarize_positions(positions)
 last_updated = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 # ----- KPI 영역 (3컬럼) -----
-col1, col2, col3 = st.columns(3)
+col1, col2, col3, col4 = st.columns(3)
 
 with col1:
     st.markdown(
@@ -312,4 +312,5 @@ with st.expander("RAW API Response (balance)"):
     st.write(raw_bal_res)
 
 st.caption("⚠ API Key 하드코딩 상태에서 URL 공유 = 계좌 노출. 배포 전에는 secrets 처리 필수.")
+
 
