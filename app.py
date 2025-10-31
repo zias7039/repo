@@ -81,6 +81,9 @@ def get_positions(product_type: str):
     return res.get("data") or [], res
 
 def get_balance_usdt(product_type: str):
+    """
+    현재 USDT 계정의 가용 잔액(available)과 총잔액(equity)을 반환
+    """
     params = {
         "productType": product_type,
         "marginCoin": "USDT",
@@ -88,16 +91,22 @@ def get_balance_usdt(product_type: str):
     res = private_get("/api/v2/mix/account/accounts", params)
 
     if res.get("code") != "00000":
-        return 0.0, res
+        return 0.0, 0.0, res  # (available, equity, raw)
 
     accounts = res.get("data") or []
+    usdt_available = 0.0
+    usdt_equity = 0.0
+
     for acc in accounts:
         if acc.get("marginCoin") == "USDT":
             try:
-                return float(acc.get("available", 0.0)), res
+                usdt_available = float(acc.get("available", 0.0))
+                usdt_equity = float(acc.get("equity", 0.0))
             except:
-                return 0.0, res
-    return 0.0, res
+                pass
+            break
+
+    return usdt_available, usdt_equity, res
 
 def summarize_positions(positions: list[dict]):
     total_pnl = 0.0
@@ -219,7 +228,7 @@ st.sidebar.caption("※ 공개용 뷰 켜면 수량/청산가/마진비율 숨�
 
 # ----- 데이터 로드 -----
 positions, raw_pos_res = get_positions(PRODUCT_TYPE)
-balance_usdt, raw_bal_res = get_balance_usdt(PRODUCT_TYPE)
+balance_available, balance_equity, raw_bal_res = get_balance_usdt(PRODUCT_TYPE)
 summary = summarize_positions(positions)
 
 last_updated = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -256,7 +265,18 @@ with col3:
         f"""
         <div class="metric-card">
             <div class="metric-label">가용 USDT 잔액</div>
-            <div class="metric-value">{balance_usdt:,.4f} USDT</div>
+            <div class="metric-value">{balance_available:,.4f} USDT</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+with col4:
+    st.markdown(
+        f"""
+        <div class="metric-card">
+            <div class="metric-label">총 USDT 잔액</div>
+            <div class="metric-value">{balance_equity:,.4f} USDT</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -292,3 +312,4 @@ with st.expander("RAW API Response (balance)"):
     st.write(raw_bal_res)
 
 st.caption("⚠ API Key 하드코딩 상태에서 URL 공유 = 계좌 노출. 배포 전에는 secrets 처리 필수.")
+
