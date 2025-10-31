@@ -81,9 +81,6 @@ def get_positions(product_type: str):
     return res.get("data") or [], res
 
 def get_balance_usdt(product_type: str):
-    """
-    현재 USDT 계정의 가용 잔액(available)과 총잔액(equity)을 반환
-    """
     params = {
         "productType": product_type,
         "marginCoin": "USDT",
@@ -91,7 +88,7 @@ def get_balance_usdt(product_type: str):
     res = private_get("/api/v2/mix/account/accounts", params)
 
     if res.get("code") != "00000":
-        return 0.0, 0.0, res  # (available, equity, raw)
+        return 0.0, 0.0, res
 
     accounts = res.get("data") or []
     usdt_available = 0.0
@@ -101,7 +98,7 @@ def get_balance_usdt(product_type: str):
         if acc.get("marginCoin") == "USDT":
             try:
                 usdt_available = float(acc.get("available", 0.0))
-                usdt_equity = float(acc.get("equity", 0.0))
+                usdt_equity = float(acc.get("usdtEquity", 0.0))
             except:
                 pass
             break
@@ -312,6 +309,7 @@ with st.expander("RAW API Response (balance)"):
     st.write(raw_bal_res)
 
 st.caption("⚠ API Key 하드코딩 상태에서 URL 공유 = 계좌 노출. 배포 전에는 secrets 처리 필수.")
+
 
 
 
