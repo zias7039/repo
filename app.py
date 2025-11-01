@@ -134,18 +134,6 @@ top_card_html = f"""<div style='background:{CARD_BG};border:1px solid {BORDER};b
 </div><div style='font-size:0.7rem;color:{TEXT_SUB};white-space:nowrap;'>Manual refresh • {REFRESH_INTERVAL_SEC}s</div></div>"""
 render_html(top_card_html)
 
-# ================= MID CARD =================
-mid_html = f"""<div style='background:{CARD_BG};border:1px solid {BORDER};border-radius:8px;padding:16px;box-shadow:{SHADOW};font-family:{FONT_FAMILY};margin-bottom:12px;font-size:0.8rem;color:{TEXT_SUB};'>
-    <div style='font-size:0.8rem;'>Perp Equity</div>
-    <div style='color:{TEXT_MAIN};font-weight:600;font-size:1.4rem;margin-bottom:12px;'>${total_equity:,.2f}</div>
-    <div style='font-size:0.75rem;'>Direction Bias</div>
-    <div style='font-weight:600;font-size:0.9rem;color:{bias_color};margin-bottom:12px;'>{bias_label}</div>
-    <div style='font-size:0.75rem;'>Unrealized PnL</div>
-    <div style='font-size:1rem;font-weight:600;color:{pnl_color};'>${unrealized_total_pnl:,.2f}</div>
-    <div style='font-size:0.7rem;margin-bottom:12px;'>{roe_pct:.2f}% ROE</div>
-</div>"""
-render_html(mid_html)
-
 # ================= POSITIONS =================
 pos_header_html = f"""<div style='background:{CARD_BG};border:1px solid {BORDER};border-radius:8px;padding:12px 16px;margin-bottom:12px;box-shadow:{SHADOW};font-family:{FONT_FAMILY};font-size:0.8rem;color:{TEXT_SUB};'>Positions: {positions_count} | Total: ${total_position_value:,.2f}</div>"""
 render_html(pos_header_html)
@@ -168,3 +156,4 @@ for p in positions:
 
 st.dataframe(rows, use_container_width=True)
 render_html(f"<div style='font-size:0.7rem;color:{TEXT_SUB};margin-top:8px;'>Last update: {datetime.now().strftime('%H:%M:%S')} • refresh every {REFRESH_INTERVAL_SEC}s</div>")
+
