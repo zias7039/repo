@@ -23,17 +23,10 @@ BASE_URL = "https://api.bitget.com"
 REFRESH_INTERVAL_SEC = 15
 
 # ================= AUTO REFRESH =================
-try:
-    # Streamlit 1.20 이상일 때
-    st_autorefresh_count = st.experimental_autorefresh(
-        interval=15 * 1000,  # 15초마다 새로고침
-        key="auto_refresh_counter"
-    )
-except Exception:
-    # 구버전 Streamlit이면 fallback
-    import time
-    time.sleep(15)
-    st.rerun()
+st_autorefresh_count = st.experimental_autorefresh(
+    interval=REFRESH_INTERVAL_SEC * 1000,
+    key="auto_refresh_counter"
+)
 
 # ================= HELPERS =================
 def _timestamp_ms() -> str:
@@ -284,6 +277,7 @@ footer_html = f"""<div style='font-size:0.7rem;color:{TEXT_SUB};margin-top:8px;'
 Last update: {datetime.now().strftime('%H:%M:%S')} • refresh every {REFRESH_INTERVAL_SEC}s
 </div>"""
 render_html(footer_html)
+
 
 
 
