@@ -434,59 +434,33 @@ st.markdown(
 col_main_left, col_main_right = st.columns([0.4,0.6])
 
 with col_main_left:
-    st.markdown(
-        f"""
-        <div class="panel-wrapper">
-            <div class="panel-top">
-
-                <div class="equity-block">
-                    <div class="equity-title">Perp Equity</div>
-                    <div class="equity-value">${total_equity:,.2f}</div>
-                    <div class="metric-bar-label">
-                        Margin Usage
-                    </div>
-                    <div class="metric-bar-bg">
-                        <div class="metric-bar-fill" style="width:{min(est_leverage*10,100)}%;"></div>
-                    </div>
-                    <div class="section-sub" style="font-size:0.7rem;color:#94a3b8;">
-                        est. leverage {est_leverage:.2f}x
-                    </div>
-                    <br/>
-
-                    <div class="metric-bar-block">
-                        <div class="metric-bar-label">Direction Bias</div>
-                        <div class="metric-bar-value" style="color:#4ade80;">LONG</div>
-                        <div class="metric-bar-bg">
-                            <div class="metric-bar-fill" style="width:{long_ratio_pct:.2f}%;"></div>
-                        </div>
-                        <div class="section-sub" style="font-size:0.7rem;color:#94a3b8;">
-                            Long Exposure {long_ratio_pct:.2f}%
-                        </div>
-                    </div>
-
-                    <br/>
-                    <div class="metric-bar-block">
-                        <div class="metric-bar-label">Position Distribution</div>
-                        <div class="metric-bar-value" style="color:#4ade80;">${total_position_value:,.0f}</div>
-                        <div class="section-sub" style="font-size:0.7rem;color:#94a3b8;">
-                            {positions_count} positions
-                        </div>
-                    </div>
-
-                    <br/>
-                    <div class="risk-block">
-                        <div class="risk-label">Unrealized PnL</div>
-                        <div class="risk-value-loss">${unrealized_total_pnl:,.2f}</div>
-                        <div class="risk-sub">{roe_pct:.2f}% ROE</div>
-                    </div>
-
-                </div>
-
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+st.markdown(
+    f"""
+<div class="equity-block">
+<div class="equity-title">Perp Equity</div>
+<div class="equity-value">${total_equity:,.2f}</div>
+<div class="metric-bar-label">Margin Usage</div>
+<div class="metric-bar-bg">
+    <div class="metric-bar-fill" style="width:{min(est_leverage*10,100)}%;"></div>
+</div>
+<div class="section-sub" style="font-size:0.7rem;color:#94a3b8;">
+    est. leverage {est_leverage:.2f}x
+</div>
+<br/>
+<div class="metric-bar-block">
+    <div class="metric-bar-label">Direction Bias</div>
+    <div class="metric-bar-value" style="color:#4ade80;">LONG</div>
+</div>
+<br/>
+<div class="risk-block">
+    <div class="risk-label">Unrealized PnL</div>
+    <div class="risk-value-loss">${unrealized_total_pnl:,.2f}</div>
+    <div class="risk-sub">{roe_pct:.2f}% ROE</div>
+</div>
+</div>
+    """,
+    unsafe_allow_html=True
+)
 
 with col_main_right:
     st.markdown(
@@ -532,7 +506,6 @@ with col_main_right:
         """,
         unsafe_allow_html=True
     )
-
 
 # ======================================
 # RENDER: POSITIONS TABLE SECTION
@@ -583,6 +556,7 @@ st.markdown('</div>', unsafe_allow_html=True)
 st.caption(
     f"Last update: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  •  Auto refresh hint: every {REFRESH_INTERVAL_SEC}s (manually rerun for now)"
 )
+
 
 
 
