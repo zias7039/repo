@@ -134,10 +134,11 @@ else:
 long_exposure_pct  = (long_value  / total_position_value * 100.0) if total_position_value > 0 else 0.0
 short_exposure_pct = (short_value / total_position_value * 100.0) if total_position_value > 0 else 0.0
 
-pnl_color = "#4ade80" if unrealized_total_pnl >= 0 else "#f87171"
+unrealized_is_profit = unrealized_total_pnl >= 0
+pnl_color = "#4ade80" if unrealized_is_profit else "#f87171"
 roe_pct = (unrealized_total_pnl / total_equity * 100.0) if total_equity > 0 else 0.0
 roe_color = "#4ade80" if roe_pct >= 0 else "#f87171"
-arrow_icon = "↑" if unrealized_total_pnl >= 0 else "↓"
+arrow_icon = "↑" if unrealized_is_profit else "↓"
 
 positions_count = len(positions)
 
@@ -154,15 +155,13 @@ st.session_state.pnl_history = st.session_state.pnl_history[-200:]
 chart_df = pd.DataFrame(st.session_state.pnl_history)
 
 # ================= STYLE =================
-CARD_BG      = "#1a1f27"        # closer to black/graphite
+CARD_BG      = "#1a1f27"        # darker card background
 CARD_BORDER  = "#2a303a"
-CARD_INNER_BG= "#101418"
+BAR_BG       = "#2f343b"
 TEXT_MAIN    = "#f8fafc"
 TEXT_SUB     = "#9ca3af"
-TEXT_DIM     = "#6b7280"
 GOOD_COLOR   = "#4ade80"
 BAD_COLOR    = "#f87171"
-BAR_BG       = "#2f343b"
 FONT_FAMILY  = "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif"
 RADIUS       = "10px"
 SHADOW       = "0 20px 40px rgba(0,0,0,0.8)"
@@ -172,8 +171,8 @@ def render_html(block: str):
     clean = dedent(block).lstrip()
     st.markdown(clean, unsafe_allow_html=True)
 
-# ================= KPI TOP BAR (kept minimal) =================
-# we still keep the small header card with totals / withdrawable / lev
+# ================= KPI TOP BAR =================
+# compact summary card above main card
 
 top_card_html = f"""
 <div style='background:{CARD_BG};border:1px solid {CARD_BORDER};border-radius:{RADIUS};
@@ -209,17 +208,12 @@ top_card_html = f"""
 """
 render_html(top_card_html)
 
-# ================= MAIN CARD LEFT (match screenshot style) =================
-# We'll render a single vertical card with sections:
-# Perp Equity + Margin Usage bar
-# Direction Bias + Long Exposure bar
-# Position Distribution stacked bar
-# Unrealized PnL + ROE
+# ================= MAIN CARD LEFT =================
+# Large card matching first screenshot layout
 
 col_left, col_right = st.columns([0.45, 0.55])
 
 with col_left:
-    # widths for stacked bar (long vs short)
     long_pct_width  = f"{long_exposure_pct:.2f}%"
     short_pct_width = f"{short_exposure_pct:.2f}%"
 
@@ -276,8 +270,8 @@ with col_left:
                 <div style='font-size:0.7rem;color:{TEXT_SUB};'>Position Distribution</div>
             </div>
 
-            <div style='width:100%;display:flex;border-radius:6px;
-                        overflow:hidden;background:linear-gradient(to right,#0f3a2e 0%,#3b1f2f 100%);
+            <div style='width:100%;display:flex;border-radius:6px;overflow:hidden;
+                        background:linear-gradient(to right,#0f3a2e 0%,#3b1f2f 100%);
                         border:1px solid {CARD_BORDER};font-size:0.7rem;color:{TEXT_MAIN};'>
                 <div style='flex:0 0 {long_pct_width};min-width:40px;background:rgba(16,83,60,0.6);
                             color:{GOOD_COLOR};text-align:center;padding:8px 4px;font-weight:600;'>
@@ -307,7 +301,6 @@ with col_left:
     render_html(main_card_html)
 
 with col_right:
-    # right column: live PnL history chart
     st.line_chart(chart_df, x="ts", y="pnl", height=240)
 
 # ================= POSITIONS TABLE =================
