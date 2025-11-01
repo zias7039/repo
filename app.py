@@ -116,12 +116,6 @@ roe_pct = (unrealized_total_pnl / total_equity * 100.0) if total_equity > 0 else
 
 positions_count = len(positions)
 
-if "pnl_history" not in st.session_state:
-    st.session_state.pnl_history = []
-st.session_state.pnl_history.append({"ts": datetime.now().strftime("%H:%M:%S"), "pnl": unrealized_total_pnl})
-st.session_state.pnl_history = st.session_state.pnl_history[-200:]
-chart_df = pd.DataFrame(st.session_state.pnl_history)
-
 # ================= STYLE =================
 CARD_BG, TEXT_SUB, TEXT_MAIN = "#1e2538", "#94a3b8", "#f8fafc"
 BORDER, SHADOW = "rgba(148,163,184,0.2)", "0 24px 48px rgba(0,0,0,0.6)"
@@ -141,20 +135,16 @@ top_card_html = f"""<div style='background:{CARD_BG};border:1px solid {BORDER};b
 render_html(top_card_html)
 
 # ================= MID CARD =================
-col_left, col_right = st.columns([0.4, 0.6])
-with col_left:
-    mid_left_html = f"""<div style='background:{CARD_BG};border:1px solid {BORDER};border-radius:8px;padding:16px;box-shadow:{SHADOW};font-family:{FONT_FAMILY};margin-bottom:12px;font-size:0.8rem;color:{TEXT_SUB};'>
-        <div style='font-size:0.8rem;'>Perp Equity</div>
-        <div style='color:{TEXT_MAIN};font-weight:600;font-size:1.4rem;margin-bottom:12px;'>${total_equity:,.2f}</div>
-        <div style='font-size:0.75rem;'>Direction Bias</div>
-        <div style='font-weight:600;font-size:0.9rem;color:{bias_color};margin-bottom:12px;'>{bias_label}</div>
-        <div style='font-size:0.75rem;'>Unrealized PnL</div>
-        <div style='font-size:1rem;font-weight:600;color:{pnl_color};'>${unrealized_total_pnl:,.2f}</div>
-        <div style='font-size:0.7rem;margin-bottom:12px;'>{roe_pct:.2f}% ROE</div>
-    </div>"""
-    render_html(mid_left_html)
-with col_right:
-    st.line_chart(chart_df, x="ts", y="pnl", height=220)
+mid_html = f"""<div style='background:{CARD_BG};border:1px solid {BORDER};border-radius:8px;padding:16px;box-shadow:{SHADOW};font-family:{FONT_FAMILY};margin-bottom:12px;font-size:0.8rem;color:{TEXT_SUB};'>
+    <div style='font-size:0.8rem;'>Perp Equity</div>
+    <div style='color:{TEXT_MAIN};font-weight:600;font-size:1.4rem;margin-bottom:12px;'>${total_equity:,.2f}</div>
+    <div style='font-size:0.75rem;'>Direction Bias</div>
+    <div style='font-weight:600;font-size:0.9rem;color:{bias_color};margin-bottom:12px;'>{bias_label}</div>
+    <div style='font-size:0.75rem;'>Unrealized PnL</div>
+    <div style='font-size:1rem;font-weight:600;color:{pnl_color};'>${unrealized_total_pnl:,.2f}</div>
+    <div style='font-size:0.7rem;margin-bottom:12px;'>{roe_pct:.2f}% ROE</div>
+</div>"""
+render_html(mid_html)
 
 # ================= POSITIONS =================
 pos_header_html = f"""<div style='background:{CARD_BG};border:1px solid {BORDER};border-radius:8px;padding:12px 16px;margin-bottom:12px;box-shadow:{SHADOW};font-family:{FONT_FAMILY};font-size:0.8rem;color:{TEXT_SUB};'>Positions: {positions_count} | Total: ${total_position_value:,.2f}</div>"""
