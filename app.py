@@ -122,7 +122,23 @@ positions_count = len(positions)
 
 CARD_BG, TEXT_SUB, TEXT_MAIN = "#1e2538", "#94a3b8", "#f8fafc"
 BORDER, SHADOW = "rgba(148,163,184,0.2)", "0 24px 48px rgba(0,0,0,0.6)"
-FONT_FAMILY = "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif"
+FONT_FAMILY = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif"
+MONO_FAMILY = "'Roboto Mono', monospace"
+
+# 웹폰트 임포트 (Inter + Roboto Mono)
+st.markdown("""
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Roboto+Mono:wght@500&display=swap');
+
+html, body, [class*="css"] {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    color: #f8fafc;
+}
+.value, .price, .metric, .number {
+    font-family: 'Roboto Mono', monospace;
+}
+</style>
+""", unsafe_allow_html=True)
 
 def render_html(block: str):
     clean = dedent(block).lstrip()
@@ -280,6 +296,7 @@ try:
     st.experimental_rerun()
 except Exception:
     st.rerun()
+
 
 
 
