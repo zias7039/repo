@@ -182,7 +182,7 @@ table_html = f"""
     color:{TEXT_SUB};
     overflow:hidden;
     ">
-    <div style="
+<div style="
         display:grid;
         grid-template-columns:
             120px   /* Asset */
@@ -202,16 +202,16 @@ table_html = f"""
         color:{TEXT_SUB};
         font-weight:500;
     ">
-        <div>Asset</div>
-        <div>Type</div>
-        <div>Position Value / Size <span style="color:#4ade80;">↓</span></div>
-        <div>Unrealized PnL</div>
-        <div>Entry Price</div>
-        <div>Current Price</div>
-        <div>Liq. Price</div>
-        <div>Margin Used</div>
-        <div>Funding</div>
-    </div>
+<div>Asset</div>
+<div>Type</div>
+<div>Position Value / Size <span style="color:#4ade80;">↓</span></div>
+<div>Unrealized PnL</div>
+<div>Entry Price</div>
+<div>Current Price</div>
+<div>Liq. Price</div>
+<div>Margin Used</div>
+<div>Funding</div>
+</div>
 """
 
 # 각 포지션 row 렌더
@@ -344,5 +344,6 @@ render_html(pos_header_html)
 render_html(table_html)
 
 render_html(f"<div style='font-size:0.7rem;color:{TEXT_SUB};margin-top:8px;'>Last update: {datetime.now().strftime('%H:%M:%S')} • refresh every {REFRESH_INTERVAL_SEC}s</div>")
+
 
 
