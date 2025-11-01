@@ -5,6 +5,7 @@ import base64
 import requests
 import streamlit as st
 import pandas as pd
+from textwrap import dedent
 from urllib.parse import urlencode
 from datetime import datetime
 
@@ -21,9 +22,26 @@ PRODUCT_TYPE = "USDT-FUTURES"
 MARGIN_COIN = "USDT"
 
 # --- Secrets (streamlit cloud에 저장된 값 사용)
-API_KEY = st.secrets["bitget"]["api_key"]
-API_SECRET = st.secrets["bitget"]["api_secret"]
-PASSPHRASE = st.secrets["bitget"]["passphrase"]
+bitget_conf = st.secrets.get("bitget")
+if not bitget_conf:
+    st.error(
+        "Bitget API credentials가 설정되지 않았습니다. Streamlit secrets에 bitget 섹션을 추가해 주세요."
+    )
+    st.stop()
+
+missing_secret_keys = [
+    key for key in ("api_key", "api_secret", "passphrase") if key not in bitget_conf
+]
+if missing_secret_keys:
+    st.error(
+        "Bitget API credentials에 누락된 키가 있습니다: "
+        + ", ".join(missing_secret_keys)
+    )
+    st.stop()
+
+API_KEY = bitget_conf["api_key"]
+API_SECRET = bitget_conf["api_secret"]
+PASSPHRASE = bitget_conf["passphrase"]
 
 BASE_URL = "https://api.bitget.com"
 
@@ -33,7 +51,12 @@ REFRESH_INTERVAL_SEC = 15  # 화면에 "Next refresh in Ns"로 보여줄 값
 # ======================================
 # STYLE: 다크 UI와 카드 스타일
 # ======================================
-st.markdown(
+def render_html(markup: str) -> None:
+    """Render raw HTML markup without leading indentation artifacts."""
+    st.markdown(dedent(markup), unsafe_allow_html=True)
+
+
+render_html(
     """
     <style>
     body, .main {
@@ -223,8 +246,7 @@ st.markdown(
         font-size: 0.8rem !important;
     }
     </style>
-    """,
-    unsafe_allow_html=True
+    """
 )
 
 # ======================================
@@ -271,9 +293,27 @@ def _private_get(path, params=None):
         "locale": "en-US",
         "Content-Type": "application/json",
     }
-    r = requests.get(url, headers=headers)
-    return r.json()
 
+    try:
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+    except requests.RequestException as exc:
+        return {
+            "code": "HTTP_ERROR",
+            "msg": f"Bitget API request failed: {exc}",
+            "data": None,
+        }
+
+    try:
+        return response.json()
+    except ValueError:
+        return {
+            "code": "INVALID_RESPONSE",
+            "msg": "Bitget API에서 JSON이 아닌 응답을 반환했습니다.",
+            "data": None,
+        }
+
+@st.cache_data(ttl=REFRESH_INTERVAL_SEC)
 def fetch_positions():
     params = {
         "productType": PRODUCT_TYPE,
@@ -285,6 +325,7 @@ def fetch_positions():
     data = res.get("data") or []
     return data, res
 
+@st.cache_data(ttl=REFRESH_INTERVAL_SEC)
 def fetch_account():
     params = {
         "productType": PRODUCT_TYPE,
@@ -306,7 +347,16 @@ def fetch_account():
 # Derive dashboard metrics
 # ======================================
 positions, raw_pos = fetch_positions()
+raw_pos = raw_pos or {}
+if raw_pos.get("code") != "00000":
+    st.error(raw_pos.get("msg", "Bitget 포지션 정보를 불러오지 못했습니다."))
+    positions = []
+
 account, raw_acct = fetch_account()
+raw_acct = raw_acct or {}
+if raw_acct.get("code") != "00000":
+    st.error(raw_acct.get("msg", "Bitget 계정 정보를 불러오지 못했습니다."))
+    account = None
 
 # 안전 파싱 함수
 def fnum(v):
@@ -386,6 +436,8 @@ st.session_state.pnl_history.append({
     "pnl": unrealized_total_pnl
 })
 
+st.session_state.pnl_history = st.session_state.pnl_history[-200:]
+
 chart_x = [pt["ts"] for pt in st.session_state.pnl_history]
 chart_y = [pt["pnl"] for pt in st.session_state.pnl_history]
 
@@ -393,7 +445,7 @@ chart_y = [pt["pnl"] for pt in st.session_state.pnl_history]
 # ======================================
 # RENDER: KPI BAR (상단)
 # ======================================
-st.markdown(
+render_html(
     f"""
     <div class="kpi-bar">
         <div class="kpi-left">
@@ -421,8 +473,7 @@ st.markdown(
             <div class="kpi-support">Support us</div>
         </div>
     </div>
-    """,
-    unsafe_allow_html=True
+    """
 )
 
 # ======================================
@@ -431,7 +482,7 @@ st.markdown(
 col_main_left, col_main_right = st.columns([0.4,0.6])
 
 with col_main_left:
-    st.markdown(
+    render_html(
         f"""
         <div class="panel-wrapper">
             <div class="panel-top">
@@ -481,12 +532,11 @@ with col_main_left:
 
             </div>
         </div>
-        """,
-        unsafe_allow_html=True
+        """
     )
 
 with col_main_right:
-    st.markdown(
+    render_html(
         f"""
         <div class="panel-wrapper">
             <div style="display:flex;justify-content:space-between;flex-wrap:wrap;margin-bottom:8px;">
@@ -503,8 +553,7 @@ with col_main_right:
                     <div style="background:#1e2538;border:1px solid #334155;padding:4px 8px;border-radius:6px;color:#94a3b8;">Account Value</div>
                 </div>
             </div>
-        """,
-        unsafe_allow_html=True
+        """
     )
 
     chart_df = pd.DataFrame({
@@ -519,15 +568,14 @@ with col_main_right:
     height=220,
     )
 
-    st.markdown(
+    render_html(
         f"""
         <div style="display:flex;justify-content:space-between;flex-wrap:wrap;margin-top:4px;font-size:0.8rem;color:#4ade80;">
             <div>24H PnL (Session)</div>
             <div style="font-weight:600;">${unrealized_total_pnl:,.2f}</div>
         </div>
         </div>
-        """,
-        unsafe_allow_html=True
+        """
     )
 
 
@@ -536,7 +584,7 @@ with col_main_right:
 # ======================================
 
 # positions header summary bar
-st.markdown(
+render_html(
     f"""
     <div class="positions-header-bar">
         <div class="positions-header-topline">
@@ -553,8 +601,7 @@ st.markdown(
             <div style="background:#1e2538;border:1px solid #334155;padding:4px 8px;border-radius:6px;color:#94a3b8;">Completed Trades</div>
         </div>
     </div>
-    """,
-    unsafe_allow_html=True
+    """
 )
 
 # 포지션 rows -> 테이블용으로 가공
