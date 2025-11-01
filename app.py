@@ -138,7 +138,7 @@ unrealized_is_profit = unrealized_total_pnl >= 0
 pnl_color   = "#4ade80" if unrealized_is_profit else "#f87171"
 roe_pct     = (unrealized_total_pnl / total_equity * 100.0) if total_equity > 0 else 0.0
 roe_color   = "#4ade80" if roe_pct >= 0 else "#f87171"
-arrow_icon  = "↑" if unrealized_is_profit else "↓"  # <-- defined here
+arrow_icon  = "↑" if unrealized_is_profit else "↓"
 
 positions_count = len(positions)
 
