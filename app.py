@@ -27,7 +27,8 @@ PASSPHRASE = st.secrets["bitget"]["passphrase"]
 
 BASE_URL = "https://api.bitget.com"
 
-REFRESH_INTERVAL_SEC = 15  # 우리가 목표로 하는 새로고침 주기 (수동 rerun 기준)
+REFRESH_INTERVAL_SEC = 15  # manual refresh target interval
+
 
 # ======================================
 # STYLE
@@ -106,20 +107,21 @@ st.markdown(
         box-shadow: 0 24px 48px rgba(0,0,0,0.6);
         padding: 16px 20px;
         margin-bottom: 16px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 20px;
+        align-items: flex-start;
     }
 
-    .equity-block {
+    .equity-col {
+        flex: 0.35;
         min-width: 260px;
         color: #f8fafc;
         font-size: 1rem;
         font-weight: 600;
-        background-color: #1e2538;
-        border: 1px solid rgba(148,163,184,0.2);
-        border-radius: 12px;
-        box-shadow: 0 24px 48px rgba(0,0,0,0.6);
-        padding: 16px 20px;
-        margin-bottom: 16px;
     }
+
     .equity-title {
         font-size: 0.8rem;
         font-weight: 500;
@@ -130,17 +132,12 @@ st.markdown(
         font-size: 1.4rem;
         font-weight: 600;
         color: #f8fafc;
-        margin-bottom: 8px;
+        margin-bottom: 12px;
     }
 
     .metric-bar-label {
         font-size: 0.75rem;
         color: #94a3b8;
-        margin-bottom: 4px;
-    }
-    .metric-bar-value {
-        font-size: 0.9rem;
-        font-weight: 600;
         margin-bottom: 6px;
     }
     .metric-bar-bg {
@@ -155,6 +152,17 @@ st.markdown(
         height: 100%;
         background: linear-gradient(90deg,#10b981,#059669);
     }
+    .risk-sub {
+        font-size: 0.7rem;
+        color: #94a3b8;
+        margin-bottom: 16px;
+    }
+
+    .metric-bar-value {
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 16px;
+    }
 
     .risk-label {
         font-size: 0.75rem;
@@ -166,10 +174,50 @@ st.markdown(
         font-weight: 600;
         margin-bottom: 4px;
     }
-    .risk-sub {
-        font-size: 0.7rem;
-        color: #94a3b8;
-        margin-bottom: 8px;
+
+    .chart-col {
+        flex: 0.6;
+        min-width: 400px;
+        color: #f8fafc;
+    }
+
+    .chart-topbar {
+        display:flex;
+        justify-content:space-between;
+        flex-wrap:wrap;
+        margin-bottom:8px;
+        font-size:0.7rem;
+    }
+
+    .chart-left-tabs,
+    .chart-right-tabs {
+        display:flex;
+        gap:8px;
+        flex-wrap:wrap;
+        font-size:0.7rem;
+    }
+
+    .tab-active {
+        background:#0f3;
+        padding:4px 8px;
+        border-radius:6px;
+        color:#000;
+        font-weight:600;
+    }
+    .tab-passive {
+        background:#1e2538;
+        border:1px solid #334155;
+        padding:4px 8px;
+        border-radius:6px;
+        color:#94a3b8;
+    }
+
+    .pnl-footer {
+        display:flex;
+        justify-content:space-between;
+        flex-wrap:wrap;
+        margin-top:4px;
+        font-size:0.8rem;
     }
 
     .positions-header-bar {
@@ -203,7 +251,8 @@ st.markdown(
     }
 
     /* Streamlit dataframe override */
-    div[data-testid="stDataFrame"] td, div[data-testid="stDataFrame"] th {
+    div[data-testid="stDataFrame"] td,
+    div[data-testid="stDataFrame"] th {
         color: #e2e8f0 !important;
         background-color: #1e2538 !important;
         border-color: #334155 !important;
@@ -306,7 +355,7 @@ available     = fnum(account.get("available")) if account else 0.0
 locked        = fnum(account.get("locked")) if account else 0.0
 margin_size   = fnum(account.get("marginSize")) if account else 0.0
 
-# total equity
+# total_equity 추정
 if account and "usdtEquity" in account:
     total_equity = fnum(account.get("usdtEquity"))
 elif account and "equity" in account:
@@ -320,14 +369,14 @@ total_position_value = 0.0
 long_value = 0.0
 short_value = 0.0
 unrealized_total_pnl = 0.0
-
-# For liq distance calc
-nearest_liq_pct = None  # % distance to nearest liq (lower is scarier)
+nearest_liq_pct = None  # % distance to nearest liq
 
 for p in positions:
     lev = fnum(p.get("leverage", 0.0))
     mg  = fnum(p.get("marginSize", 0.0))
-    pos_val = mg * lev  # 명목 포지션 가치 근사
+
+    # marginSize * leverage ~= notionals
+    pos_val = mg * lev
     total_position_value += pos_val
 
     side = (p.get("holdSide","") or "").lower()
@@ -339,7 +388,6 @@ for p in positions:
     upnl = fnum(p.get("unrealizedPL",0.0))
     unrealized_total_pnl += upnl
 
-    # liquidation distance 계산
     mark_price = fnum(p.get("markPrice"))
     liq_price  = fnum(p.get("liquidationPrice"))
     if liq_price != 0:
@@ -350,7 +398,7 @@ for p in positions:
 # est leverage
 est_leverage = (total_position_value / total_equity) if total_equity > 0 else 0.0
 
-# Bias 계산
+# Bias
 if long_value > short_value:
     bias_label = "LONG"
     bias_color = "#4ade80"
@@ -361,10 +409,18 @@ else:
     bias_label = "FLAT"
     bias_color = "#94a3b8"
 
-# PnL 색
+# PnL color
 pnl_color = "#4ade80" if unrealized_total_pnl >= 0 else "#f87171"
 
-# long/short 포지션 개수 비중
+# Liq buffer text/color
+if nearest_liq_pct is None:
+    liq_text = "n/a"
+    liq_color = "#94a3b8"
+else:
+    liq_text = f"{nearest_liq_pct:.2f}% to nearest liq"
+    liq_color = "#4ade80" if nearest_liq_pct > 30 else "#f87171"
+
+# pos counts
 positions_count = len(positions)
 if positions_count > 0:
     longs  = sum(1 for p in positions if (p.get("holdSide","") or "").lower()=="long")
@@ -388,164 +444,157 @@ st.session_state.pnl_history.append({
     "pnl": unrealized_total_pnl
 })
 
-# 너무 길어지는 거 방지
 MAX_POINTS = 200
 st.session_state.pnl_history = st.session_state.pnl_history[-MAX_POINTS:]
 
 chart_x = [pt["ts"] for pt in st.session_state.pnl_history]
 chart_y = [pt["pnl"] for pt in st.session_state.pnl_history]
 
+chart_df = pd.DataFrame({
+    "time": chart_x,
+    "PnL": chart_y,
+})
+
+
 # ======================================
-# RENDER: KPI BAR (상단)
+# RENDER: KPI BAR
 # ======================================
 st.markdown(
-f"""
+    f"""
 <div class="kpi-bar">
-<div class="kpi-left">
+    <div class="kpi-left">
 
-<div class="kpi-block">
-<div class="kpi-label">Total Value</div>
-<div class="kpi-value">${total_equity:,.2f}</div>
-<div class="kpi-sub">Perp ${total_equity:,.2f} • Spot n/a</div>
-</div>
+        <div class="kpi-block">
+            <div class="kpi-label">Total Value</div>
+            <div class="kpi-value">${total_equity:,.2f}</div>
+            <div class="kpi-sub">Perp ${total_equity:,.2f} • Spot n/a</div>
+        </div>
 
-<div class="kpi-block">
-<div class="kpi-label">Withdrawable <span style="color:#4ade80;">{withdrawable_pct:.2f}%</span></div>
-<div class="kpi-value">${available:,.2f}</div>
-<div class="kpi-sub">Free margin available</div>
-</div>
+        <div class="kpi-block">
+            <div class="kpi-label">Withdrawable
+                <span style="color:#4ade80;">{withdrawable_pct:.2f}%</span>
+            </div>
+            <div class="kpi-value">${available:,.2f}</div>
+            <div class="kpi-sub">Free margin available</div>
+        </div>
 
-<div class="kpi-block">
-<div class="kpi-label">
-Leverage
-<span style="background:#7f1d1d;color:#fff;padding:2px 6px;border-radius:6px;font-size:0.7rem;font-weight:600;">
-{est_leverage:.2f}x
-</span>
-</div>
-<div class="kpi-value">${total_position_value:,.2f}</div>
-<div class="kpi-sub">Total position value</div>
-</div>
+        <div class="kpi-block">
+            <div class="kpi-label">
+                Leverage
+                <span style="background:#7f1d1d;color:#fff;padding:2px 6px;border-radius:6px;
+                             font-size:0.7rem;font-weight:600;">
+                    {est_leverage:.2f}x
+                </span>
+            </div>
+            <div class="kpi-value">${total_position_value:,.2f}</div>
+            <div class="kpi-sub">Total position value</div>
+        </div>
 
-</div>
+    </div>
 
-<div class="kpi-right">
-<div class="kpi-next-refresh">Manual refresh • target {REFRESH_INTERVAL_SEC}s interval</div>
-<div class="kpi-support">Support us</div>
-</div>
+    <div class="kpi-right">
+        <div class="kpi-next-refresh">
+            Manual refresh • target {REFRESH_INTERVAL_SEC}s interval
+        </div>
+        <div class="kpi-support">Support us</div>
+    </div>
 </div>
     """,
     unsafe_allow_html=True
 )
 
-# ======================================
-# RENDER MAIN PANEL (좌: 계좌상태 / 우: 차트)
-# ======================================
-col_main_left, col_main_right = st.columns([0.4,0.6])
 
-with col_main_left:
-    liq_text = "n/a"
-    if nearest_liq_pct is not None:
-        liq_text = f"{nearest_liq_pct:.2f}% to nearest liq"
-
+# ======================================
+# RENDER: MAIN PANEL (left stats + right chart IN ONE CARD)
+# ======================================
 st.markdown(
-f"""
-<div class="equity-block">
+    """
+<div class="panel-wrapper">
+    """,
+    unsafe_allow_html=True
+)
 
-<div class="equity-title">Perp Equity</div>
-<div class="equity-value">${total_equity:,.2f}</div>
-
-<div class="metric-bar-label">Leverage Utilization</div>
-<div class="metric-bar-bg">
-<div class="metric-bar-fill" style="width:{min(est_leverage*10,100)}%;"></div>
-</div>
-<div class="risk-sub" style="margin-bottom:12px;">
-est. leverage {est_leverage:.2f}x
-</div>
-
-<div class="metric-bar-label">Direction Bias</div>
-<div class="metric-bar-value" style="color:{bias_color};">{bias_label}</div>
-
-<div class="risk-label" style="margin-top:12px;">Unrealized PnL</div>
-<div class="risk-value-number" style="color:{pnl_color};">
-${unrealized_total_pnl:,.2f}
-</div>
-<div class="risk-sub">
-{roe_pct:.2f}% ROE
-</div>
-
-<div class="risk-label">Liq buffer</div>
-<div class="risk-value-number" style="color:#94a3b8;">
-{liq_text}
-</div>
-<div class="risk-sub">
-nearest distance to forced close
-</div>
-
-</div>
-""",
-unsafe_allow_html=True
-    )
-
-with col_main_right:
-    st.markdown("""
-<div class="panel-wrapper" style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:20px;align-items:flex-start;">
-""", unsafe_allow_html=True)
-
-# 왼쪽: Equity 정보
-st.markdown(f"""
-<div style="flex:0.35;min-width:300px;">
-<div class="equity-title">Perp Equity</div>
-<div class="equity-value">${total_equity:,.2f}</div>
-
-<div class="metric-bar-label">Leverage Utilization</div>
-<div class="metric-bar-bg">
-<div class="metric-bar-fill" style="width:{min(est_leverage*10,100)}%;"></div>
-</div>
-<div class="risk-sub" style="margin-bottom:12px;">est. leverage {est_leverage:.2f}x</div>
-
-<div class="metric-bar-label">Direction Bias</div>
-<div class="metric-bar-value" style="color:{bias_color};">{bias_label}</div>
-
-<div class="risk-label" style="margin-top:12px;">Unrealized PnL</div>
-<div class="risk-value-number" style="color:{pnl_color};">${unrealized_total_pnl:,.2f}</div>
-<div class="risk-sub">{roe_pct:.2f}% ROE</div>
-
-<div class="risk-label">Liq buffer</div>
-<div class="risk-value-number" style="color:#94a3b8;">{liq_text}</div>
-<div class="risk-sub">nearest distance to forced close</div>
-</div>
-""", unsafe_allow_html=True)
-
-# 오른쪽: 차트
-chart_df = pd.DataFrame({"time": chart_x, "PnL": chart_y})
-st.markdown(f"""
-<div style="flex:0.6;min-width:400px;">
-    <div style="display:flex;justify-content:space-between;flex-wrap:wrap;margin-bottom:8px;">
-        <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:0.7rem;">
-            <div style="background:#0f3;padding:4px 8px;border-radius:6px;color:#000;font-weight:600;">24H</div>
-            <div style="background:#1e2538;border:1px solid #334155;padding:4px 8px;border-radius:6px;color:#94a3b8;">1W</div>
-            <div style="background:#1e2538;border:1px solid #334155;padding:4px 8px;border-radius:6px;color:#94a3b8;">1M</div>
-            <div style="background:#1e2538;border:1px solid #334155;padding:4px 8px;border-radius:6px;color:#94a3b8;">All</div>
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:0.7rem;">
-            <div style="background:#0f3;padding:4px 8px;border-radius:6px;color:#000;font-weight:600;">Combined</div>
-            <div style="background:#1e2538;border:1px solid #334155;padding:4px 8px;border-radius:6px;color:#94a3b8;">Perp Only</div>
-            <div style="background:#1e2538;border:1px solid #334155;padding:4px 8px;border-radius:6px;color:#94a3b8;">PnL</div>
-            <div style="background:#1e2538;border:1px solid #334155;padding:4px 8px;border-radius:6px;color:#94a3b8;">Account Value</div>
-        </div>
-    </div>
-""", unsafe_allow_html=True)
-
-st.line_chart(data=chart_df, x="time", y="PnL", height=220)
+# LEFT SIDE (equity / risk info)
 st.markdown(
     f"""
-    <div style="display:flex;justify-content:space-between;flex-wrap:wrap;margin-top:4px;font-size:0.8rem;color:{pnl_color};">
-        <div>24H PnL (Session)</div>
-        <div style="font-weight:600;">${unrealized_total_pnl:,.2f}</div>
+    <div class="equity-col">
+
+        <div class="equity-title">Perp Equity</div>
+        <div class="equity-value">${total_equity:,.2f}</div>
+
+        <div class="metric-bar-label">Leverage Utilization</div>
+        <div class="metric-bar-bg">
+            <div class="metric-bar-fill" style="width:{min(est_leverage*10,100)}%;"></div>
+        </div>
+        <div class="risk-sub">est. leverage {est_leverage:.2f}x</div>
+
+        <div class="metric-bar-label">Direction Bias</div>
+        <div class="metric-bar-value" style="color:{bias_color};">
+            {bias_label}
+        </div>
+
+        <div class="risk-label">Unrealized PnL</div>
+        <div class="risk-value-number" style="color:{pnl_color};">
+            ${unrealized_total_pnl:,.2f}
+        </div>
+        <div class="risk-sub" style="margin-bottom:16px;">
+            {roe_pct:.2f}% ROE
+        </div>
+
+        <div class="risk-label">Liq buffer</div>
+        <div class="risk-value-number" style="color:{liq_color};">
+            {liq_text}
+        </div>
+        <div class="risk-sub" style="margin-bottom:0;">
+            nearest distance to forced close
+        </div>
+
     </div>
-</div>
-</div> <!-- panel-wrapper 종료 -->
-""", unsafe_allow_html=True)
+    """,
+    unsafe_allow_html=True
+)
+
+# RIGHT SIDE (chart + tabs)
+st.markdown(
+    """
+    <div class="chart-col">
+        <div class="chart-topbar">
+            <div class="chart-left-tabs">
+                <div class="tab-active">24H</div>
+                <div class="tab-passive">1W</div>
+                <div class="tab-passive">1M</div>
+                <div class="tab-passive">All</div>
+            </div>
+            <div class="chart-right-tabs">
+                <div class="tab-active">Combined</div>
+                <div class="tab-passive">Perp Only</div>
+                <div class="tab-passive">PnL</div>
+                <div class="tab-passive">Account Value</div>
+            </div>
+        </div>
+    """,
+    unsafe_allow_html=True
+)
+
+st.line_chart(
+    data=chart_df,
+    x="time",
+    y="PnL",
+    height=220,
+)
+
+st.markdown(
+    f"""
+        <div class="pnl-footer" style="color:{pnl_color};">
+            <div>24H PnL (Session)</div>
+            <div style="font-weight:600;">${unrealized_total_pnl:,.2f}</div>
+        </div>
+    </div> <!-- chart-col -->
+</div> <!-- panel-wrapper -->
+    """,
+    unsafe_allow_html=True
+)
+
 
 # ======================================
 # POSITIONS TABLE
@@ -561,10 +610,23 @@ st.markdown(
             <div>U PnL <span>${unrealized_total_pnl:,.2f}</span></div>
         </div>
         <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:12px;font-size:0.7rem;">
-            <div style="background:#10b9811a;border:1px solid #10b98133;padding:4px 8px;border-radius:6px;color:#10b981;font-weight:500;">Asset Positions</div>
-            <div style="background:#1e2538;border:1px solid #334155;padding:4px 8px;border-radius:6px;color:#94a3b8;">Open Orders</div>
-            <div style="background:#1e2538;border:1px solid #334155;padding:4px 8px;border-radius:6px;color:#94a3b8;">Recent Fills</div>
-            <div style="background:#1e2538;border:1px solid #334155;padding:4px 8px;border-radius:6px;color:#94a3b8;">Completed Trades</div>
+            <div style="background:#10b9811a;border:1px solid #10b98133;
+                        padding:4px 8px;border-radius:6px;
+                        color:#10b981;font-weight:500;">
+                Asset Positions
+            </div>
+            <div style="background:#1e2538;border:1px solid #334155;
+                        padding:4px 8px;border-radius:6px;color:#94a3b8;">
+                Open Orders
+            </div>
+            <div style="background:#1e2538;border:1px solid #334155;
+                        padding:4px 8px;border-radius:6px;color:#94a3b8;">
+                Recent Fills
+            </div>
+            <div style="background:#1e2538;border:1px solid #334155;
+                        padding:4px 8px;border-radius:6px;color:#94a3b8;">
+                Completed Trades
+            </div>
         </div>
     </div>
     """,
@@ -577,6 +639,7 @@ for p in positions:
     mg  = fnum(p.get("marginSize",0.0))
     mark_price = fnum(p.get("markPrice"))
     liq_price  = fnum(p.get("liquidationPrice"))
+
     dist_to_liq = ""
     if liq_price != 0:
         dist_pct = abs((mark_price - liq_price) / liq_price) * 100.0
@@ -599,16 +662,9 @@ st.markdown('<div class="positions-body">', unsafe_allow_html=True)
 st.dataframe(table_rows, use_container_width=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
-# footer
+# ======================================
+# FOOTER
+# ======================================
 st.caption(
     f"Last update: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  •  Manual refresh • target {REFRESH_INTERVAL_SEC}s interval"
 )
-
-
-
-
-
-
-
-
-
