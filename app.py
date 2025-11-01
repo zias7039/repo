@@ -23,10 +23,12 @@ BASE_URL = "https://api.bitget.com"
 REFRESH_INTERVAL_SEC = 15
 
 # ================= AUTO REFRESH =================
-st_autorefresh_count = st.experimental_autorefresh(
-    interval=REFRESH_INTERVAL_SEC * 1000,
-    key="auto_refresh_counter"
-)
+placeholder = st.empty()
+with placeholder:
+    st.write(f"⏱️ 자동 새로고침: {REFRESH_INTERVAL_SEC}초마다 데이터 갱신 중...")
+
+time.sleep(REFRESH_INTERVAL_SEC)
+st.experimental_rerun()
 
 # ================= HELPERS =================
 def _timestamp_ms() -> str:
@@ -277,6 +279,7 @@ footer_html = f"""<div style='font-size:0.7rem;color:{TEXT_SUB};margin-top:8px;'
 Last update: {datetime.now().strftime('%H:%M:%S')} • refresh every {REFRESH_INTERVAL_SEC}s
 </div>"""
 render_html(footer_html)
+
 
 
 
