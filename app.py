@@ -487,49 +487,65 @@ unsafe_allow_html=True
     )
 
 with col_main_right:
-    st.markdown(
-        """
-        <div class="panel-wrapper">
-            <div style="display:flex;justify-content:space-between;flex-wrap:wrap;margin-bottom:8px;">
-                <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:0.7rem;">
-                    <div style="background:#0f3;padding:4px 8px;border-radius:6px;color:#000;font-weight:600;">24H</div>
-                    <div style="background:#1e2538;border:1px solid #334155;padding:4px 8px;border-radius:6px;color:#94a3b8;">1W</div>
-                    <div style="background:#1e2538;border:1px solid #334155;padding:4px 8px;border-radius:6px;color:#94a3b8;">1M</div>
-                    <div style="background:#1e2538;border:1px solid #334155;padding:4px 8px;border-radius:6px;color:#94a3b8;">All</div>
-                </div>
-                <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:0.7rem;">
-                    <div style="background:#0f3;padding:4px 8px;border-radius:6px;color:#000;font-weight:600;">Combined</div>
-                    <div style="background:#1e2538;border:1px solid #334155;padding:4px 8px;border-radius:6px;color:#94a3b8;">Perp Only</div>
-                    <div style="background:#1e2538;border:1px solid #334155;padding:4px 8px;border-radius:6px;color:#94a3b8;">PnL</div>
-                    <div style="background:#1e2538;border:1px solid #334155;padding:4px 8px;border-radius:6px;color:#94a3b8;">Account Value</div>
-                </div>
-            </div>
-        """,
-        unsafe_allow_html=True
-    )
+st.markdown("""
+<div class="panel-wrapper" style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:20px;align-items:flex-start;">
+""", unsafe_allow_html=True)
 
-    chart_df = pd.DataFrame({
-        "time": chart_x,
-        "PnL": chart_y,
-    })
+# 왼쪽: Equity 정보
+st.markdown(f"""
+<div style="flex:0.35;min-width:300px;">
+    <div class="equity-title">Perp Equity</div>
+    <div class="equity-value">${total_equity:,.2f}</div>
 
-    st.line_chart(
-        data=chart_df,
-        x="time",
-        y="PnL",
-        height=220,
-    )
+    <div class="metric-bar-label">Leverage Utilization</div>
+    <div class="metric-bar-bg">
+        <div class="metric-bar-fill" style="width:{min(est_leverage*10,100)}%;"></div>
+    </div>
+    <div class="risk-sub" style="margin-bottom:12px;">est. leverage {est_leverage:.2f}x</div>
 
-    st.markdown(
-        f"""
-        <div style="display:flex;justify-content:space-between;flex-wrap:wrap;margin-top:4px;font-size:0.8rem;color:{pnl_color};">
-            <div>24H PnL (Session)</div>
-            <div style="font-weight:600;">${unrealized_total_pnl:,.2f}</div>
+    <div class="metric-bar-label">Direction Bias</div>
+    <div class="metric-bar-value" style="color:{bias_color};">{bias_label}</div>
+
+    <div class="risk-label" style="margin-top:12px;">Unrealized PnL</div>
+    <div class="risk-value-number" style="color:{pnl_color};">${unrealized_total_pnl:,.2f}</div>
+    <div class="risk-sub">{roe_pct:.2f}% ROE</div>
+
+    <div class="risk-label">Liq buffer</div>
+    <div class="risk-value-number" style="color:#94a3b8;">{liq_text}</div>
+    <div class="risk-sub">nearest distance to forced close</div>
+</div>
+""", unsafe_allow_html=True)
+
+# 오른쪽: 차트
+chart_df = pd.DataFrame({"time": chart_x, "PnL": chart_y})
+st.markdown(f"""
+<div style="flex:0.6;min-width:400px;">
+    <div style="display:flex;justify-content:space-between;flex-wrap:wrap;margin-bottom:8px;">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:0.7rem;">
+            <div style="background:#0f3;padding:4px 8px;border-radius:6px;color:#000;font-weight:600;">24H</div>
+            <div style="background:#1e2538;border:1px solid #334155;padding:4px 8px;border-radius:6px;color:#94a3b8;">1W</div>
+            <div style="background:#1e2538;border:1px solid #334155;padding:4px 8px;border-radius:6px;color:#94a3b8;">1M</div>
+            <div style="background:#1e2538;border:1px solid #334155;padding:4px 8px;border-radius:6px;color:#94a3b8;">All</div>
         </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:0.7rem;">
+            <div style="background:#0f3;padding:4px 8px;border-radius:6px;color:#000;font-weight:600;">Combined</div>
+            <div style="background:#1e2538;border:1px solid #334155;padding:4px 8px;border-radius:6px;color:#94a3b8;">Perp Only</div>
+            <div style="background:#1e2538;border:1px solid #334155;padding:4px 8px;border-radius:6px;color:#94a3b8;">PnL</div>
+            <div style="background:#1e2538;border:1px solid #334155;padding:4px 8px;border-radius:6px;color:#94a3b8;">Account Value</div>
         </div>
-        """,
-        unsafe_allow_html=True
-    )
+    </div>
+""", unsafe_allow_html=True)
+
+st.line_chart(data=chart_df, x="time", y="PnL", height=220)
+st.markdown(
+    f"""
+    <div style="display:flex;justify-content:space-between;flex-wrap:wrap;margin-top:4px;font-size:0.8rem;color:{pnl_color};">
+        <div>24H PnL (Session)</div>
+        <div style="font-weight:600;">${unrealized_total_pnl:,.2f}</div>
+    </div>
+</div>
+</div> <!-- panel-wrapper 종료 -->
+""", unsafe_allow_html=True)
 
 # ======================================
 # POSITIONS TABLE
@@ -587,6 +603,7 @@ st.markdown('</div>', unsafe_allow_html=True)
 st.caption(
     f"Last update: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  •  Manual refresh • target {REFRESH_INTERVAL_SEC}s interval"
 )
+
 
 
 
