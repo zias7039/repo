@@ -147,9 +147,9 @@ def render_html(block: str):
 # ================= TOP CARD =================
 top_card_html = f"""<div style='background:{CARD_BG};border:1px solid {BORDER};border-radius:8px;padding:12px 16px;margin-bottom:8px;box-shadow:{SHADOW};font-family:{FONT_FAMILY};font-size:0.8rem;display:flex;align-items:flex-start;justify-content:space-between;'>
 <div style='display:flex;flex-wrap:wrap;row-gap:8px;column-gap:32px;'>
-<div style='color:{TEXT_SUB};'><div style='font-size:0.75rem;'>Total Value</div><div style='color:{TEXT_MAIN};font-weight:600;font-size:1rem;'>${total_equity:,.2f}</div></div>
-<div style='color:{TEXT_SUB};'><div style='font-size:0.75rem;'>Withdrawable <span style='color:#4ade80;'>{withdrawable_pct:.2f}%</span></div><div style='color:{TEXT_MAIN};font-weight:600;font-size:1rem;'>${available:,.2f}</div></div>
-<div style='color:{TEXT_SUB};'><div style='font-size:0.75rem;'>Leverage <span style='background:#7f1d1d;color:#fff;padding:2px 6px;border-radius:6px;font-size:0.7rem;font-weight:600;'>{est_leverage:.2f}x</span></div><div style='color:{TEXT_MAIN};font-weight:600;font-size:1rem;'>${total_position_value:,.2f}</div></div>
+<div style='color:{TEXT_SUB};'><div style='font-size:0.75rem;'>총자산</div><div style='color:{TEXT_MAIN};font-weight:600;font-size:1rem;'>${total_equity:,.2f}</div></div>
+<div style='color:{TEXT_SUB};'><div style='font-size:0.75rem;'>출금가능금액 <span style='color:#4ade80;'>{withdrawable_pct:.2f}%</span></div><div style='color:{TEXT_MAIN};font-weight:600;font-size:1rem;'>${available:,.2f}</div></div>
+<div style='color:{TEXT_SUB};'><div style='font-size:0.75rem;'>레버리지 <span style='background:#7f1d1d;color:#fff;padding:2px 6px;border-radius:6px;font-size:0.7rem;font-weight:600;'>{est_leverage:.2f}x</span></div><div style='color:{TEXT_MAIN};font-weight:600;font-size:1rem;'>${total_position_value:,.2f}</div></div>
 </div></div>"""
 render_html(top_card_html)
 
@@ -209,15 +209,15 @@ font-size:0.75rem;
 color:{TEXT_SUB};
 font-weight:500;
 ">
-<div>Asset</div>
-<div>Type</div>
-<div>Position Value / Size <span style="color:#4ade80;">↓</span></div>
-<div>Unrealized PnL</div>
-<div>Entry Price</div>
-<div>Current Price</div>
-<div>Liq. Price</div>
-<div>Margin Used</div>
-<div>Funding</div>
+<div>자산</div>
+<div>방향</div>
+<div>포지션 가치 / 수량 <span style="color:#4ade80;">↓</span></div>
+<div>미실현 손익</div>
+<div>진입가</div>
+<div>현재가</div>
+<div>청산가</div>
+<div>사용 마진</div>
+<div>펀딩비</div>
 </div>"""
 
 # 각 포지션 렌더
@@ -296,6 +296,7 @@ try:
     st.experimental_rerun()
 except Exception:
     st.rerun()
+
 
 
 
