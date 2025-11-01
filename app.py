@@ -92,8 +92,8 @@ def fnum(v):
     except:
         return 0.0
 
-available   = fnum(account.get("available")) if account else 0.0
-locked      = fnum(account.get("locked")) if account else 0.0
+available = fnum(account.get("available")) if account else 0.0
+locked = fnum(account.get("locked")) if account else 0.0
 margin_size = fnum(account.get("marginSize")) if account else 0.0
 
 if account and "usdtEquity" in account:
@@ -113,20 +113,20 @@ nearest_liq_pct = None
 
 for p in positions:
     lev = fnum(p.get("leverage", 0.0))
-    mg  = fnum(p.get("marginSize", 0.0))
+    mg = fnum(p.get("marginSize", 0.0))
     pos_val = mg * lev
     total_position_value += pos_val
 
-    side = (p.get("holdSide","") or "").lower()
+    side = (p.get("holdSide", "") or "").lower()
     if side == "long":
         long_value += pos_val
     elif side == "short":
         short_value += pos_val
 
-    unrealized_total_pnl += fnum(p.get("unrealizedPL",0.0))
+    unrealized_total_pnl += fnum(p.get("unrealizedPL", 0.0))
 
     mark_price = fnum(p.get("markPrice"))
-    liq_price  = fnum(p.get("liquidationPrice"))
+    liq_price = fnum(p.get("liquidationPrice"))
     if liq_price != 0:
         dist_pct = abs((mark_price - liq_price) / liq_price) * 100.0
         if nearest_liq_pct is None or dist_pct < nearest_liq_pct:
@@ -147,20 +147,20 @@ else:
 pnl_color = "#4ade80" if unrealized_total_pnl >= 0 else "#f87171"
 
 if nearest_liq_pct is None:
-    liq_text  = "n/a"
+    liq_text = "n/a"
     liq_color = "#94a3b8"
 else:
-    liq_text  = f"{nearest_liq_pct:.2f}%"
+    liq_text = f"{nearest_liq_pct:.2f}%"
     liq_color = "#4ade80" if nearest_liq_pct > 30 else "#f87171"
 
 positions_count = len(positions)
 if positions_count > 0:
-    longs  = sum(1 for p in positions if (p.get("holdSide","") or "").lower()=="long")
-    shorts = sum(1 for p in positions if (p.get("holdSide","") or "").lower()=="short")
-    pos_long_pct  = (longs/positions_count)*100.0
-    pos_short_pct = (shorts/positions_count)*100.0
+    longs = sum(1 for p in positions if (p.get("holdSide", "") or "").lower() == "long")
+    shorts = sum(1 for p in positions if (p.get("holdSide", "") or "").lower() == "short")
+    pos_long_pct = (longs / positions_count) * 100.0
+    pos_short_pct = (shorts / positions_count) * 100.0
 else:
-    pos_long_pct  = 0.0
+    pos_long_pct = 0.0
     pos_short_pct = 0.0
 
 roe_pct = (unrealized_total_pnl / total_equity * 100.0) if total_equity > 0 else 0.0
@@ -182,15 +182,15 @@ chart_df = pd.DataFrame(st.session_state.pnl_history)
 # ======================================
 # STYLE HELPERS
 # ======================================
-CARD_BG     = "#1e2538"
-TEXT_SUB    = "#94a3b8"
-TEXT_MAIN   = "#f8fafc"
-BORDER      = "rgba(148,163,184,0.2)"
-SHADOW      = "0 24px 48px rgba(0,0,0,0.6)"
+CARD_BG = "#1e2538"
+TEXT_SUB = "#94a3b8"
+TEXT_MAIN = "#f8fafc"
+BORDER = "rgba(148,163,184,0.2)"
+SHADOW = "0 24px 48px rgba(0,0,0,0.6)"
 FONT_FAMILY = "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif"
 
 # ======================================
-# TOP BAR (KPI BAR)
+# TOP BAR (KPI BAR) - FIXED: NO LEADING NEWLINE
 # ======================================
 st.markdown(
     f"""<div style='display:flex;align-items:flex-start;justify-content:space-between;background:{CARD_BG};border:1px solid {BORDER};border-radius:8px;padding:12px 16px;margin-bottom:8px;box-shadow:{SHADOW};font-family:{FONT_FAMILY};'>
@@ -215,14 +215,14 @@ st.markdown(
 )
 
 # ======================================
-# MID CARD (EQUITY + CHART)
+# MID CARD (EQUITY + CHART) - INLINE LAYOUT
 # ======================================
 st.markdown(
     f"""<div style='background:{CARD_BG};border:1px solid {BORDER};border-radius:8px;padding:16px;margin-bottom:12px;box-shadow:{SHADOW};font-family:{FONT_FAMILY};'>""",
     unsafe_allow_html=True,
 )
 
-# 한 카드 안에서 왼쪽(지표) + 오른쪽(탭+차트)
+# 하나의 row 안에 왼쪽(지표) + 오른쪽(탭 + 차트)을 동시에 배치
 left_col, right_col = st.columns([0.35, 0.65])
 
 with left_col:
@@ -230,10 +230,8 @@ with left_col:
         f"""<div style='color:{TEXT_SUB};font-size:0.8rem;'>
 <div style='font-size:0.8rem;color:{TEXT_SUB};'>Perp Equity</div>
 <div style='color:{TEXT_MAIN};font-weight:600;font-size:1.4rem;margin-bottom:12px;'>${total_equity:,.2f}</div>
-
 <div style='font-size:0.75rem;color:{TEXT_SUB};'>Direction Bias</div>
 <div style='font-weight:600;font-size:0.9rem;color:{bias_color};margin-bottom:12px;'>{bias_label}</div>
-
 <div style='font-size:0.75rem;color:{TEXT_SUB};'>Unrealized PnL</div>
 <div style='font-size:1rem;font-weight:600;color:{pnl_color};'>${unrealized_total_pnl:,.2f}</div>
 <div style='font-size:0.7rem;color:{TEXT_SUB};margin-bottom:12px;'>{roe_pct:.2f}% ROE</div>
@@ -250,14 +248,14 @@ with right_col:
         unsafe_allow_html=True,
     )
 
-    # 차트가 카드 안에 포함되도록 여기에 직접 렌더
+    # 차트를 오른쪽 컬럼 내부에서 바로 렌더 → 카드 border 안에서 보이게 됨
     st.line_chart(chart_df, x="ts", y="pnl", height=220)
 
-# 카드 div 닫기
+# 카드 닫기 div
 st.markdown("</div>", unsafe_allow_html=True)
 
 # ======================================
-# POSITIONS CARD
+# POSITIONS CARD - FIXED: NO LEADING NEWLINE
 # ======================================
 st.markdown(
     f"""<div style='background:{CARD_BG};border:1px solid {BORDER};border-radius:8px;padding:12px 16px;margin-bottom:12px;box-shadow:{SHADOW};font-family:{FONT_FAMILY};'>
@@ -267,24 +265,26 @@ st.markdown(
 
 rows = []
 for p in positions:
-    lev = fnum(p.get("leverage",0.0))
-    mg  = fnum(p.get("marginSize",0.0))
+    lev = fnum(p.get("leverage", 0.0))
+    mg = fnum(p.get("marginSize", 0.0))
     mark_price = fnum(p.get("markPrice"))
-    liq_price  = fnum(p.get("liquidationPrice"))
+    liq_price = fnum(p.get("liquidationPrice"))
     if liq_price:
         dist_pct = abs((mark_price - liq_price) / liq_price) * 100.0
         liq_dist = f"{dist_pct:.2f}%"
     else:
         liq_dist = "n/a"
 
-    rows.append({
-        "Asset": p.get("symbol"),
-        "Type": (p.get("holdSide","") or "").upper(),
-        "Lev": f"{lev:.1f}x",
-        "Value": f"{mg*lev:,.2f}",
-        "PnL": f"{fnum(p.get('unrealizedPL',0.0)):.2f}",
-        "Liq Dist": liq_dist,
-    })
+    rows.append(
+        {
+            "Asset": p.get("symbol"),
+            "Type": (p.get("holdSide", "") or "").upper(),
+            "Lev": f"{lev:.1f}x",
+            "Value": f"{mg * lev:,.2f}",
+            "PnL": f"{fnum(p.get('unrealizedPL', 0.0)):.2f}",
+            "Liq Dist": liq_dist,
+        }
+    )
 
 st.dataframe(rows, use_container_width=True)
 
