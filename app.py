@@ -217,7 +217,8 @@ for p in positions:
     roe_pct = safe_pct(unreal_pl, mg_usdt)
     badge_html = format_side_badge(side)
     pnl_color = "#4ade80" if unreal_pl >= 0 else "#f87171"
-    funding_display = "-"
+    funding_fee = fnum(p.get("cumulativeFunding", 0.0))
+    funding_display = f"${funding_fee:,.2f}"
 
     table_html += f"""<div style="
 display:grid;
@@ -270,3 +271,4 @@ footer_html = f"""<div style='font-size:0.7rem;color:{TEXT_SUB};margin-top:8px;'
 Last update: {datetime.now().strftime('%H:%M:%S')} • refresh every {REFRESH_INTERVAL_SEC}s
 </div>"""
 render_html(footer_html)
+
