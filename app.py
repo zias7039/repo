@@ -135,25 +135,214 @@ top_card_html = f"""<div style='background:{CARD_BG};border:1px solid {BORDER};b
 render_html(top_card_html)
 
 # ================= POSITIONS =================
-pos_header_html = f"""<div style='background:{CARD_BG};border:1px solid {BORDER};border-radius:8px;padding:12px 16px;margin-bottom:12px;box-shadow:{SHADOW};font-family:{FONT_FAMILY};font-size:0.8rem;color:{TEXT_SUB};'>Positions: {positions_count} | Total: ${total_position_value:,.2f}</div>"""
-render_html(pos_header_html)
+def format_side_badge(hold_side: str):
+    side_up = (hold_side or "").upper()
+    if side_up == "LONG":
+        bg = "#14532d"
+        border = "#22c55e"
+        color = "#22c55e"
+    elif side_up == "SHORT":
+        bg = "#450a0a"
+        border = "#f87171"
+        color = "#f87171"
+    else:
+        bg = "#1e2538"
+        border = "#94a3b8"
+        color = "#94a3b8"
+    return f"""
+        <span style="
+            background:{bg};
+            color:{color};
+            border:1px solid {border};
+            font-size:0.7rem;
+            font-weight:600;
+            border-radius:4px;
+            padding:2px 6px;
+            line-height:1;
+            display:inline-block;
+            min-width:44px;
+            text-align:center;
+        ">{side_up}</span>
+    """
 
-rows = []
+def safe_pct(numerator, denominator):
+    if denominator == 0:
+        return 0.0
+    return (numerator / denominator) * 100.0
+
+# 테이블 헤더 렌더
+table_html = f"""
+<div style="
+    background:#0f172a;
+    border:1px solid {BORDER};
+    border-radius:8px;
+    box-shadow:{SHADOW};
+    font-family:{FONT_FAMILY};
+    font-size:0.8rem;
+    color:{TEXT_SUB};
+    overflow:hidden;
+    ">
+    <div style="
+        display:grid;
+        grid-template-columns:
+            120px   /* Asset */
+            80px    /* Type */
+            180px   /* Position Value / Size */
+            160px   /* Unrealized PnL */
+            110px   /* Entry Price */
+            110px   /* Current Price */
+            110px   /* Liq. Price */
+            130px   /* Margin Used */
+            110px   /* Funding */
+        ;
+        column-gap:16px;
+        padding:12px 16px;
+        border-bottom:1px solid rgba(148,163,184,0.15);
+        font-size:0.75rem;
+        color:{TEXT_SUB};
+        font-weight:500;
+    ">
+        <div>Asset</div>
+        <div>Type</div>
+        <div>Position Value / Size <span style="color:#4ade80;">↓</span></div>
+        <div>Unrealized PnL</div>
+        <div>Entry Price</div>
+        <div>Current Price</div>
+        <div>Liq. Price</div>
+        <div>Margin Used</div>
+        <div>Funding</div>
+    </div>
+"""
+
+# 각 포지션 row 렌더
 for p in positions:
-    lev = fnum(p.get("leverage", 0.0))
-    mg = fnum(p.get("marginSize", 0.0))
-    mark_price = fnum(p.get("markPrice"))
-    liq_price = fnum(p.get("liquidationPrice"))
-    liq_dist = f"{abs((mark_price - liq_price) / liq_price) * 100.0:.2f}%" if liq_price else "n/a"
-    rows.append({
-        "Asset": p.get("symbol"),
-        "Type": (p.get("holdSide", "") or "").upper(),
-        "Lev": f"{lev:.1f}x",
-        "Value": f"{mg * lev:,.2f}",
-        "PnL": f"{fnum(p.get('unrealizedPL', 0.0)):.2f}",
-        "Liq Dist": liq_dist
-    })
+    symbol = p.get("symbol", "")
+    side = (p.get("holdSide") or "").upper()
 
-st.dataframe(rows, use_container_width=True)
+    lev = fnum(p.get("leverage", 0.0))                 # 레버리지
+    mg_usdt = fnum(p.get("marginSize", 0.0))           # 사용 마진 (USDT)
+    qty = fnum(p.get("total", 0.0))                    # 보유 수량 (코인 단위: BTC 등)
+    entry_price = fnum(p.get("averageOpenPrice", 0.0))
+    mark_price = fnum(p.get("markPrice", 0.0))
+    liq_price = fnum(p.get("liquidationPrice", 0.0))
+    unreal_pl = fnum(p.get("unrealizedPL", 0.0))
+
+    # 포지션 명목가치(대충 size * markPrice). Bitget 응답에 따라 다를 수 있어서
+    # leverage * marginSize 로 추정했던 notional을 여기서도 씀
+    notional_est = mg_usdt * lev
+
+    # ROE% = PnL / margin (자기 돈 대비 수익률 관점)
+    roe_pct = safe_pct(unreal_pl, mg_usdt)
+
+    # 사이드 뱃지
+    badge_html = format_side_badge(side)
+
+    # PnL 색상
+    if unreal_pl >= 0:
+        pnl_color = "#4ade80"
+    else:
+        pnl_color = "#f87171"
+
+    # Funding 컬럼은 아직 API 안 땡겨오니까 placeholder
+    funding_display = "-"
+
+    table_html += f"""
+    <div style="
+        display:grid;
+        grid-template-columns:
+            120px
+            80px
+            180px
+            160px
+            110px
+            110px
+            110px
+            130px
+            110px
+        ;
+        column-gap:16px;
+        padding:16px;
+        border-bottom:1px solid rgba(148,163,184,0.08);
+        color:{TEXT_MAIN};
+        font-size:0.8rem;
+        line-height:1.4;
+        ">
+        <!-- Asset -->
+        <div style="color:{TEXT_MAIN}; font-weight:600;">
+            <div style="font-size:0.8rem; line-height:1.2;">{symbol}</div>
+            <div style="font-size:0.7rem; color:{TEXT_SUB}; line-height:1.2;">{lev:.0f}x</div>
+        </div>
+
+        <!-- Type -->
+        <div style="display:flex;align-items:flex-start;padding-top:2px;">
+            {badge_html}
+        </div>
+
+        <!-- Position Value / Size -->
+        <div style="color:{TEXT_MAIN}; font-weight:500;">
+            <div style="line-height:1.2;">${notional_est:,.2f}</div>
+            <div style="font-size:0.7rem; color:{TEXT_SUB}; line-height:1.2;">
+                {qty:,.4f} {symbol.replace("USDT","")}
+            </div>
+        </div>
+
+        <!-- Unrealized PnL -->
+        <div style="font-weight:500;">
+            <div style="color:{pnl_color}; line-height:1.2;">
+                ${unreal_pl:,.2f}
+            </div>
+            <div style="color:{pnl_color}; font-size:0.7rem; line-height:1.2;">
+                {roe_pct:.2f}%
+            </div>
+        </div>
+
+        <!-- Entry Price -->
+        <div style="color:{TEXT_MAIN}; font-weight:500;">
+            <div style="line-height:1.2;">${entry_price:,.2f}</div>
+        </div>
+
+        <!-- Current Price -->
+        <div style="color:{TEXT_MAIN}; font-weight:500;">
+            <div style="line-height:1.2;">${mark_price:,.2f}</div>
+        </div>
+
+        <!-- Liq. Price -->
+        <div style="color:{TEXT_MAIN}; font-weight:500;">
+            <div style="line-height:1.2;">${liq_price:,.2f}</div>
+        </div>
+
+        <!-- Margin Used -->
+        <div style="color:{TEXT_MAIN}; font-weight:500;">
+            <div style="line-height:1.2;">${mg_usdt:,.2f}</div>
+        </div>
+
+        <!-- Funding -->
+        <div style="color:#4ade80; font-weight:500;">
+            <div style="line-height:1.2;">{funding_display}</div>
+        </div>
+    </div>
+    """
+
+table_html += "</div>"
+
+# 상단 요약 헤더 (Positions: n개, Total 등) 유지하고 싶으면 그대로
+pos_header_html = f"""
+<div style='background:{CARD_BG};
+    border:1px solid {BORDER};
+    border-radius:8px;
+    padding:12px 16px;
+    margin:16px 0 8px 0;
+    box-shadow:{SHADOW};
+    font-family:{FONT_FAMILY};
+    font-size:0.8rem;
+    color:{TEXT_SUB};'>
+    Positions: {positions_count} | Total: ${total_position_value:,.2f}
+</div>
+"""
+
+render_html(pos_header_html)
+render_html(table_html)
+
 render_html(f"<div style='font-size:0.7rem;color:{TEXT_SUB};margin-top:8px;'>Last update: {datetime.now().strftime('%H:%M:%S')} • refresh every {REFRESH_INTERVAL_SEC}s</div>")
+
 
