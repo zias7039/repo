@@ -1,13 +1,4 @@
-import time
-import hmac
-import hashlib
-import base64
-import requests
-import streamlit as st
-import pandas as pd
-from urllib.parse import urlencode
-from datetime import datetime
-from textwrap import dedent
+
 
 # ================= CONFIG =================
 st.set_page_config(page_title="Perp Dashboard", page_icon="📈", layout="wide")
@@ -353,3 +344,4 @@ try:
     st.experimental_rerun()
 except Exception:
     st.rerun()
+
