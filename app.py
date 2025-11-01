@@ -187,92 +187,77 @@ TEXT_SUB = "#94a3b8"
 TEXT_MAIN = "#f8fafc"
 BORDER = "rgba(148,163,184,0.2)"
 SHADOW = "0 24px 48px rgba(0,0,0,0.6)"
+FONT_FAMILY = "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif"
 
 # ======================================
-# TOP BAR (KPI BAR)
+# TOP BAR (KPI BAR) - FIXED: NO LEADING NEWLINE
 # ======================================
 st.markdown(
-    f"""<div style='display:flex;align-items:flex-start;justify-content:space-between;
-        background:{CARD_BG};border:1px solid {BORDER};border-radius:8px;
-        padding:12px 16px;margin-bottom:8px;box-shadow:{SHADOW};
-        font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;'>
-
-        <div style='display:flex;flex-wrap:wrap;row-gap:8px;column-gap:32px;font-size:0.8rem;'>
-            <div style='color:{TEXT_SUB};'>
-                <div style='font-size:0.75rem;'>Total Value</div>
-                <div style='color:{TEXT_MAIN};font-weight:600;font-size:1rem;'>${total_equity:,.2f}</div>
-                <div style='font-size:0.7rem;color:{TEXT_SUB};'>Perp ${total_equity:,.2f}</div>
-            </div>
-            <div style='color:{TEXT_SUB};'>
-                <div style='font-size:0.75rem;'>Withdrawable <span style='color:#4ade80;'>{withdrawable_pct:.2f}%</span></div>
-                <div style='color:{TEXT_MAIN};font-weight:600;font-size:1rem;'>${available:,.2f}</div>
-            </div>
-            <div style='color:{TEXT_SUB};'>
-                <div style='font-size:0.75rem;'>Leverage <span style='background:#7f1d1d;color:#fff;padding:2px 6px;border-radius:6px;font-size:0.7rem;font-weight:600;'>{est_leverage:.2f}x</span></div>
-                <div style='color:{TEXT_MAIN};font-weight:600;font-size:1rem;'>${total_position_value:,.2f}</div>
-            </div>
-        </div>
-
-        <div style='font-size:0.7rem;color:{TEXT_SUB};white-space:nowrap;'>Manual refresh • {REFRESH_INTERVAL_SEC}s</div>
-
-    </div>""",
+    f"""<div style='display:flex;align-items:flex-start;justify-content:space-between;background:{CARD_BG};border:1px solid {BORDER};border-radius:8px;padding:12px 16px;margin-bottom:8px;box-shadow:{SHADOW};font-family:{FONT_FAMILY};'>
+<div style='display:flex;flex-wrap:wrap;row-gap:8px;column-gap:32px;font-size:0.8rem;'>
+    <div style='color:{TEXT_SUB};'>
+        <div style='font-size:0.75rem;'>Total Value</div>
+        <div style='color:{TEXT_MAIN};font-weight:600;font-size:1rem;'>${total_equity:,.2f}</div>
+        <div style='font-size:0.7rem;color:{TEXT_SUB};'>Perp ${total_equity:,.2f}</div>
+    </div>
+    <div style='color:{TEXT_SUB};'>
+        <div style='font-size:0.75rem;'>Withdrawable <span style='color:#4ade80;'>{withdrawable_pct:.2f}%</span></div>
+        <div style='color:{TEXT_MAIN};font-weight:600;font-size:1rem;'>${available:,.2f}</div>
+    </div>
+    <div style='color:{TEXT_SUB};'>
+        <div style='font-size:0.75rem;'>Leverage <span style='background:#7f1d1d;color:#fff;padding:2px 6px;border-radius:6px;font-size:0.7rem;font-weight:600;'>{est_leverage:.2f}x</span></div>
+        <div style='color:{TEXT_MAIN};font-weight:600;font-size:1rem;'>${total_position_value:,.2f}</div>
+    </div>
+</div>
+<div style='font-size:0.7rem;color:{TEXT_SUB};white-space:nowrap;'>Manual refresh • {REFRESH_INTERVAL_SEC}s</div>
+</div>""",
     unsafe_allow_html=True,
 )
 
 # ======================================
-# MID CARD (EQUITY + CHART IN SAME CARD)
+# MID CARD (EQUITY + CHART) - FIXED: NO LEADING NEWLINE
 # ======================================
-# 카드 전체 컨테이너를 먼저 열고, 안쪽은 Streamlit 요소(col/line_chart)를 섞어서 렌더한다.
 st.markdown(
-    f"""<div style='background:{CARD_BG};border:1px solid {BORDER};border-radius:8px;
-        padding:16px;margin-bottom:12px;box-shadow:{SHADOW};
-        font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;'>""",
+    f"""<div style='background:{CARD_BG};border:1px solid {BORDER};border-radius:8px;padding:16px;margin-bottom:12px;box-shadow:{SHADOW};font-family:{FONT_FAMILY};'>""",
     unsafe_allow_html=True,
 )
 
-# 상단 영역: 왼쪽 메트릭 / 오른쪽 탭 버튼
 left_col, right_col = st.columns([0.5, 0.5])
 with left_col:
     st.markdown(
         f"""<div style='color:{TEXT_SUB};font-size:0.8rem;'>
-            <div style='font-size:0.8rem;color:{TEXT_SUB};'>Perp Equity</div>
-            <div style='color:{TEXT_MAIN};font-weight:600;font-size:1.4rem;margin-bottom:12px;'>${total_equity:,.2f}</div>
-
-            <div style='font-size:0.75rem;color:{TEXT_SUB};'>Direction Bias</div>
-            <div style='font-weight:600;font-size:0.9rem;color:{bias_color};margin-bottom:12px;'>{bias_label}</div>
-
-            <div style='font-size:0.75rem;color:{TEXT_SUB};'>Unrealized PnL</div>
-            <div style='font-size:1rem;font-weight:600;color:{pnl_color};'>${unrealized_total_pnl:,.2f}</div>
-            <div style='font-size:0.7rem;color:{TEXT_SUB};margin-bottom:12px;'>{roe_pct:.2f}% ROE</div>
-        </div>""",
+<div style='font-size:0.8rem;color:{TEXT_SUB};'>Perp Equity</div>
+<div style='color:{TEXT_MAIN};font-weight:600;font-size:1.4rem;margin-bottom:12px;'>${total_equity:,.2f}</div>
+<div style='font-size:0.75rem;color:{TEXT_SUB};'>Direction Bias</div>
+<div style='font-weight:600;font-size:0.9rem;color:{bias_color};margin-bottom:12px;'>{bias_label}</div>
+<div style='font-size:0.75rem;color:{TEXT_SUB};'>Unrealized PnL</div>
+<div style='font-size:1rem;font-weight:600;color:{pnl_color};'>${unrealized_total_pnl:,.2f}</div>
+<div style='font-size:0.7rem;color:{TEXT_SUB};margin-bottom:12px;'>{roe_pct:.2f}% ROE</div>
+</div>""",
         unsafe_allow_html=True,
     )
 
 with right_col:
     st.markdown(
         f"""<div style='display:flex;gap:8px;justify-content:flex-start;flex-wrap:wrap;margin-bottom:8px;font-size:0.7rem'>
-                <div style='background:#0f3;color:#000;font-weight:600;border-radius:6px;padding:4px 8px;'>24H</div>
-                <div style='background:{CARD_BG};border:1px solid #334155;border-radius:6px;padding:4px 8px;color:{TEXT_SUB};'>1W</div>
-            </div>""",
+<div style='background:#0f3;color:#000;font-weight:600;border-radius:6px;padding:4px 8px;'>24H</div>
+<div style='background:{CARD_BG};border:1px solid #334155;border-radius:6px;padding:4px 8px;color:{TEXT_SUB};'>1W</div>
+</div>""",
         unsafe_allow_html=True,
     )
 
-# 바로 이어서 차트 (카드 내부)
+# 차트도 같은 카드 안에서 바로 출력
 st.line_chart(chart_df, x="ts", y="pnl", height=220)
 
-# 카드 닫기 div
+# 카드 닫기
 st.markdown("</div>", unsafe_allow_html=True)
 
 # ======================================
-# POSITIONS TABLE CARD
+# POSITIONS CARD - FIXED: NO LEADING NEWLINE
 # ======================================
 st.markdown(
-    f"""<div style='background:{CARD_BG};border:1px solid {BORDER};border-radius:8px;
-        padding:12px 16px;margin-bottom:12px;box-shadow:{SHADOW};
-        font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;'>
-        <div style='font-size:0.8rem;color:{TEXT_SUB};margin-bottom:8px;'>
-            Positions: {positions_count} | Total: ${total_position_value:,.2f}
-        </div>""",
+    f"""<div style='background:{CARD_BG};border:1px solid {BORDER};border-radius:8px;padding:12px 16px;margin-bottom:12px;box-shadow:{SHADOW};font-family:{FONT_FAMILY};'>
+<div style='font-size:0.8rem;color:{TEXT_SUB};margin-bottom:8px;'>Positions: {positions_count} | Total: ${total_position_value:,.2f}</div>""",
     unsafe_allow_html=True,
 )
 
@@ -302,8 +287,6 @@ for p in positions:
 st.dataframe(rows, use_container_width=True)
 
 st.markdown(
-    f"""<div style='font-size:0.7rem;color:{TEXT_SUB};margin-top:8px;'>
-        Last update: {datetime.now().strftime('%H:%M:%S')} • refresh every {REFRESH_INTERVAL_SEC}s
-    </div></div>""",
+    f"""<div style='font-size:0.7rem;color:{TEXT_SUB};margin-top:8px;'>Last update: {datetime.now().strftime('%H:%M:%S')} • refresh every {REFRESH_INTERVAL_SEC}s</div></div>""",
     unsafe_allow_html=True,
 )
