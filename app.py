@@ -128,7 +128,7 @@ def render_html(block: str):
 # ================= TOP CARD =================
 top_card_html = f"""<div style='background:{CARD_BG};border:1px solid {BORDER};border-radius:8px;padding:12px 16px;margin-bottom:8px;box-shadow:{SHADOW};font-family:{FONT_FAMILY};font-size:0.8rem;display:flex;align-items:flex-start;justify-content:space-between;'>
 <div style='display:flex;flex-wrap:wrap;row-gap:8px;column-gap:32px;'>
-<div style='color:{TEXT_SUB};'><div style='font-size:0.75rem;'>Total Value</div><div style='color:{TEXT_MAIN};font-weight:600;font-size:1rem;'>${total_equity:,.2f}</div><div style='font-size:0.7rem;color:{TEXT_SUB};'>Perp ${total_equity:,.2f}</div></div>
+<div style='color:{TEXT_SUB};'><div style='font-size:0.75rem;'>Total Value</div><div style='color:{TEXT_MAIN};font-weight:600;font-size:1rem;'>${total_equity:,.2f}</div></div>
 <div style='color:{TEXT_SUB};'><div style='font-size:0.75rem;'>Withdrawable <span style='color:#4ade80;'>{withdrawable_pct:.2f}%</span></div><div style='color:{TEXT_MAIN};font-weight:600;font-size:1rem;'>${available:,.2f}</div></div>
 <div style='color:{TEXT_SUB};'><div style='font-size:0.75rem;'>Leverage <span style='background:#7f1d1d;color:#fff;padding:2px 6px;border-radius:6px;font-size:0.7rem;font-weight:600;'>{est_leverage:.2f}x</span></div><div style='color:{TEXT_MAIN};font-weight:600;font-size:1rem;'>${total_position_value:,.2f}</div></div>
 </div><div style='font-size:0.7rem;color:{TEXT_SUB};white-space:nowrap;'>Manual refresh • {REFRESH_INTERVAL_SEC}s</div></div>"""
@@ -269,6 +269,7 @@ footer_html = f"""<div style='font-size:0.7rem;color:{TEXT_SUB};margin-top:8px;'
 Last update: {datetime.now().strftime('%H:%M:%S')} • refresh every {REFRESH_INTERVAL_SEC}s
 </div>"""
 render_html(footer_html)
+
 
 
 
