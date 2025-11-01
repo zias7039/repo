@@ -448,7 +448,7 @@ with col_main_left:
         liq_text = f"{nearest_liq_pct:.2f}% to nearest liq"
 
     st.markdown(
-        f"""
+f"""
         <div class="equity-block">
 
             <div class="equity-title">Perp Equity</div>
@@ -587,4 +587,5 @@ st.markdown('</div>', unsafe_allow_html=True)
 st.caption(
     f"Last update: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  •  Manual refresh • target {REFRESH_INTERVAL_SEC}s interval"
 )
+
 
