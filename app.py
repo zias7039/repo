@@ -320,8 +320,8 @@ for p in positions:
         <div style="color:#4ade80; font-weight:500;">
             <div style="line-height:1.2;">{funding_display}</div>
         </div>
-    </div>
-    """
+</div>
+"""
 
 table_html += "</div>"
 
@@ -344,6 +344,7 @@ render_html(pos_header_html)
 render_html(table_html)
 
 render_html(f"<div style='font-size:0.7rem;color:{TEXT_SUB};margin-top:8px;'>Last update: {datetime.now().strftime('%H:%M:%S')} • refresh every {REFRESH_INTERVAL_SEC}s</div>")
+
 
 
 
