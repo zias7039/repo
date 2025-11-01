@@ -251,7 +251,7 @@ font-weight:500;
 ">
 <div>자산</div>
 <div>방향</div>
-<div>포지션 가치 / 수량 <span style="color:#4ade80;">↓</span></div>
+<div>포지션 가치 / 수량</div>
 <div>미실현 손익</div>
 <div>진입가</div>
 <div>현재가</div>
@@ -353,6 +353,7 @@ try:
     st.experimental_rerun()
 except Exception:
     st.rerun()
+
 
 
 
