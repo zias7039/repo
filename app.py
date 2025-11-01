@@ -487,7 +487,7 @@ unsafe_allow_html=True
     )
 
 with col_main_right:
-st.markdown("""
+    st.markdown("""
 <div class="panel-wrapper" style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:20px;align-items:flex-start;">
 """, unsafe_allow_html=True)
 
@@ -603,6 +603,7 @@ st.markdown('</div>', unsafe_allow_html=True)
 st.caption(
     f"Last update: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  •  Manual refresh • target {REFRESH_INTERVAL_SEC}s interval"
 )
+
 
 
 
