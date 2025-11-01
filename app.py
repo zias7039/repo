@@ -289,52 +289,52 @@ for p in positions:
     font-size:0.8rem;
     line-height:1.4;
     ">
-      <!-- 자산 / 레버리지 -->
-      <div style="color:{TEXT_MAIN};font-weight:600;">
-        <div style="font-size:0.8rem;line-height:1.2;">{symbol}</div>
-        <div style="font-size:0.7rem;color:{TEXT_SUB};line-height:1.2;">{lev:.0f}x</div>
-      </div>
+<!-- 자산 / 레버리지 -->
+<div style="color:{TEXT_MAIN};font-weight:600;">
+<div style="font-size:0.8rem;line-height:1.2;">{symbol}</div>
+<div style="font-size:0.7rem;color:{TEXT_SUB};line-height:1.2;">{lev:.0f}x</div>
+</div>
 
-      <!-- 방향 -->
-      <div style="display:flex;align-items:flex-start;padding-top:2px;">{badge_html}</div>
+<!-- 방향 -->
+<div style="display:flex;align-items:flex-start;padding-top:2px;">{badge_html}</div>
 
-      <!-- 포지션 가치 / 수량 -->
-      <div style="color:{TEXT_MAIN};font-weight:500;">
-        <div style="line-height:1.2;">${notional_est:,.2f}</div>
-        <div style="font-size:0.7rem;color:{TEXT_SUB};line-height:1.2;">{qty:,.4f} {symbol.replace("USDT","")}</div>
-      </div>
+<!-- 포지션 가치 / 수량 -->
+<div style="color:{TEXT_MAIN};font-weight:500;">
+<div style="line-height:1.2;">${notional_est:,.2f}</div>
+<div style="font-size:0.7rem;color:{TEXT_SUB};line-height:1.2;">{qty:,.4f} {symbol.replace("USDT","")}</div>
+</div>
 
-      <!-- 미실현 손익 -->
-      <div style="font-weight:500;">
-        <div style="color:{pnl_color_each};line-height:1.2;">${unreal_pl:,.2f}</div>
-        <div style="color:{pnl_color_each};font-size:0.7rem;line-height:1.2;">{roe_each_pct:.2f}%</div>
-      </div>
+<!-- 미실현 손익 -->
+<div style="font-weight:500;">
+<div style="color:{pnl_color_each};line-height:1.2;">${unreal_pl:,.2f}</div>
+<div style="color:{pnl_color_each};font-size:0.7rem;line-height:1.2;">{roe_each_pct:.2f}%</div>
+</div>
 
-      <!-- 진입가 -->
-      <div style="color:{TEXT_MAIN};font-weight:500;">
-        <div style="line-height:1.2;">${entry_price:,.2f}</div>
-      </div>
+<!-- 진입가 -->
+<div style="color:{TEXT_MAIN};font-weight:500;">
+<div style="line-height:1.2;">${entry_price:,.2f}</div>
+</div>
 
-      <!-- 현재가 -->
-      <div style="color:{TEXT_MAIN};font-weight:500;">
-        <div style="line-height:1.2;">${mark_price:,.2f}</div>
-      </div>
+<!-- 현재가 -->
+<div style="color:{TEXT_MAIN};font-weight:500;">
+<div style="line-height:1.2;">${mark_price:,.2f}</div>
+</div>
 
-      <!-- 청산가 -->
-      <div style="color:{TEXT_MAIN};font-weight:500;">
-        <div style="line-height:1.2;">${liq_price:,.2f}</div>
-      </div>
+<!-- 청산가 -->
+<div style="color:{TEXT_MAIN};font-weight:500;">
+<div style="line-height:1.2;">${liq_price:,.2f}</div>
+</div>
 
-      <!-- 사용 마진 -->
-      <div style="color:{TEXT_MAIN};font-weight:500;">
-        <div style="line-height:1.2;">${mg_usdt:,.2f}</div>
-      </div>
+<!-- 사용 마진 -->
+<div style="color:{TEXT_MAIN};font-weight:500;">
+<div style="line-height:1.2;">${mg_usdt:,.2f}</div>
+</div>
 
-      <!-- 펀딩비 -->
-      <div style="color:#4ade80;font-weight:500;">
-        <div style="line-height:1.2;">{funding_display}</div>
-      </div>
-    </div>"""
+<!-- 펀딩비 -->
+<div style="color:#4ade80;font-weight:500;">
+<div style="line-height:1.2;">{funding_display}</div>
+</div>
+</div>"""
 
 table_html += "</div>"
 
@@ -353,6 +353,7 @@ try:
     st.experimental_rerun()
 except Exception:
     st.rerun()
+
 
 
 
