@@ -135,8 +135,6 @@ top_card_html = f"""<div style='background:{CARD_BG};border:1px solid {BORDER};b
 render_html(top_card_html)
 
 # ================= POSITIONS =================
-# ================= POSITIONS =================
-
 def format_side_badge(hold_side: str):
     side_up = (hold_side or "").upper()
     if side_up == "LONG":
@@ -170,22 +168,6 @@ def safe_pct(numerator, denominator):
     if denominator == 0:
         return 0.0
     return (numerator / denominator) * 100.0
-
-
-# 상단 요약 헤더
-pos_header_html = f"""<div style='background:{CARD_BG};
-border:1px solid {BORDER};
-border-radius:8px;
-padding:12px 16px;
-margin:16px 0 8px 0;
-box-shadow:{SHADOW};
-font-family:{FONT_FAMILY};
-font-size:0.8rem;
-color:{TEXT_SUB};'>
-Positions: {positions_count} | Total: ${total_position_value:,.2f}
-</div>"""
-render_html(pos_header_html)
-
 
 # 테이블 시작 + 헤더
 table_html = f"""<div style="
@@ -287,6 +269,7 @@ footer_html = f"""<div style='font-size:0.7rem;color:{TEXT_SUB};margin-top:8px;'
 Last update: {datetime.now().strftime('%H:%M:%S')} • refresh every {REFRESH_INTERVAL_SEC}s
 </div>"""
 render_html(footer_html)
+
 
 
 
