@@ -141,6 +141,7 @@ st.markdown("""
 html, body, [class*="css"] {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
     color: #f8fafc;
+    font-size: 1.25rem; /* 기본 크기보다 25% 크게 */
 }
 .value, .price, .metric, .number {
     font-family: 'Roboto Mono', monospace;
@@ -353,6 +354,7 @@ try:
     st.experimental_rerun()
 except Exception:
     st.rerun()
+
 
 
 
