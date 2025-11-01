@@ -506,7 +506,11 @@ with col_main_right:
         unsafe_allow_html=True
     )
 
-    # 라인 차트: session_state.pnl_history 기반
+    chart_df = pd.DataFrame({
+    "time": chart_x,
+    "PnL": chart_y,
+    })
+    
     st.line_chart(
         data={"PnL": chart_y},
         x=chart_x,
@@ -574,3 +578,4 @@ st.markdown('</div>', unsafe_allow_html=True)
 st.caption(
     f"Last update: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  •  Auto refresh hint: every {REFRESH_INTERVAL_SEC}s (manually rerun for now)"
 )
+
