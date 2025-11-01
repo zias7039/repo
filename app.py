@@ -434,8 +434,8 @@ st.markdown(
 col_main_left, col_main_right = st.columns([0.4,0.6])
 
 with col_main_left:
-st.markdown(
-    f"""
+    st.markdown(
+        f"""
 <div class="equity-block">
 <div class="equity-title">Perp Equity</div>
 <div class="equity-value">${total_equity:,.2f}</div>
@@ -556,6 +556,7 @@ st.markdown('</div>', unsafe_allow_html=True)
 st.caption(
     f"Last update: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  •  Auto refresh hint: every {REFRESH_INTERVAL_SEC}s (manually rerun for now)"
 )
+
 
 
 
