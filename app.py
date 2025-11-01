@@ -11,6 +11,9 @@ from textwrap import dedent
 
 # ================= CONFIG =================
 st.set_page_config(page_title="Perp Dashboard", page_icon="📈", layout="wide")
+st_autorefresh_count = st.experimental_autorefresh(
+    interval=REFRESH_INTERVAL_SEC * 1000,
+    key="auto_refresh_count
 
 PRODUCT_TYPE = "USDT-FUTURES"
 MARGIN_COIN = "USDT"
@@ -271,4 +274,5 @@ footer_html = f"""<div style='font-size:0.7rem;color:{TEXT_SUB};margin-top:8px;'
 Last update: {datetime.now().strftime('%H:%M:%S')} • refresh every {REFRESH_INTERVAL_SEC}s
 </div>"""
 render_html(footer_html)
+
 
