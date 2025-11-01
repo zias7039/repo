@@ -117,6 +117,7 @@ roe_pct = (unrealized_total_pnl / total_equity * 100.0) if total_equity > 0 else
 positions_count = len(positions)
 
 # ================= STYLE =================
+
 CARD_BG, TEXT_SUB, TEXT_MAIN = "#1e2538", "#94a3b8", "#f8fafc"
 BORDER, SHADOW = "rgba(148,163,184,0.2)", "0 24px 48px rgba(0,0,0,0.6)"
 FONT_FAMILY = "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif"
@@ -131,7 +132,7 @@ top_card_html = f"""<div style='background:{CARD_BG};border:1px solid {BORDER};b
 <div style='color:{TEXT_SUB};'><div style='font-size:0.75rem;'>Total Value</div><div style='color:{TEXT_MAIN};font-weight:600;font-size:1rem;'>${total_equity:,.2f}</div></div>
 <div style='color:{TEXT_SUB};'><div style='font-size:0.75rem;'>Withdrawable <span style='color:#4ade80;'>{withdrawable_pct:.2f}%</span></div><div style='color:{TEXT_MAIN};font-weight:600;font-size:1rem;'>${available:,.2f}</div></div>
 <div style='color:{TEXT_SUB};'><div style='font-size:0.75rem;'>Leverage <span style='background:#7f1d1d;color:#fff;padding:2px 6px;border-radius:6px;font-size:0.7rem;font-weight:600;'>{est_leverage:.2f}x</span></div><div style='color:{TEXT_MAIN};font-weight:600;font-size:1rem;'>${total_position_value:,.2f}</div></div>
-</div><div style='font-size:0.7rem;color:{TEXT_SUB};white-space:nowrap;'>Manual refresh • {REFRESH_INTERVAL_SEC}s</div></div>"""
+</div></div>"""
 render_html(top_card_html)
 
 # ================= POSITIONS =================
@@ -269,11 +270,3 @@ footer_html = f"""<div style='font-size:0.7rem;color:{TEXT_SUB};margin-top:8px;'
 Last update: {datetime.now().strftime('%H:%M:%S')} • refresh every {REFRESH_INTERVAL_SEC}s
 </div>"""
 render_html(footer_html)
-
-
-
-
-
-
-
-
