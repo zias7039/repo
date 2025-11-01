@@ -202,27 +202,27 @@ display:flex;
 align-items:flex-start;
 justify-content:space-between;
 '>
-  <div style='display:flex;flex-wrap:wrap;row-gap:8px;column-gap:32px;'>
-    <div style='color:{TEXT_SUB};'>
-      <div style='font-size:0.75rem;'>총자산</div>
-      <div style='color:{TEXT_MAIN};font-weight:600;font-size:1rem;'>${total_equity:,.2f}</div>
-    </div>
+<div style='display:flex;flex-wrap:wrap;row-gap:8px;column-gap:32px;'>
+<div style='color:{TEXT_SUB};'>
+<div style='font-size:0.75rem;'>총자산</div>
+<div style='color:{TEXT_MAIN};font-weight:600;font-size:1rem;'>${total_equity:,.2f}</div>
+</div>
 
-    <div style='color:{TEXT_SUB};'>
-      <div style='font-size:0.75rem;'>출금 가능
-        <span style='color:#4ade80;'>{withdrawable_pct:.2f}%</span>
-      </div>
-      <div style='color:{TEXT_MAIN};font-weight:600;font-size:1rem;'>${available:,.2f}</div>
-    </div>
+<div style='color:{TEXT_SUB};'>
+<div style='font-size:0.75rem;'>출금 가능
+<span style='color:#4ade80;'>{withdrawable_pct:.2f}%</span>
+</div>
+<div style='color:{TEXT_MAIN};font-weight:600;font-size:1rem;'>${available:,.2f}</div>
+</div>
 
-    <div style='color:{TEXT_SUB};'>
-      <div style='font-size:0.75rem;'>레버리지
-        <span style='background:#7f1d1d;color:#fff;padding:2px 6px;border-radius:6px;
-        font-size:0.7rem;font-weight:600;'>{est_leverage:.2f}x</span>
-      </div>
-      <div style='color:{TEXT_MAIN};font-weight:600;font-size:1rem;'>${total_position_value:,.2f}</div>
-    </div>
-  </div>
+<div style='color:{TEXT_SUB};'>
+<div style='font-size:0.75rem;'>레버리지
+<span style='background:#7f1d1d;color:#fff;padding:2px 6px;border-radius:6px;
+font-size:0.7rem;font-weight:600;'>{est_leverage:.2f}x</span>
+</div>
+<div style='color:{TEXT_MAIN};font-weight:600;font-size:1rem;'>${total_position_value:,.2f}</div>
+</div>
+</div>
 </div>"""
 
 render_html(top_card_html)
@@ -353,5 +353,6 @@ try:
     st.experimental_rerun()
 except Exception:
     st.rerun()
+
 
 
