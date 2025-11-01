@@ -8,6 +8,7 @@ import pandas as pd
 from urllib.parse import urlencode 
 from datetime import datetime 
 from textwrap import dedent
+from datetime import datetime, timedelta, timezone
 
 # ================= CONFIG =================
 st.set_page_config(page_title="Perp Dashboard", page_icon="📈", layout="wide")
@@ -342,8 +343,11 @@ table_html += "</div>"
 render_html(table_html)
 
 # ================= FOOTER (한국어 버전) =================
+KST = timezone(timedelta(hours=9))  # 한국 표준시 (UTC+9)
+now_kst = datetime.now(KST)
+
 footer_html = f"""<div style='font-size:0.7rem;color:{TEXT_SUB};margin-top:8px;'>
-마지막 갱신: {datetime.now().strftime('%H:%M:%S')} · {REFRESH_INTERVAL_SEC}초 주기 자동 새로고침
+마지막 갱신: {now_kst.strftime('%H:%M:%S')} (KST) · {REFRESH_INTERVAL_SEC}초 주기 자동 새로고침
 </div>"""
 render_html(footer_html)
 
@@ -354,6 +358,7 @@ try:
     st.experimental_rerun()
 except Exception:
     st.rerun()
+
 
 
 
