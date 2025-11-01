@@ -399,7 +399,7 @@ chart_y = [pt["pnl"] for pt in st.session_state.pnl_history]
 # RENDER: KPI BAR (상단)
 # ======================================
 st.markdown(
-    f"""
+f"""
 <div class="kpi-bar">
 <div class="kpi-left">
 
@@ -603,6 +603,7 @@ st.markdown('</div>', unsafe_allow_html=True)
 st.caption(
     f"Last update: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  •  Manual refresh • target {REFRESH_INTERVAL_SEC}s interval"
 )
+
 
 
 
