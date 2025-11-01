@@ -238,27 +238,27 @@ font-size:0.8rem;
 color:{TEXT_SUB};
 overflow:hidden;
 ">
-  <!-- 헤더 -->
-  <div style="
-  display:grid;
-  grid-template-columns:120px 80px 180px 160px 110px 110px 110px 130px 110px;
-  column-gap:16px;
-  padding:12px 16px;
-  border-bottom:1px solid rgba(148,163,184,0.15);
-  font-size:0.75rem;
-  color:{TEXT_SUB};
-  font-weight:500;
-  ">
-    <div>자산</div>
-    <div>방향</div>
-    <div>포지션 가치 / 수량 <span style="color:#4ade80;">↓</span></div>
-    <div>미실현 손익</div>
-    <div>진입가</div>
-    <div>현재가</div>
-    <div>청산가</div>
-    <div>사용 마진</div>
-    <div>펀딩비</div>
-  </div>
+<!-- 헤더 -->
+<div style="
+display:grid;
+grid-template-columns:120px 80px 180px 160px 110px 110px 110px 130px 110px;
+column-gap:16px;
+padding:12px 16px;
+border-bottom:1px solid rgba(148,163,184,0.15);
+font-size:0.75rem;
+color:{TEXT_SUB};
+font-weight:500;
+">
+<div>자산</div>
+<div>방향</div>
+<div>포지션 가치 / 수량 <span style="color:#4ade80;">↓</span></div>
+<div>미실현 손익</div>
+<div>진입가</div>
+<div>현재가</div>
+<div>청산가</div>
+<div>사용 마진</div>
+<div>펀딩비</div>
+</div>
 """
 
 for p in positions:
@@ -353,6 +353,7 @@ try:
     st.experimental_rerun()
 except Exception:
     st.rerun()
+
 
 
 
