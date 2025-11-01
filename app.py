@@ -9,10 +9,7 @@ from urllib.parse import urlencode
 from datetime import datetime
 from textwrap import dedent
 
-# ======================================
-# CONFIG
-# ======================================
-
+# ================= CONFIG =================
 st.set_page_config(page_title="Perp Dashboard", page_icon="📈", layout="wide")
 
 PRODUCT_TYPE = "USDT-FUTURES"
@@ -25,10 +22,7 @@ PASSPHRASE = st.secrets["bitget"]["passphrase"]
 BASE_URL = "https://api.bitget.com"
 REFRESH_INTERVAL_SEC = 15
 
-# ======================================
-# HELPERS
-# ======================================
-
+# ================= HELPERS =================
 def _timestamp_ms() -> str:
     return str(int(time.time() * 1000))
 
@@ -47,11 +41,7 @@ def _sign(timestamp_ms, method, path, query_params, body, secret_key):
 def _private_get(path, params=None):
     ts = _timestamp_ms()
     signature = _sign(ts, "GET", path, params, "", API_SECRET)
-    if params:
-        q = urlencode(params)
-        url = f"{BASE_URL}{path}?{q}"
-    else:
-        url = f"{BASE_URL}{path}"
+    url = f"{BASE_URL}{path}?{urlencode(params)}" if params else f"{BASE_URL}{path}"
     headers = {
         "ACCESS-KEY": API_KEY,
         "ACCESS-SIGN": signature,
@@ -60,15 +50,12 @@ def _private_get(path, params=None):
         "locale": "en-US",
         "Content-Type": "application/json",
     }
-    r = requests.get(url, headers=headers)
-    return r.json()
+    return requests.get(url, headers=headers).json()
 
 def fetch_positions():
     params = {"productType": PRODUCT_TYPE, "marginCoin": MARGIN_COIN}
     res = _private_get("/api/v2/mix/position/all-position", params)
-    if res.get("code") != "00000":
-        return [], res
-    return res.get("data") or [], res
+    return (res.get("data") or [], res) if res.get("code") == "00000" else ([], res)
 
 def fetch_account():
     params = {"productType": PRODUCT_TYPE, "marginCoin": MARGIN_COIN}
@@ -76,12 +63,9 @@ def fetch_account():
     if res.get("code") != "00000":
         return None, res
     arr = res.get("data") or []
-    acct = next((a for a in arr if a.get("marginCoin") == MARGIN_COIN), None)
-    return acct, res
+    return next((a for a in arr if a.get("marginCoin") == MARGIN_COIN), None), res
 
-# ======================================
-# FETCH DATA
-# ======================================
+# ================= FETCH DATA =================
 positions, _ = fetch_positions()
 account, _ = fetch_account()
 
@@ -95,13 +79,7 @@ available = fnum(account.get("available")) if account else 0.0
 locked = fnum(account.get("locked")) if account else 0.0
 margin_size = fnum(account.get("marginSize")) if account else 0.0
 
-if account and "usdtEquity" in account:
-    total_equity = fnum(account["usdtEquity"])
-elif account and "equity" in account:
-    total_equity = fnum(account["equity"])
-else:
-    total_equity = available + locked + margin_size
-
+total_equity = fnum(account.get("usdtEquity")) if account and account.get("usdtEquity") else available + locked + margin_size
 withdrawable_pct = (available / total_equity * 100.0) if total_equity > 0 else 0.0
 
 total_position_value = 0.0
@@ -126,59 +104,34 @@ for p in positions:
 
     mark_price = fnum(p.get("markPrice"))
     liq_price = fnum(p.get("liquidationPrice"))
-    if liq_price != 0:
+    if liq_price:
         dist_pct = abs((mark_price - liq_price) / liq_price) * 100.0
         if nearest_liq_pct is None or dist_pct < nearest_liq_pct:
             nearest_liq_pct = dist_pct
 
 est_leverage = (total_position_value / total_equity) if total_equity > 0 else 0.0
-
-if long_value > short_value:
-    bias_label = "LONG"
-    bias_color = "#4ade80"
-elif short_value > long_value:
-    bias_label = "SHORT"
-    bias_color = "#f87171"
-else:
-    bias_label = "FLAT"
-    bias_color = "#94a3b8"
-
+bias_label, bias_color = ("LONG", "#4ade80") if long_value > short_value else ("SHORT", "#f87171") if short_value > long_value else ("FLAT", "#94a3b8")
 pnl_color = "#4ade80" if unrealized_total_pnl >= 0 else "#f87171"
 roe_pct = (unrealized_total_pnl / total_equity * 100.0) if total_equity > 0 else 0.0
-
-if nearest_liq_pct is None:
-    liq_text = "n/a"
-    liq_color = "#94a3b8"
-else:
-    liq_text = f"{nearest_liq_pct:.2f}%"
-    liq_color = "#4ade80" if nearest_liq_pct > 30 else "#f87171"
 
 positions_count = len(positions)
 
 if "pnl_history" not in st.session_state:
     st.session_state.pnl_history = []
-
 st.session_state.pnl_history.append({"ts": datetime.now().strftime("%H:%M:%S"), "pnl": unrealized_total_pnl})
 st.session_state.pnl_history = st.session_state.pnl_history[-200:]
 chart_df = pd.DataFrame(st.session_state.pnl_history)
 
-# ======================================
-# STYLE CONSTANTS
-# ======================================
-CARD_BG = "#1e2538"
-TEXT_SUB = "#94a3b8"
-TEXT_MAIN = "#f8fafc"
-BORDER = "rgba(148,163,184,0.2)"
-SHADOW = "0 24px 48px rgba(0,0,0,0.6)"
+# ================= STYLE =================
+CARD_BG, TEXT_SUB, TEXT_MAIN = "#1e2538", "#94a3b8", "#f8fafc"
+BORDER, SHADOW = "rgba(148,163,184,0.2)", "0 24px 48px rgba(0,0,0,0.6)"
 FONT_FAMILY = "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif"
 
 def render_html(block: str):
     clean = dedent(block).lstrip()
     st.markdown(clean, unsafe_allow_html=True)
 
-# ======================================
-# TOP CARD
-# ======================================
+# ================= TOP CARD =================
 top_card_html = f"""<div style='background:{CARD_BG};border:1px solid {BORDER};border-radius:8px;padding:12px 16px;margin-bottom:8px;box-shadow:{SHADOW};font-family:{FONT_FAMILY};font-size:0.8rem;display:flex;align-items:flex-start;justify-content:space-between;'>
 <div style='display:flex;flex-wrap:wrap;row-gap:8px;column-gap:32px;'>
 <div style='color:{TEXT_SUB};'><div style='font-size:0.75rem;'>Total Value</div><div style='color:{TEXT_MAIN};font-weight:600;font-size:1rem;'>${total_equity:,.2f}</div><div style='font-size:0.7rem;color:{TEXT_SUB};'>Perp ${total_equity:,.2f}</div></div>
@@ -187,19 +140,23 @@ top_card_html = f"""<div style='background:{CARD_BG};border:1px solid {BORDER};b
 </div><div style='font-size:0.7rem;color:{TEXT_SUB};white-space:nowrap;'>Manual refresh • {REFRESH_INTERVAL_SEC}s</div></div>"""
 render_html(top_card_html)
 
-# ======================================
-# MID CARD (INFO + CHART)
-# ======================================
+# ================= MID CARD =================
 col_left, col_right = st.columns([0.4, 0.6])
 with col_left:
-    mid_left_html = f"""<div style='background:{CARD_BG};border:1px solid {BORDER};border-radius:8px;padding:16px;box-shadow:{SHADOW};font-family:{FONT_FAMILY};margin-bottom:12px;font-size:0.8rem;color:{TEXT_SUB};'><div style='font-size:0.8rem;'>Perp Equity</div><div style='color:{TEXT_MAIN};font-weight:600;font-size:1.4rem;margin-bottom:12px;'>${total_equity:,.2f}</div><div style='font-size:0.75rem;'>Direction Bias</div><div style='font-weight:600;font-size:0.9rem;color:{bias_color};margin-bottom:12px;'>{bias_label}</div><div style='font-size:0.75rem;'>Unrealized PnL</div><div style='font-size:1rem;font-weight:600;color:{pnl_color};'>${unrealized_total_pnl:,.2f}</div><div style='font-size:0.7rem;margin-bottom:12px;'>{roe_pct:.2f}% ROE</div></div>"""
+    mid_left_html = f"""<div style='background:{CARD_BG};border:1px solid {BORDER};border-radius:8px;padding:16px;box-shadow:{SHADOW};font-family:{FONT_FAMILY};margin-bottom:12px;font-size:0.8rem;color:{TEXT_SUB};'>
+        <div style='font-size:0.8rem;'>Perp Equity</div>
+        <div style='color:{TEXT_MAIN};font-weight:600;font-size:1.4rem;margin-bottom:12px;'>${total_equity:,.2f}</div>
+        <div style='font-size:0.75rem;'>Direction Bias</div>
+        <div style='font-weight:600;font-size:0.9rem;color:{bias_color};margin-bottom:12px;'>{bias_label}</div>
+        <div style='font-size:0.75rem;'>Unrealized PnL</div>
+        <div style='font-size:1rem;font-weight:600;color:{pnl_color};'>${unrealized_total_pnl:,.2f}</div>
+        <div style='font-size:0.7rem;margin-bottom:12px;'>{roe_pct:.2f}% ROE</div>
+    </div>"""
     render_html(mid_left_html)
 with col_right:
     st.line_chart(chart_df, x="ts", y="pnl", height=220)
 
-# ======================================
-# POSITIONS CARD
-# ======================================
+# ================= POSITIONS =================
 pos_header_html = f"""<div style='background:{CARD_BG};border:1px solid {BORDER};border-radius:8px;padding:12px 16px;margin-bottom:12px;box-shadow:{SHADOW};font-family:{FONT_FAMILY};font-size:0.8rem;color:{TEXT_SUB};'>Positions: {positions_count} | Total: ${total_position_value:,.2f}</div>"""
 render_html(pos_header_html)
 
@@ -209,12 +166,15 @@ for p in positions:
     mg = fnum(p.get("marginSize", 0.0))
     mark_price = fnum(p.get("markPrice"))
     liq_price = fnum(p.get("liquidationPrice"))
-    if liq_price:
-        dist_pct = abs((mark_price - liq_price) / liq_price) * 100.0
-        liq_dist = f"{dist_pct:.2f}%"
-    else:
-        liq_dist = "n/a"
-    rows.append({"Asset": p.get("symbol"), "Type": (p.get("holdSide", "") or "").upper(), "Lev": f"{lev:.1f}x", "Value": f"{mg * lev:,.2f}", "PnL": f"{fnum(p.get('unrealizedPL", 0.0)):.2f}", "Liq Dist": liq_dist})
+    liq_dist = f"{abs((mark_price - liq_price) / liq_price) * 100.0:.2f}%" if liq_price else "n/a"
+    rows.append({
+        "Asset": p.get("symbol"),
+        "Type": (p.get("holdSide", "") or "").upper(),
+        "Lev": f"{lev:.1f}x",
+        "Value": f"{mg * lev:,.2f}",
+        "PnL": f"{fnum(p.get('unrealizedPL', 0.0)):.2f}",
+        "Liq Dist": liq_dist
+    })
 
 st.dataframe(rows, use_container_width=True)
 render_html(f"<div style='font-size:0.7rem;color:{TEXT_SUB};margin-top:8px;'>Last update: {datetime.now().strftime('%H:%M:%S')} • refresh every {REFRESH_INTERVAL_SEC}s</div>")
