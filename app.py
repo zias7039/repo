@@ -21,14 +21,11 @@ PASSPHRASE = st.secrets["bitget"]["passphrase"]
 
 BASE_URL = "https://api.bitget.com"
 REFRESH_INTERVAL_SEC = 15
-
-# ================= AUTO REFRESH =================
-placeholder = st.empty()
-with placeholder:
-    st.write(f"⏱️ 자동 새로고침: {REFRESH_INTERVAL_SEC}초마다 데이터 갱신 중...")
-
 time.sleep(REFRESH_INTERVAL_SEC)
 st.experimental_rerun()
+
+positions, _ = fetch_positions()
+account, _ = fetch_account()
 
 # ================= HELPERS =================
 def _timestamp_ms() -> str:
@@ -279,6 +276,7 @@ footer_html = f"""<div style='font-size:0.7rem;color:{TEXT_SUB};margin-top:8px;'
 Last update: {datetime.now().strftime('%H:%M:%S')} • refresh every {REFRESH_INTERVAL_SEC}s
 </div>"""
 render_html(footer_html)
+
 
 
 
