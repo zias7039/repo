@@ -1,4 +1,3 @@
- (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
 diff --git a/app.py b/app.py
 index 3be02723efddc985a854b340adbff75014e83088..993c87aeff664315e240dc14e413e870241cbfbd 100644
 --- a/app.py
@@ -568,6 +567,3 @@ index 3be02723efddc985a854b340adbff75014e83088..993c87aeff664315e240dc14e413e870
      f"Last update: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  •  Auto refresh hint: every {REFRESH_INTERVAL_SEC}s (manually rerun for now)"
  )
  
- 
-EOF
-)
