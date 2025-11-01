@@ -43,7 +43,6 @@ def _sign(timestamp_ms, method, path, query_params, body, secret_key):
         sign_target = f"{timestamp_ms}{method_up}{path}?{query_str}{body}"
     else:
         sign_target = f"{timestamp_ms}{method_up}{path}{body}"
-
     mac = hmac.new(
         secret_key.encode("utf-8"),
         sign_target.encode("utf-8"),
@@ -55,15 +54,12 @@ def _private_get(path, params=None):
     ts = _timestamp_ms()
     method = "GET"
     body = ""
-
     signature = _sign(ts, method, path, params, body, API_SECRET)
-
     if params:
         query_str = urlencode(params)
         url = f"{BASE_URL}{path}?{query_str}"
     else:
         url = f"{BASE_URL}{path}"
-
     headers = {
         "ACCESS-KEY": API_KEY,
         "ACCESS-SIGN": signature,
@@ -136,19 +132,15 @@ nearest_liq_pct = None
 for p in positions:
     lev = fnum(p.get("leverage", 0.0))
     mg  = fnum(p.get("marginSize", 0.0))
-
     pos_val = mg * lev
     total_position_value += pos_val
-
     side = (p.get("holdSide","") or "").lower()
     if side == "long":
         long_value += pos_val
     elif side == "short":
         short_value += pos_val
-
     upnl = fnum(p.get("unrealizedPL",0.0))
     unrealized_total_pnl += upnl
-
     mark_price = fnum(p.get("markPrice"))
     liq_price  = fnum(p.get("liquidationPrice"))
     if liq_price != 0:
@@ -209,11 +201,10 @@ chart_df = pd.DataFrame({
 })
 
 # ======================================
-# KPI BAR (ONE CALL, unsafe_allow_html=True)
+# KPI BAR (NO LEADING INDENT)
 # ======================================
 st.markdown(
-    f"""
-<div style="display:flex;flex-wrap:wrap;justify-content:space-between;background-color:#1e2538;border:1px solid rgba(148,163,184,0.2);border-radius:12px;padding:16px 20px;margin-bottom:16px;box-shadow:0 24px 48px rgba(0,0,0,0.6);font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:0.8rem;color:#94a3b8;">
+    f"""<div style="display:flex;flex-wrap:wrap;justify-content:space-between;background-color:#1e2538;border:1px solid rgba(148,163,184,0.2);border-radius:12px;padding:16px 20px;margin-bottom:16px;box-shadow:0 24px 48px rgba(0,0,0,0.6);font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:0.8rem;color:#94a3b8;">
 
     <div style=\"display:flex;flex-wrap:wrap;gap:24px;\">
 
@@ -243,17 +234,16 @@ st.markdown(
         <div>Manual refresh • target {REFRESH_INTERVAL_SEC}s interval</div>
         <div style=\"font-size:0.75rem;color:#10b981;font-weight:500;\">Support us</div>
     </div>
-</div>
-    """,
+
+</div>""",
     unsafe_allow_html=True
 )
 
 # ======================================
-# MAIN PANEL (left stats + right chart IN ONE CALL)
+# MAIN PANEL CARD (NO LEADING INDENT)
 # ======================================
 st.markdown(
-    f"""
-<div style=\"background-color:#1e2538;border:1px solid rgba(148,163,184,0.2);border-radius:12px;box-shadow:0 24px 48px rgba(0,0,0,0.6);padding:16px 20px;margin-bottom:16px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:20px;align-items:flex-start;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#f8fafc;\">
+    f"""<div style="background-color:#1e2538;border:1px solid rgba(148,163,184,0.2);border-radius:12px;box-shadow:0 24px 48px rgba(0,0,0,0.6);padding:16px 20px;margin-bottom:16px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:20px;align-items:flex-start;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#f8fafc;">
 
     <div style=\"flex:0.35;min-width:260px;\">
         <div style=\"font-size:0.8rem;font-weight:500;color:#94a3b8;margin-bottom:4px;\">Perp Equity</div>
@@ -292,16 +282,13 @@ st.markdown(
                 <div style=\"background:#1e2538;border:1px solid #334155;padding:4px 8px;border-radius:6px;color:#94a3b8;\">Account Value</div>
             </div>
         </div>
-
-        <!-- chart placeholder below -->
     </div>
 
-</div>
-    """,
+</div>""",
     unsafe_allow_html=True
 )
 
-# 차트는 Streamlit native 컴포넌트라 따로 호출해야 함
+# CHART (native Streamlit)
 st.line_chart(
     data=chart_df,
     x="time",
@@ -310,21 +297,18 @@ st.line_chart(
 )
 
 st.markdown(
-    f"""
-<div style=\"display:flex;justify-content:space-between;flex-wrap:wrap;margin-top:4px;font-size:0.8rem;color:{pnl_color};background-color:#1e2538;border:1px solid rgba(148,163,184,0.2);border-radius:12px;padding:8px 12px;margin-top:-8px;box-shadow:0 24px 48px rgba(0,0,0,0.6);\">
+    f"""<div style="display:flex;justify-content:space-between;flex-wrap:wrap;margin-top:4px;font-size:0.8rem;color:{pnl_color};background-color:#1e2538;border:1px solid rgba(148,163,184,0.2);border-radius:12px;padding:8px 12px;margin-top:-8px;box-shadow:0 24px 48px rgba(0,0,0,0.6);">
     <div>24H PnL (Session)</div>
     <div style=\"font-weight:600;\">${unrealized_total_pnl:,.2f}</div>
-</div>
-    """,
+</div>""",
     unsafe_allow_html=True
 )
 
 # ======================================
-# POSITIONS HEADER + TABLE
+# POSITIONS HEADER + TABLE (NO LEADING INDENT)
 # ======================================
 st.markdown(
-    f"""
-<div style=\"background-color:#1e2538;border:1px solid rgba(148,163,184,0.2);border-radius:12px 12px 0 0;border-bottom:0;padding:12px 20px;font-size:0.8rem;color:#94a3b8;box-shadow:0 24px 48px rgba(0,0,0,0.6);\">
+    f"""<div style="background-color:#1e2538;border:1px solid rgba(148,163,184,0.2);border-radius:12px 12px 0 0;border-bottom:0;padding:12px 20px;font-size:0.8rem;color:#94a3b8;box-shadow:0 24px 48px rgba(0,0,0,0.6);">
     <div style=\"display:flex;flex-wrap:wrap;gap:16px;row-gap:4px;color:#94a3b8;\">
         <div>Positions <span style=\"color:#f8fafc;font-weight:600;font-size:0.8rem;\">{positions_count}</span></div>
         <div>Total <span style=\"color:#f8fafc;font-weight:600;font-size:0.8rem;\">${total_position_value:,.0f}</span></div>
@@ -338,24 +322,21 @@ st.markdown(
         <div style=\"background:#1e2538;border:1px solid #334155;padding:4px 8px;border-radius:6px;color:#94a3b8;\">Recent Fills</div>
         <div style=\"background:#1e2538;border:1px solid #334155;padding:4px 8px;border-radius:6px;color:#94a3b8;\">Completed Trades</div>
     </div>
-</div>
-    """,
+</div>""",
     unsafe_allow_html=True
 )
 
-# build table rows for st.dataframe
+# TABLE DATA
 rows = []
 for p in positions:
     lev = fnum(p.get("leverage",0.0))
     mg  = fnum(p.get("marginSize",0.0))
     mark_price = fnum(p.get("markPrice"))
     liq_price  = fnum(p.get("liquidationPrice"))
-
     dist_to_liq = ""
     if liq_price != 0:
         dist_pct = abs((mark_price - liq_price) / liq_price) * 100.0
         dist_to_liq = f"{dist_pct:.2f}%"
-
     rows.append({
         "Asset": p.get("symbol"),
         "Type": (p.get("holdSide","") or "").upper(),
@@ -370,8 +351,7 @@ for p in positions:
     })
 
 st.markdown(
-    """
-<div style=\"background-color:#1e2538;border:1px solid rgba(148,163,184,0.2);border-radius:0 0 12px 12px;border-top:0;padding:12px 20px 20px;box-shadow:0 24px 48px rgba(0,0,0,0.6);\">""",
+    """<div style="background-color:#1e2538;border:1px solid rgba(148,163,184,0.2);border-radius:0 0 12px 12px;border-top:0;padding:12px 20px 20px;box-shadow:0 24px 48px rgba(0,0,0,0.6);">""",
     unsafe_allow_html=True
 )
 
@@ -379,7 +359,6 @@ st.dataframe(rows, use_container_width=True)
 
 st.markdown("</div>", unsafe_allow_html=True)
 
-# FOOTER
 st.caption(
     f"Last update: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  •  Manual refresh • target {REFRESH_INTERVAL_SEC}s interval"
 )
