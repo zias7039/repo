@@ -247,7 +247,7 @@ for p in positions:
     funding_display = "-"
 
     table_html += f"""
-    <div style="
+<div style="
         display:grid;
         grid-template-columns:
             120px
@@ -268,30 +268,30 @@ for p in positions:
         line-height:1.4;
         ">
         <!-- Asset -->
-        <div style="color:{TEXT_MAIN}; font-weight:600;">
-            <div style="font-size:0.8rem; line-height:1.2;">{symbol}</div>
-            <div style="font-size:0.7rem; color:{TEXT_SUB}; line-height:1.2;">{lev:.0f}x</div>
-        </div>
+<div style="color:{TEXT_MAIN}; font-weight:600;">
+<div style="font-size:0.8rem; line-height:1.2;">{symbol}</div>
+<div style="font-size:0.7rem; color:{TEXT_SUB}; line-height:1.2;">{lev:.0f}x</div>
+</div>
 
         <!-- Type -->
-        <div style="display:flex;align-items:flex-start;padding-top:2px;">
+<div style="display:flex;align-items:flex-start;padding-top:2px;">
             {badge_html}
-        </div>
+</div>
 
         <!-- Position Value / Size -->
-        <div style="color:{TEXT_MAIN}; font-weight:500;">
-            <div style="line-height:1.2;">${notional_est:,.2f}</div>
-            <div style="font-size:0.7rem; color:{TEXT_SUB}; line-height:1.2;">
+<div style="color:{TEXT_MAIN}; font-weight:500;">
+<div style="line-height:1.2;">${notional_est:,.2f}</div>
+<div style="font-size:0.7rem; color:{TEXT_SUB}; line-height:1.2;">
                 {qty:,.4f} {symbol.replace("USDT","")}
-            </div>
-        </div>
+</div>
+</div>
 
-        <!-- Unrealized PnL -->
-        <div style="font-weight:500;">
-            <div style="color:{pnl_color}; line-height:1.2;">
+<!-- Unrealized PnL -->
+<div style="font-weight:500;">
+<div style="color:{pnl_color}; line-height:1.2;">
                 ${unreal_pl:,.2f}
             </div>
-            <div style="color:{pnl_color}; font-size:0.7rem; line-height:1.2;">
+<div style="color:{pnl_color}; font-size:0.7rem; line-height:1.2;">
                 {roe_pct:.2f}%
             </div>
         </div>
@@ -344,6 +344,7 @@ render_html(pos_header_html)
 render_html(table_html)
 
 render_html(f"<div style='font-size:0.7rem;color:{TEXT_SUB};margin-top:8px;'>Last update: {datetime.now().strftime('%H:%M:%S')} • refresh every {REFRESH_INTERVAL_SEC}s</div>")
+
 
 
 
