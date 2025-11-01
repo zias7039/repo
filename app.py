@@ -401,37 +401,37 @@ chart_y = [pt["pnl"] for pt in st.session_state.pnl_history]
 st.markdown(
     f"""
 <div class="kpi-bar">
-    <div class="kpi-left">
+<div class="kpi-left">
 
-        <div class="kpi-block">
-            <div class="kpi-label">Total Value</div>
-            <div class="kpi-value">${total_equity:,.2f}</div>
-            <div class="kpi-sub">Perp ${total_equity:,.2f} • Spot n/a</div>
-        </div>
+<div class="kpi-block">
+<div class="kpi-label">Total Value</div>
+<div class="kpi-value">${total_equity:,.2f}</div>
+<div class="kpi-sub">Perp ${total_equity:,.2f} • Spot n/a</div>
+</div>
 
-        <div class="kpi-block">
-            <div class="kpi-label">Withdrawable <span style="color:#4ade80;">{withdrawable_pct:.2f}%</span></div>
-            <div class="kpi-value">${available:,.2f}</div>
-            <div class="kpi-sub">Free margin available</div>
-        </div>
+<div class="kpi-block">
+<div class="kpi-label">Withdrawable <span style="color:#4ade80;">{withdrawable_pct:.2f}%</span></div>
+<div class="kpi-value">${available:,.2f}</div>
+<div class="kpi-sub">Free margin available</div>
+</div>
 
-        <div class="kpi-block">
-            <div class="kpi-label">
-                Leverage
-                <span style="background:#7f1d1d;color:#fff;padding:2px 6px;border-radius:6px;font-size:0.7rem;font-weight:600;">
-                    {est_leverage:.2f}x
-                </span>
-            </div>
-            <div class="kpi-value">${total_position_value:,.2f}</div>
-            <div class="kpi-sub">Total position value</div>
-        </div>
+<div class="kpi-block">
+<div class="kpi-label">
+Leverage
+<span style="background:#7f1d1d;color:#fff;padding:2px 6px;border-radius:6px;font-size:0.7rem;font-weight:600;">
+{est_leverage:.2f}x
+</span>
+</div>
+<div class="kpi-value">${total_position_value:,.2f}</div>
+<div class="kpi-sub">Total position value</div>
+</div>
 
-    </div>
+</div>
 
-    <div class="kpi-right">
-        <div class="kpi-next-refresh">Manual refresh • target {REFRESH_INTERVAL_SEC}s interval</div>
-        <div class="kpi-support">Support us</div>
-    </div>
+<div class="kpi-right">
+<div class="kpi-next-refresh">Manual refresh • target {REFRESH_INTERVAL_SEC}s interval</div>
+<div class="kpi-support">Support us</div>
+</div>
 </div>
     """,
     unsafe_allow_html=True
@@ -587,3 +587,4 @@ st.markdown('</div>', unsafe_allow_html=True)
 st.caption(
     f"Last update: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  •  Manual refresh • target {REFRESH_INTERVAL_SEC}s interval"
 )
+
