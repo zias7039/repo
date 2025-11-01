@@ -7,6 +7,7 @@ import streamlit as st
 import pandas as pd
 from urllib.parse import urlencode
 from datetime import datetime
+from textwrap import dedent
 
 # ======================================
 # CONFIG
@@ -254,52 +255,52 @@ FONT_FAMILY = "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,
 # ======================================
 
 st.markdown(
-    f"""
-<div style='display:flex;align-items:flex-start;justify-content:space-between;
-            background:{CARD_BG};border:1px solid {BORDER};border-radius:8px;
-            padding:12px 16px;margin-bottom:8px;box-shadow:{SHADOW};
-            font-family:{FONT_FAMILY};'>
+    dedent(f"""
+    <div style='display:flex;align-items:flex-start;justify-content:space-between;
+                background:{CARD_BG};border:1px solid {BORDER};border-radius:8px;
+                padding:12px 16px;margin-bottom:8px;box-shadow:{SHADOW};
+                font-family:{FONT_FAMILY};'>
 
-    <div style='display:flex;flex-wrap:wrap;row-gap:8px;column-gap:32px;font-size:0.8rem;'>
-        <div style='color:{TEXT_SUB};'>
-            <div style='font-size:0.75rem;'>Total Value</div>
-            <div style='color:{TEXT_MAIN};font-weight:600;font-size:1rem;'>
-                ${total_equity:,.2f}
+        <div style='display:flex;flex-wrap:wrap;row-gap:8px;column-gap:32px;font-size:0.8rem;'>
+            <div style='color:{TEXT_SUB};'>
+                <div style='font-size:0.75rem;'>Total Value</div>
+                <div style='color:{TEXT_MAIN};font-weight:600;font-size:1rem;'>
+                    ${total_equity:,.2f}
+                </div>
+                <div style='font-size:0.7rem;color:{TEXT_SUB};'>
+                    Perp ${total_equity:,.2f}
+                </div>
             </div>
-            <div style='font-size:0.7rem;color:{TEXT_SUB};'>
-                Perp ${total_equity:,.2f}
+
+            <div style='color:{TEXT_SUB};'>
+                <div style='font-size:0.75rem;'>
+                    Withdrawable
+                    <span style='color:#4ade80;'>{withdrawable_pct:.2f}%</span>
+                </div>
+                <div style='color:{TEXT_MAIN};font-weight:600;font-size:1rem;'>
+                    ${available:,.2f}
+                </div>
+            </div>
+
+            <div style='color:{TEXT_SUB};'>
+                <div style='font-size:0.75rem;'>
+                    Leverage
+                    <span style='background:#7f1d1d;color:#fff;padding:2px 6px;
+                                 border-radius:6px;font-size:0.7rem;font-weight:600;'>
+                        {est_leverage:.2f}x
+                    </span>
+                </div>
+                <div style='color:{TEXT_MAIN};font-weight:600;font-size:1rem;'>
+                    ${total_position_value:,.2f}
+                </div>
             </div>
         </div>
 
-        <div style='color:{TEXT_SUB};'>
-            <div style='font-size:0.75rem;'>
-                Withdrawable
-                <span style='color:#4ade80;'>{withdrawable_pct:.2f}%</span>
-            </div>
-            <div style='color:{TEXT_MAIN};font-weight:600;font-size:1rem;'>
-                ${available:,.2f}
-            </div>
-        </div>
-
-        <div style='color:{TEXT_SUB};'>
-            <div style='font-size:0.75rem;'>
-                Leverage
-                <span style='background:#7f1d1d;color:#fff;padding:2px 6px;
-                             border-radius:6px;font-size:0.7rem;font-weight:600;'>
-                    {est_leverage:.2f}x
-                </span>
-            </div>
-            <div style='color:{TEXT_MAIN};font-weight:600;font-size:1rem;'>
-                ${total_position_value:,.2f}
-            </div>
+        <div style='font-size:0.7rem;color:{TEXT_SUB};white-space:nowrap;'>
+            Manual refresh • {REFRESH_INTERVAL_SEC}s
         </div>
     </div>
-
-    <div style='font-size:0.7rem;color:{TEXT_SUB};white-space:nowrap;'>
-        Manual refresh • {REFRESH_INTERVAL_SEC}s
-    </div>
-</div>
-""",
+    """),
     unsafe_allow_html=True,
 )
 
@@ -308,69 +309,62 @@ st.markdown(
 # single flex card layout
 # ======================================
 
-# We render one big <div> styled as a card, with flexbox:
-# - left side: equity / bias / pnl text
-# - right side: time range pills + (visually attached) chart
-# Note: chart itself is a Streamlit block, so it's placed immediately after
-# this card but visually belongs to the right side.
-
 st.markdown(
-    f"""
-<div style='background:{CARD_BG};border:1px solid {BORDER};border-radius:8px;
-            padding:16px;box-shadow:{SHADOW};font-family:{FONT_FAMILY};
-            margin-bottom:0;  /* chart will come right after, so 0 gap here */'>
+    dedent(f"""
+    <div style='background:{CARD_BG};border:1px solid {BORDER};border-radius:8px;
+                padding:16px;box-shadow:{SHADOW};font-family:{FONT_FAMILY};
+                margin-bottom:0;'>
 
-    <div style='display:flex;align-items:flex-start;justify-content:space-between;
-                column-gap:24px;'>
+        <div style='display:flex;align-items:flex-start;justify-content:space-between;
+                    column-gap:24px;'>
 
-        <!-- LEFT METRICS -->
-        <div style='flex:0.35;color:{TEXT_SUB};font-size:0.8rem;'>
-            <div style='font-size:0.8rem;color:{TEXT_SUB};'>Perp Equity</div>
-            <div style='color:{TEXT_MAIN};font-weight:600;font-size:1.4rem;
-                        margin-bottom:12px;'>
-                ${total_equity:,.2f}
-            </div>
-
-            <div style='font-size:0.75rem;color:{TEXT_SUB};'>Direction Bias</div>
-            <div style='font-weight:600;font-size:0.9rem;color:{bias_color};
-                        margin-bottom:12px;'>
-                {bias_label}
-            </div>
-
-            <div style='font-size:0.75rem;color:{TEXT_SUB};'>Unrealized PnL</div>
-            <div style='font-size:1rem;font-weight:600;color:{pnl_color};'>
-                ${unrealized_total_pnl:,.2f}
-            </div>
-            <div style='font-size:0.7rem;color:{TEXT_SUB};margin-bottom:12px;'>
-                {roe_pct:.2f}% ROE
-            </div>
-        </div>
-
-        <!-- RIGHT HEADER (Time Range Pills) -->
-        <div style='flex:0.65;display:flex;flex-direction:column;gap:8px;'>
-            <div style='display:flex;gap:8px;justify-content:flex-start;
-                        flex-wrap:wrap;font-size:0.7rem;'>
-                <div style='background:#0f3;color:#000;font-weight:600;
-                            border-radius:6px;padding:4px 8px;'>
-                    24H
+            <!-- LEFT METRICS -->
+            <div style='flex:0.35;color:{TEXT_SUB};font-size:0.8rem;'>
+                <div style='font-size:0.8rem;color:{TEXT_SUB};'>Perp Equity</div>
+                <div style='color:{TEXT_MAIN};font-weight:600;font-size:1.4rem;
+                            margin-bottom:12px;'>
+                    ${total_equity:,.2f}
                 </div>
-                <div style='background:{CARD_BG};border:1px solid #334155;
-                            border-radius:6px;padding:4px 8px;
-                            color:{TEXT_SUB};'>
-                    1W
+
+                <div style='font-size:0.75rem;color:{TEXT_SUB};'>Direction Bias</div>
+                <div style='font-weight:600;font-size:0.9rem;color:{bias_color};
+                            margin-bottom:12px;'>
+                    {bias_label}
+                </div>
+
+                <div style='font-size:0.75rem;color:{TEXT_SUB};'>Unrealized PnL</div>
+                <div style='font-size:1rem;font-weight:600;color:{pnl_color};'>
+                    ${unrealized_total_pnl:,.2f}
+                </div>
+                <div style='font-size:0.7rem;color:{TEXT_SUB};margin-bottom:12px;'>
+                    {roe_pct:.2f}% ROE
                 </div>
             </div>
+
+            <!-- RIGHT HEADER (Time Range Pills) -->
+            <div style='flex:0.65;display:flex;flex-direction:column;gap:8px;'>
+                <div style='display:flex;gap:8px;justify-content:flex-start;
+                            flex-wrap:wrap;font-size:0.7rem;'>
+                    <div style='background:#0f3;color:#000;font-weight:600;
+                                border-radius:6px;padding:4px 8px;'>
+                        24H
+                    </div>
+                    <div style='background:{CARD_BG};border:1px solid #334155;
+                                border-radius:6px;padding:4px 8px;
+                                color:{TEXT_SUB};'>
+                        1W
+                    </div>
+                </div>
+            </div>
+
         </div>
 
-    </div> <!-- flex row end -->
-
-</div> <!-- card end -->
-""",
+    </div>
+    """),
     unsafe_allow_html=True,
 )
 
 # Now we draw the chart directly under that card.
-# Visually this reads as: card header + chart body.
 st.line_chart(chart_df, x="ts", y="pnl", height=220)
 
 # Add a tiny spacer after chart so next card isn't glued
@@ -381,16 +375,16 @@ st.markdown("<div style='height:12px;'></div>", unsafe_allow_html=True)
 # ======================================
 
 st.markdown(
-    f"""
-<div style='background:{CARD_BG};border:1px solid {BORDER};border-radius:8px;
-            padding:12px 16px;margin-bottom:12px;box-shadow:{SHADOW};
-            font-family:{FONT_FAMILY};'>
+    dedent(f"""
+    <div style='background:{CARD_BG};border:1px solid {BORDER};border-radius:8px;
+                padding:12px 16px;margin-bottom:12px;box-shadow:{SHADOW};
+                font-family:{FONT_FAMILY};'>
 
-    <div style='font-size:0.8rem;color:{TEXT_SUB};margin-bottom:8px;'>
-        Positions: {positions_count} | Total: ${total_position_value:,.2f}
+        <div style='font-size:0.8rem;color:{TEXT_SUB};margin-bottom:8px;'>
+            Positions: {positions_count} | Total: ${total_position_value:,.2f}
+        </div>
     </div>
-</div>
-""",
+    """),
     unsafe_allow_html=True,
 )
 
@@ -420,11 +414,11 @@ for p in positions:
 st.dataframe(rows, use_container_width=True)
 
 st.markdown(
-    f"""
-<div style='font-size:0.7rem;color:{TEXT_SUB};margin-top:8px;'>
-    Last update: {datetime.now().strftime("%H:%M:%S")}
-    • refresh every {REFRESH_INTERVAL_SEC}s
-</div>
-""",
+    dedent(f"""
+    <div style='font-size:0.7rem;color:{TEXT_SUB};margin-top:8px;'>
+        Last update: {datetime.now().strftime("%H:%M:%S")}
+        • refresh every {REFRESH_INTERVAL_SEC}s
+    </div>
+    """),
     unsafe_allow_html=True,
 )
