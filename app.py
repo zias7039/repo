@@ -9,64 +9,38 @@ from urllib.parse import urlencode
 from datetime import datetime
 from textwrap import dedent
 
-# ======================================
-# CONFIG
-# ======================================
-
-st.set_page_config(
-    page_title="Perp Dashboard",
-    page_icon="📈",
-    layout="wide",
-)
+# =============== CONFIG ===============
+st.set_page_config(page_title="Perp Dashboard", page_icon="📈", layout="wide")
 
 PRODUCT_TYPE = "USDT-FUTURES"
 MARGIN_COIN = "USDT"
 
-# Bitget API keys are expected in .streamlit/secrets.toml or Streamlit Cloud secrets
 API_KEY = st.secrets["bitget"]["api_key"]
 API_SECRET = st.secrets["bitget"]["api_secret"]
 PASSPHRASE = st.secrets["bitget"]["passphrase"]
 
 BASE_URL = "https://api.bitget.com"
-REFRESH_INTERVAL_SEC = 15  # just used for the UI label
+REFRESH_INTERVAL_SEC = 15
 
-
-# ======================================
-# Bitget API helpers
-# ======================================
-
+# =============== HELPERS ===============
 def _timestamp_ms() -> str:
-    """Return current epoch milliseconds as string (Bitget wants ms precision)."""
     return str(int(time.time() * 1000))
 
-
 def _sign(timestamp_ms, method, path, query_params, body, secret_key):
-    """
-    Bitget signature format:
-    sign_target = timestamp + method + path + (optional '?query') + body
-    HMAC-SHA256 -> base64
-    """
     if body is None:
         body = ""
     method_up = method.upper()
 
     if query_params:
-        # urlencode dict to query string like "a=1&b=2"
         query_str = urlencode(query_params)
         sign_target = f"{timestamp_ms}{method_up}{path}?{query_str}{body}"
     else:
         sign_target = f"{timestamp_ms}{method_up}{path}{body}"
 
-    mac = hmac.new(
-        secret_key.encode("utf-8"),
-        sign_target.encode("utf-8"),
-        digestmod=hashlib.sha256,
-    )
+    mac = hmac.new(secret_key.encode("utf-8"), sign_target.encode("utf-8"), digestmod=hashlib.sha256)
     return base64.b64encode(mac.digest()).decode()
 
-
 def _private_get(path, params=None):
-    """Signed GET request to Bitget private endpoints."""
     ts = _timestamp_ms()
     signature = _sign(ts, "GET", path, params, "", API_SECRET)
 
@@ -84,21 +58,12 @@ def _private_get(path, params=None):
         "locale": "en-US",
         "Content-Type": "application/json",
     }
-
     r = requests.get(url, headers=headers)
     return r.json()
 
 
 def fetch_positions():
-    """
-    Returns:
-        (positions_list, raw_response)
-    Bitget returns list of open positions for productType/marginCoin.
-    """
-    params = {
-        "productType": PRODUCT_TYPE,
-        "marginCoin": MARGIN_COIN,
-    }
+    params = {"productType": PRODUCT_TYPE, "marginCoin": MARGIN_COIN}
     res = _private_get("/api/v2/mix/position/all-position", params)
     if res.get("code") != "00000":
         return [], res
@@ -107,46 +72,28 @@ def fetch_positions():
 
 
 def fetch_account():
-    """
-    Returns:
-        (account_info_for_marginCoin, raw_response)
-
-    Bitget returns multiple accounts (one per marginCoin).
-    We pick the one that matches our MARGIN_COIN (USDT).
-    """
-    params = {
-        "productType": PRODUCT_TYPE,
-        "marginCoin": MARGIN_COIN,
-    }
+    params = {"productType": PRODUCT_TYPE, "marginCoin": MARGIN_COIN}
     res = _private_get("/api/v2/mix/account/accounts", params)
     if res.get("code") != "00000":
         return None, res
-
     arr = res.get("data") or []
     acct = next((a for a in arr if a.get("marginCoin") == MARGIN_COIN), None)
     return acct, res
 
-
-# ======================================
-# FETCH DATA & DERIVED METRICS
-# ======================================
-
+# =============== FETCH DATA ===============
 positions, _raw_pos = fetch_positions()
 account, _raw_acct = fetch_account()
 
 def fnum(v):
-    """safe float() with fallback 0.0"""
     try:
         return float(v)
     except:
         return 0.0
 
-# pull account-level numbers
 available   = fnum(account.get("available")) if account else 0.0
 locked      = fnum(account.get("locked")) if account else 0.0
 margin_size = fnum(account.get("marginSize")) if account else 0.0
 
-# total_equity (USDT equity, fallback)
 if account and "usdtEquity" in account:
     total_equity = fnum(account["usdtEquity"])
 elif account and "equity" in account:
@@ -156,17 +103,16 @@ else:
 
 withdrawable_pct = (available / total_equity * 100.0) if total_equity > 0 else 0.0
 
-# walk positions to compute agg metrics
 total_position_value = 0.0
 long_value = 0.0
 short_value = 0.0
 unrealized_total_pnl = 0.0
-nearest_liq_pct = None  # closest liquidation distance %
+nearest_liq_pct = None
 
 for p in positions:
     lev = fnum(p.get("leverage", 0.0))
     mg  = fnum(p.get("marginSize", 0.0))
-    notional_est = mg * lev  # approx pos size ~= margin * leverage
+    notional_est = mg * lev
     total_position_value += notional_est
 
     side = (p.get("holdSide", "") or "").lower()
@@ -177,7 +123,6 @@ for p in positions:
 
     unrealized_total_pnl += fnum(p.get("unrealizedPL", 0.0))
 
-    # compute nearest liq % distance (mark vs liq)
     mark_price = fnum(p.get("markPrice"))
     liq_price  = fnum(p.get("liquidationPrice"))
     if liq_price != 0:
@@ -185,27 +130,21 @@ for p in positions:
         if nearest_liq_pct is None or dist_pct < nearest_liq_pct:
             nearest_liq_pct = dist_pct
 
-# est leverage = total position notional / equity
 est_leverage = (total_position_value / total_equity) if total_equity > 0 else 0.0
 
-# Bias coloring
 if long_value > short_value:
     bias_label = "LONG"
-    bias_color = "#4ade80"  # green
+    bias_color = "#4ade80"
 elif short_value > long_value:
     bias_label = "SHORT"
-    bias_color = "#f87171"  # red
+    bias_color = "#f87171"
 else:
     bias_label = "FLAT"
     bias_color = "#94a3b8"
 
-# PnL color
 pnl_color = "#4ade80" if unrealized_total_pnl >= 0 else "#f87171"
-
-# ROE-ish display
 roe_pct = (unrealized_total_pnl / total_equity * 100.0) if total_equity > 0 else 0.0
 
-# liquidation safety label
 if nearest_liq_pct is None:
     liq_text = "n/a"
     liq_color = "#94a3b8"
@@ -213,19 +152,7 @@ else:
     liq_text  = f"{nearest_liq_pct:.2f}%"
     liq_color = "#4ade80" if nearest_liq_pct > 30 else "#f87171"
 
-# positions summary
 positions_count = len(positions)
-total_long_pct = 0.0
-total_short_pct = 0.0
-if positions_count > 0:
-    longs  = sum(1 for p in positions if (p.get("holdSide", "") or "").lower() == "long")
-    shorts = sum(1 for p in positions if (p.get("holdSide", "") or "").lower() == "short")
-    total_long_pct  = (longs / positions_count) * 100.0
-    total_short_pct = (shorts / positions_count) * 100.0
-
-# ======================================
-# SESSION STATE HISTORY FOR CHART
-# ======================================
 
 if "pnl_history" not in st.session_state:
     st.session_state.pnl_history = []
@@ -234,15 +161,11 @@ st.session_state.pnl_history.append({
     "ts": datetime.now().strftime("%H:%M:%S"),
     "pnl": unrealized_total_pnl,
 })
-# keep buffer small-ish
-st.session_state.pnl_history = st.session_state.pnl_history[-200:]
 
+st.session_state.pnl_history = st.session_state.pnl_history[-200:]
 chart_df = pd.DataFrame(st.session_state.pnl_history)
 
-# ======================================
-# STYLE CONSTANTS
-# ======================================
-
+# =============== STYLE CONSTS ===============
 CARD_BG     = "#1e2538"
 TEXT_SUB    = "#94a3b8"
 TEXT_MAIN   = "#f8fafc"
@@ -250,15 +173,12 @@ BORDER      = "rgba(148,163,184,0.2)"
 SHADOW      = "0 24px 48px rgba(0,0,0,0.6)"
 FONT_FAMILY = "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif"
 
-# Small util so we don't repeat st.markdown everywhere
+# key helper: ALWAYS use this instead of st.markdown directly for HTML blocks
 
 def render_html(html: str):
     st.markdown(html, unsafe_allow_html=True)
 
-
-# ======================================
-# TOP KPI BAR (single card)
-# ======================================
+# =============== TOP CARD ===============
 
 top_card_html = dedent(f"""
 <div style='background:{CARD_BG};border:1px solid {BORDER};border-radius:8px;
@@ -304,12 +224,10 @@ top_card_html = dedent(f"""
     </div>
 </div>
 """)
+
 render_html(top_card_html)
 
-# ======================================
-# MID CARD (INFO LEFT)
-# We'll draw chart separately with Streamlit API in the RIGHT column.
-# ======================================
+# =============== MID SECTION ===============
 
 col_left, col_right = st.columns([0.4, 0.6])
 
@@ -356,15 +274,13 @@ with col_left:
 with col_right:
     st.line_chart(chart_df, x="ts", y="pnl", height=220)
 
-# ======================================
-# POSITIONS CARD + TABLE
-# ======================================
+# =============== POSITIONS ===============
 
 positions_header_html = dedent(f"""
 <div style='background:{CARD_BG};border:1px solid {BORDER};border-radius:8px;
             padding:12px 16px;margin-bottom:12px;box-shadow:{SHADOW};
             font-family:{FONT_FAMILY};font-size:0.8rem;color:{TEXT_SUB};'>
-    Positions: {positions_count} | Total: ${total_position_value:,.2f}
+    Positions: {len(positions)} | Total: ${total_position_value:,.2f}
 </div>
 """)
 render_html(positions_header_html)
