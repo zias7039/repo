@@ -447,43 +447,43 @@ with col_main_left:
     if nearest_liq_pct is not None:
         liq_text = f"{nearest_liq_pct:.2f}% to nearest liq"
 
-    st.markdown(
+st.markdown(
 f"""
-        <div class="equity-block">
+<div class="equity-block">
 
-            <div class="equity-title">Perp Equity</div>
-            <div class="equity-value">${total_equity:,.2f}</div>
+<div class="equity-title">Perp Equity</div>
+<div class="equity-value">${total_equity:,.2f}</div>
 
-            <div class="metric-bar-label">Leverage Utilization</div>
-            <div class="metric-bar-bg">
-                <div class="metric-bar-fill" style="width:{min(est_leverage*10,100)}%;"></div>
-            </div>
-            <div class="risk-sub" style="margin-bottom:12px;">
-                est. leverage {est_leverage:.2f}x
-            </div>
+<div class="metric-bar-label">Leverage Utilization</div>
+<div class="metric-bar-bg">
+<div class="metric-bar-fill" style="width:{min(est_leverage*10,100)}%;"></div>
+</div>
+<div class="risk-sub" style="margin-bottom:12px;">
+est. leverage {est_leverage:.2f}x
+</div>
 
-            <div class="metric-bar-label">Direction Bias</div>
-            <div class="metric-bar-value" style="color:{bias_color};">{bias_label}</div>
+<div class="metric-bar-label">Direction Bias</div>
+<div class="metric-bar-value" style="color:{bias_color};">{bias_label}</div>
 
-            <div class="risk-label" style="margin-top:12px;">Unrealized PnL</div>
-            <div class="risk-value-number" style="color:{pnl_color};">
-                ${unrealized_total_pnl:,.2f}
-            </div>
-            <div class="risk-sub">
-                {roe_pct:.2f}% ROE
-            </div>
+<div class="risk-label" style="margin-top:12px;">Unrealized PnL</div>
+<div class="risk-value-number" style="color:{pnl_color};">
+${unrealized_total_pnl:,.2f}
+</div>
+<div class="risk-sub">
+{roe_pct:.2f}% ROE
+</div>
 
-            <div class="risk-label">Liq buffer</div>
-            <div class="risk-value-number" style="color:#94a3b8;">
-                {liq_text}
-            </div>
-            <div class="risk-sub">
-                nearest distance to forced close
-            </div>
+<div class="risk-label">Liq buffer</div>
+<div class="risk-value-number" style="color:#94a3b8;">
+{liq_text}
+</div>
+<div class="risk-sub">
+nearest distance to forced close
+</div>
 
-        </div>
-        """,
-        unsafe_allow_html=True
+</div>
+""",
+unsafe_allow_html=True
     )
 
 with col_main_right:
@@ -587,5 +587,6 @@ st.markdown('</div>', unsafe_allow_html=True)
 st.caption(
     f"Last update: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  •  Manual refresh • target {REFRESH_INTERVAL_SEC}s interval"
 )
+
 
 
