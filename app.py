@@ -79,7 +79,7 @@ available   = fnum(account.get("available")) if account else 0.0
 locked      = fnum(account.get("locked")) if account else 0.0
 margin_size = fnum(account.get("marginSize")) if account else 0.0
 
-# equity
+# equity priority: usdtEquity > equity > fallback sum
 if account and account.get("usdtEquity"):
     total_equity = fnum(account.get("usdtEquity"))
 elif account and account.get("equity"):
@@ -118,7 +118,7 @@ for p in positions:
         if nearest_liq_pct is None or dist_pct < nearest_liq_pct:
             nearest_liq_pct = dist_pct
 
-# derived display numbers
+# derived metrics
 est_leverage = (total_position_value / total_equity) if total_equity > 0 else 0.0
 
 if long_value > short_value:
@@ -135,10 +135,10 @@ long_exposure_pct  = (long_value  / total_position_value * 100.0) if total_posit
 short_exposure_pct = (short_value / total_position_value * 100.0) if total_position_value > 0 else 0.0
 
 unrealized_is_profit = unrealized_total_pnl >= 0
-pnl_color = "#4ade80" if unrealized_is_profit else "#f87171"
-roe_pct = (unrealized_total_pnl / total_equity * 100.0) if total_equity > 0 else 0.0
-roe_color = "#4ade80" if roe_pct >= 0 else "#f87171"
-arrow_icon = "↑" if unrealized_is_profit else "↓"
+pnl_color   = "#4ade80" if unrealized_is_profit else "#f87171"
+roe_pct     = (unrealized_total_pnl / total_equity * 100.0) if total_equity > 0 else 0.0
+roe_color   = "#4ade80" if roe_pct >= 0 else "#f87171"
+arrow_icon  = "↑" if unrealized_is_profit else "↓"  # <-- defined here
 
 positions_count = len(positions)
 
@@ -155,7 +155,7 @@ st.session_state.pnl_history = st.session_state.pnl_history[-200:]
 chart_df = pd.DataFrame(st.session_state.pnl_history)
 
 # ================= STYLE =================
-CARD_BG      = "#1a1f27"        # darker card background
+CARD_BG      = "#1a1f27"        # dark card bg like screenshot
 CARD_BORDER  = "#2a303a"
 BAR_BG       = "#2f343b"
 TEXT_MAIN    = "#f8fafc"
@@ -172,8 +172,6 @@ def render_html(block: str):
     st.markdown(clean, unsafe_allow_html=True)
 
 # ================= KPI TOP BAR =================
-# compact summary card above main card
-
 top_card_html = f"""
 <div style='background:{CARD_BG};border:1px solid {CARD_BORDER};border-radius:{RADIUS};
             padding:12px 16px;margin-bottom:12px;box-shadow:{SHADOW};
@@ -209,13 +207,10 @@ top_card_html = f"""
 render_html(top_card_html)
 
 # ================= MAIN CARD LEFT =================
-# Large card matching first screenshot layout
-
 col_left, col_right = st.columns([0.45, 0.55])
 
 with col_left:
     long_pct_width  = f"{long_exposure_pct:.2f}%"
-    short_pct_width = f"{short_exposure_pct:.2f}%"
 
     main_card_html = f"""
     <div style='background:{CARD_BG};border:1px solid {CARD_BORDER};border-radius:{RADIUS};
