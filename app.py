@@ -20,12 +20,9 @@ API_SECRET = st.secrets["bitget"]["api_secret"]
 PASSPHRASE = st.secrets["bitget"]["passphrase"]
 
 BASE_URL = "https://api.bitget.com"
-REFRESH_INTERVAL_SEC = 15
-time.sleep(REFRESH_INTERVAL_SEC)
-st.experimental_rerun()
 
-positions, _ = fetch_positions()
-account, _ = fetch_account()
+# 새로고침 주기 (초)
+REFRESH_INTERVAL_SEC = 15
 
 # ================= HELPERS =================
 def _timestamp_ms() -> str:
@@ -277,6 +274,12 @@ Last update: {datetime.now().strftime('%H:%M:%S')} • refresh every {REFRESH_IN
 </div>"""
 render_html(footer_html)
 
+time.sleep(REFRESH_INTERVAL_SEC)
+
+try:
+    st.experimental_rerun()
+except Exception:
+    st.rerun()
 
 
 
