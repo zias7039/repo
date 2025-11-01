@@ -4,6 +4,7 @@ import hashlib
 import base64
 import requests
 import streamlit as st
+import pandas as pd
 from urllib.parse import urlencode
 from datetime import datetime
 
@@ -512,9 +513,10 @@ with col_main_right:
     })
     
     st.line_chart(
-        data={"PnL": chart_y},
-        x=chart_x,
-        height=220
+    data=chart_df,
+    x="time",
+    y="PnL",
+    height=220,
     )
 
     st.markdown(
@@ -578,4 +580,5 @@ st.markdown('</div>', unsafe_allow_html=True)
 st.caption(
     f"Last update: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  •  Auto refresh hint: every {REFRESH_INTERVAL_SEC}s (manually rerun for now)"
 )
+
 
