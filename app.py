@@ -145,7 +145,7 @@ def fetch_account_bills(limit=100):
     return bills
 
 def aggregate_funding_by_symbol_with_last():
-    bills = fetch_account_bills(limit=200)
+    bills = fetch_account_bills(limit=100)
 
     cumu_sum = defaultdict(float)  # 심볼별 누적 펀딩비 합계
     last_amt = {}                  # 심볼별 가장 최근 펀딩비 금액
@@ -547,6 +547,7 @@ try:
     st.experimental_rerun()
 except Exception:
     st.rerun()
+
 
 
 
