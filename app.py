@@ -410,22 +410,21 @@ justify-content:space-between;
 </div>"""
 
 # ================== GRANULARITY SELECT ==================
-    granularity_map = {
-        "1분": "1min",
-        "5분": "5min",
-        "15분": "15min",
-        "1시간": "1h",
-        "4시간": "4h",
-        "1일": "1day",
-    }
+granularity_map = {
+    "1분": "1min",
+    "5분": "5min",
+    "15분": "15min",
+    "1시간": "1h",
+    "4시간": "4h",
+    "1일": "1day",
+}
 
-    # 차트 간격 선택 드롭다운 (항상 chart 위쪽)
-    selected_granularity_label = st.selectbox(
+selected_granularity_label = st.selectbox(
     "⏱️ 차트 간격 선택",
     list(granularity_map.keys()),
     index=2  # 기본값: 15분
-    )
-    selected_granularity = granularity_map[selected_granularity_label]
+)
+selected_granularity = granularity_map[selected_granularity_label]
 
 # ================== LAYOUT: CHART + CARD ==================
 st.markdown(
@@ -611,6 +610,7 @@ with st.expander("🧩 Debug Panel (펀딩비 확인용)"):
 # ================= AUTO REFRESH =================
 time.sleep(REFRESH_INTERVAL_SEC)
 st.rerun()
+
 
 
 
