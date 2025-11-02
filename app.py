@@ -413,8 +413,8 @@ for p in positions:
 
     pnl_color_each = "#4ade80" if unreal_pl >= 0 else "#f87171"
 
-    fund_info = funding_data.get(symbol, {"cumulative": 0.00, "last": 0.00})
-    funding_total_val = fund_info.get("cumulative", 0.00)
+    fund_info = funding_data.get(symbol, {"cumulative": 0.000, "last": 0.000})
+    funding_total_val = fund_info.get("cumulative", 0.000)
     funding_display = f"${funding_total_val:,.2f}"
 
     badge_html = format_side_badge(side)
@@ -517,23 +517,3 @@ try:
     st.experimental_rerun()
 except Exception:
     st.rerun()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
