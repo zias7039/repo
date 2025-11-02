@@ -208,6 +208,15 @@ risk_html = f"""
 </div>
 """
 
+pnl_block_html = f"""
+<div style='color:{TEXT_SUB};'>
+  <div style='font-size:0.75rem;'>미실현 손익</div>
+  <div style='font-weight:600;font-size:1rem;color:{pnl_color};">
+    ${unrealized_total_pnl:,.2f} <span style="font-size:0.7rem;color:{pnl_color};">({roe_pct:.2f}%)</span>
+  </div>
+</div>
+"""
+
 top_card_html = f"""<div style='background:{CARD_BG};
 border:1px solid {BORDER};
 border-radius:8px;
@@ -242,6 +251,7 @@ font-size:0.7rem;font-weight:600;'>{est_leverage:.2f}x</span>
 </div>
 
 {risk_html}
+{pnl_block_html}
 </div>
 </div>"""
 
@@ -377,6 +387,7 @@ try:
     st.experimental_rerun()
 except Exception:
     st.rerun()
+
 
 
 
