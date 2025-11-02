@@ -313,18 +313,18 @@ for p in positions:
 </div>
 
 <!-- 진입가 -->
-<div style="color:{TEXT_MAIN};font-weight:500;">
-<div style="line-height:1.2;">${entry_price:,.2f}</div>
+<div style="color:{TEXT_MAIN};font-weight:500;white-space:nowrap;line-height:1.2;">
+    ${entry_price:,.2f}
 </div>
 
 <!-- 현재가 -->
-<div style="color:{TEXT_MAIN};font-weight:500;">
-<div style="line-height:1.2;">${mark_price:,.2f}</div>
+<div style="color:{TEXT_MAIN};font-weight:500;white-space:nowrap;line-height:1.2;">
+    ${mark_price:,.2f}
 </div>
 
 <!-- 청산가 -->
-<div style="color:{TEXT_MAIN};font-weight:500;">
-<div style="line-height:1.2;">${liq_price:,.2f}</div>
+<div style="color:{TEXT_MAIN};font-weight:500;white-space:nowrap;line-height:1.2;">
+    ${liq_price:,.2f}
 </div>
 
 <!-- 사용 마진 -->
@@ -358,6 +358,7 @@ try:
     st.experimental_rerun()
 except Exception:
     st.rerun()
+
 
 
 
