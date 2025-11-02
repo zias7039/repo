@@ -270,15 +270,33 @@ MONO_FAMILY = "'Roboto Mono', monospace"
 # 글로벌 폰트 주입
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Roboto+Mono:wght@400;500&display=swap');
-
-html, body, [class*="css"] {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
-    color: #f8fafc;
-    font-size: 1rem;
+/* === Everett Mono Import === */
+@font-face {
+    font-family: 'Everett Mono';
+    src: url('https://cdn.jsdelivr.net/gh/jaywcjlove/fonts@main/fonts/Everett-Mono-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
 }
-.value, .price, .metric, .number {
-    font-family: 'Roboto Mono', monospace;
+@font-face {
+    font-family: 'Everett Mono';
+    src: url('https://cdn.jsdelivr.net/gh/jaywcjlove/fonts@main/fonts/Everett-Mono-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+}
+
+/* === 전체 텍스트 기본 === */
+html, body, [class*="css"] {
+    font-family: 'Inter', 'Everett Mono', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    color: #f8fafc;
+    font-size: 1.4rem; /* 적당히 줄여서 22px 정도 */
+}
+
+/* === 숫자, 코드, 데이터 === */
+.value, .price, .metric, .number, code, pre {
+    font-family: 'Everett Mono', monospace;
+    font-weight: 500;
+    font-size: 1.2rem;
+    letter-spacing: -0.02rem;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -547,6 +565,7 @@ try:
     st.experimental_rerun()
 except Exception:
     st.rerun()
+
 
 
 
