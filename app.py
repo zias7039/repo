@@ -9,6 +9,7 @@ from urllib.parse import urlencode
 from datetime import datetime, timedelta, timezone
 from textwrap import dedent
 from collections import defaultdict
+import plotly.graph_objects as go
 
 # ================= CONFIG =================
 st.set_page_config(page_title="Perp Dashboard", page_icon="📈", layout="wide")
@@ -24,6 +25,12 @@ BASE_URL = "https://api.bitget.com"
 
 # 새로고침 주기 (초)
 REFRESH_INTERVAL_SEC = 15
+
+# ================= SESSION STATE (차트 선택 심볼) =================
+if "selected_symbol" not in st.session_state:
+    # 기본 심볼: BTCUSDT
+    st.session_state.selected_symbol = "BTCUSDT"
+
 
 # ================= HELPERS =================
 def _timestamp_ms() -> str:
@@ -75,18 +82,84 @@ def render_html(block: str):
 def normalize_symbol(sym: str) -> str:
     """
     Bitget 포지션 심볼이 'BTCUSDT_UMCBL' 이런 식일 수 있음.
-    청구내역 bill은 'BTCUSDT'처럼 뒤 suffix가 없을 수 있음.
+    캔들/빌링 등은 'BTCUSDT'만 오는 경우도 있음.
     => '_' 이후를 자르고 대문자화해서 통일.
     """
     if not sym:
         return ""
     return sym.split("_")[0].upper()
 
-# ================= BITGET FETCHERS =================
+
+# ================= PUBLIC FETCHERS (차트용) =================
+def fetch_kline(symbol="BTCUSDT", granularity="1h", limit=100):
+    """
+    캔들 데이터 가져오기
+    Bitget mixed futures market 캔들:
+    /api/v2/mix/market/candles
+    symbol 예: BTCUSDT_UMCBL
+    """
+    params = {
+        "symbol": f"{symbol}_UMCBL",
+        "granularity": granularity,  # '1m','5m','1h','4h','1d' 등
+        "limit": str(limit),
+    }
+    res = requests.get(f"{BASE_URL}/api/v2/mix/market/candles", params=params).json()
+    if res.get("code") != "00000":
+        return pd.DataFrame()
+
+    # response data 배열: [timestamp, open, high, low, close, volume]
+    data = res.get("data", [])
+    df = pd.DataFrame(
+        data,
+        columns=["timestamp", "open", "high", "low", "close", "volume"]
+    )
+
+    # 타입 변환 및 정렬
+    df["timestamp"] = pd.to_datetime(df["timestamp"].astype(float), unit="ms")
+    df = df.astype({
+        "open": float,
+        "high": float,
+        "low": float,
+        "close": float,
+        "volume": float,
+    })
+    df = df.sort_values("timestamp")
+    return df
+
+def render_chart(symbol: str):
+    df = fetch_kline(symbol, granularity="1h", limit=100)
+    if df.empty:
+        st.warning(f"{symbol} 차트를 불러올 수 없습니다.")
+        return
+
+    fig = go.Figure(
+        data=[go.Candlestick(
+            x=df["timestamp"],
+            open=df["open"],
+            high=df["high"],
+            low=df["low"],
+            close=df["close"],
+            # 색은 살짝만 지정 (초록 up / 빨강 down)
+            increasing_line_color="#22c55e",
+            decreasing_line_color="#ef4444",
+            increasing_fillcolor="#22c55e",
+            decreasing_fillcolor="#ef4444",
+        )]
+    )
+
+    fig.update_layout(
+        title=f"{symbol} / Perp",
+        height=320,
+        margin=dict(l=0, r=0, t=30, b=0),
+        template="plotly_dark",
+        xaxis_rangeslider_visible=False,
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+
+# ================= BITGET PRIVATE FETCHERS =================
 def fetch_positions():
-    """
-    전체 포지션 조회
-    """
     params = {"productType": PRODUCT_TYPE, "marginCoin": MARGIN_COIN}
     res = _private_get("/api/v2/mix/position/all-position", params)
     if res.get("code") == "00000":
@@ -95,9 +168,6 @@ def fetch_positions():
         return ([], res)
 
 def fetch_account():
-    """
-    계정 정보(총자산 등)
-    """
     params = {"productType": PRODUCT_TYPE, "marginCoin": MARGIN_COIN}
     res = _private_get("/api/v2/mix/account/accounts", params)
     if res.get("code") != "00000":
@@ -108,28 +178,7 @@ def fetch_account():
 
 def fetch_account_bills(limit=100):
     """
-    Bitget 선물 계정 청구내역 (최근 90일)
-    GET /api/v2/mix/account/bill
-
-    response:
-    {
-        "code":"00000",
-        "data":{
-            "bills":[
-                {
-                    "billId":"1",
-                    "symbol":"BTCUSDT",
-                    "amount":"-0.004992",
-                    "fee":"0",
-                    "businessType":"contract_settle_fee",
-                    "cTime":"1695715200654",
-                    ...
-                },
-                ...
-            ],
-            "endId":"2"
-        }
-    }
+    펀딩비 내역 등 Billing (최근 90일)
     """
     params = {
         "productType": PRODUCT_TYPE,
@@ -147,33 +196,29 @@ def fetch_account_bills(limit=100):
 def aggregate_funding_by_symbol_with_last():
     bills = fetch_account_bills(limit=100)
 
-    cumu_sum = defaultdict(float)  # 심볼별 누적 펀딩비 합계
-    last_amt = {}                  # 심볼별 가장 최근 펀딩비 금액
-    last_ts = {}                   # 심볼별 가장 최근 타임스탬프(ms)
-    seen_types = set()             # 디버깅: 어떤 businessType이 있었나 기록
+    cumu_sum = defaultdict(float)  # 누적 펀딩비 합계
+    last_amt = {}
+    last_ts = {}
+    seen_types = set()
 
     for b in bills:
-        raw_sym = b.get("symbol", "")              # "BTCUSDT"
-        sym = normalize_symbol(raw_sym)            # -> "BTCUSDT"
+        raw_sym = b.get("symbol", "")
+        sym = normalize_symbol(raw_sym)
         bt_raw = b.get("businessType", "")
-        bt_clean = (bt_raw or "").strip().lower()  # "contract_settle_fee"
-        amt = fnum(b.get("amount", 0.0))           # "0.0126341" -> float
-        ts_raw = b.get("cTime")                    # "1762041608855"
+        bt_clean = (bt_raw or "").strip().lower()
+        amt = fnum(b.get("amount", 0.0))
+        ts_raw = b.get("cTime")
 
         seen_types.add(bt_clean)
 
-        # 펀딩비만 카운트
-        # 1) 정확히 contract_settle_fee
-        # 2) 혹시 모르게 xxx_settle_fee / funding_fee 등 비슷한 변형도 있으면 포함
+        # settle_fee / funding 등만 집계
         if ("settle_fee" in bt_clean) or ("funding" in bt_clean):
             cumu_sum[sym] += amt
-
-            # 최신값 갱신
+            # 최근값 추적 (디버그용)
             if sym not in last_ts or (ts_raw and ts_raw > last_ts[sym]):
                 last_ts[sym] = ts_raw
                 last_amt[sym] = amt
 
-    # 결과 형태로 묶기
     result = {}
     for sym in cumu_sum:
         result[sym] = {
@@ -181,12 +226,11 @@ def aggregate_funding_by_symbol_with_last():
             "last": last_amt.get(sym, 0.0),
         }
 
-    # 디버깅용으로 businessType 정보를 같이 돌려주자
-    # Streamlit 쪽에서 보기 편하게 리턴에 얹는다
     return {
-        "_debug_seen_types": list(seen_types),  # 우리가 실제로 본 businessType 종류들
-        "_debug_raw_result": dict(result),      # 계산된 결과값
+        "_debug_seen_types": list(seen_types),
+        "_debug_raw_result": dict(result),
     }
+
 
 # ================= FETCH DATA (런타임 실행) =================
 positions, raw_pos_res = fetch_positions()
@@ -201,14 +245,14 @@ if raw_acct_res.get("code") != "00000":
     account = {}
 
 funding_map = aggregate_funding_by_symbol_with_last()
-funding_data = funding_map.get("_debug_raw_result", {})  # 실제 펀딩 합계/최근 값 테이블용
+funding_data = funding_map.get("_debug_raw_result", {})
 
 # ================= METRICS 계산 =================
 available = fnum(account.get("available")) if account else 0.0
 locked = fnum(account.get("locked")) if account else 0.0
 margin_size_acct = fnum(account.get("marginSize")) if account else 0.0
 
-# 총자산: usdtEquity가 있으면 그걸 쓰고, 없으면 available+locked+marginSize로 추정
+# 총자산
 total_equity = (
     fnum(account.get("usdtEquity"))
     if (account and account.get("usdtEquity") is not None)
@@ -223,27 +267,30 @@ unrealized_total_pnl = 0.0
 for p in positions:
     lev = fnum(p.get("leverage", 0.0))
     mg = fnum(p.get("marginSize", 0.0))
+
+    # 명목규모 (증거금 * 레버리지)
     notional_est = mg * lev
     total_position_value += notional_est
 
+    # 전체 미실현 PnL 누적
     unrealized_total_pnl += fnum(p.get("unrealizedPL", 0.0))
 
+# 계좌 차원의 추정 레버리지
 est_leverage = (total_position_value / total_equity) if total_equity > 0 else 0.0
 
-# 계좌 전체 PnL
+# 전체 PnL 색/ROE
 pnl_color = "#4ade80" if unrealized_total_pnl >= 0 else "#f87171"
 roe_pct = (unrealized_total_pnl / total_equity * 100.0) if total_equity > 0 else 0.0
+
 
 # ================= STYLE =================
 CARD_BG, TEXT_SUB, TEXT_MAIN = "#1e2538", "#94a3b8", "#f8fafc"
 BORDER, SHADOW = "rgba(148,163,184,0.2)", "0 24px 48px rgba(0,0,0,0.6)"
 FONT_FAMILY = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif"
-MONO_FAMILY = "'Roboto Mono', monospace"
 
 # 글로벌 폰트 주입
 st.markdown("""
 <style>
-/* === Everett Mono Import === */
 @font-face {
     font-family: 'Everett Mono';
     src: url('https://cdn.jsdelivr.net/gh/jaywcjlove/fonts@main/fonts/Everett-Mono-Regular.woff2') format('woff2');
@@ -257,14 +304,14 @@ st.markdown("""
     font-style: normal;
 }
 
-/* === 전체 텍스트 기본 === */
+/* 기본 */
 html, body, [class*="css"] {
     font-family: 'Inter', 'Everett Mono', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
     color: #f8fafc;
-    font-size: 1.4rem; /* 적당히 줄여서 22px 정도 */
+    font-size: 1.4rem;
 }
 
-/* === 숫자, 코드, 데이터 === */
+/* 숫자/코드 느낌 */
 .value, .price, .metric, .number, code, pre {
     font-family: 'Everett Mono', monospace;
     font-weight: 500;
@@ -274,7 +321,8 @@ html, body, [class*="css"] {
 </style>
 """, unsafe_allow_html=True)
 
-# ================= BADGE =================
+
+# ================= BADGE (롱/숏 칩) =================
 def format_side_badge(hold_side: str):
     side_up = (hold_side or "").upper()
     if side_up == "LONG":
@@ -306,7 +354,8 @@ min-width:44px;
 text-align:center;
 ">{label}</span>"""
 
-# ================= RISK / PNL BLOCKS =================
+
+# ================= TOP CARD BLOCK HTML =================
 pnl_block_html = f"""
 <div style='color:{TEXT_SUB};'>
   <div style='font-size:0.75rem;'>미실현 손익</div>
@@ -317,7 +366,6 @@ pnl_block_html = f"""
 </div>
 """
 
-# ================= TOP CARD =================
 top_card_html = f"""<div style='background:{CARD_BG};
 border:1px solid {BORDER};
 border-radius:8px;
@@ -357,10 +405,36 @@ justify-content:space-between;
 </div>
 </div>"""
 
+
+# ================== LAYOUT: CHART + CARD ==================
+# 먼저 차트 보여주기
+st.markdown(
+    f"#### 📈 {st.session_state.selected_symbol} Perp 가격"
+)
+render_chart(st.session_state.selected_symbol)
+
+# 그 다음 상단 카드
 render_html(top_card_html)
 
+
 # ================= POSITIONS TABLE =================
-# 테이블 컨테이너 (overflow-x로 가로 스크롤 허용 / min-width 고정)
+# 이건 Streamlit 기본 요소로 만들면 정렬/스타일 깨지니까
+# 지금처럼 HTML grid로 그리되, 심볼 클릭은 별도로 제공해주자.
+
+# 심볼 선택 안내 버튼들 (현재 보유한 심볼마다 버튼 하나씩)
+st.markdown(
+    "<div style='font-size:0.8rem;color:#94a3b8;margin-top:4px;'>심볼 변경:</div>",
+    unsafe_allow_html=True
+)
+sym_cols = st.columns(len(positions) if positions else 1)
+for idx, p in enumerate(positions):
+    symbol_norm = normalize_symbol(p.get("symbol", ""))
+    with sym_cols[idx]:
+        if st.button(symbol_norm, key=f"symbtn_{symbol_norm}"):
+            st.session_state.selected_symbol = symbol_norm
+            st.experimental_rerun()
+
+# 실제 상세 테이블
 table_html = f"""<div style="
 background:#0f172a;
 border:1px solid {BORDER};
@@ -371,6 +445,7 @@ font-size:0.8rem;
 color:{TEXT_SUB};
 overflow-x:auto;
 min-width:1200px;
+margin-top:8px;
 ">
 <!-- 헤더 -->
 <div style="
@@ -399,7 +474,7 @@ for p in positions:
     raw_symbol = p.get("symbol", "")
     symbol = normalize_symbol(raw_symbol)
 
-    side = (p.get("holdSide") or "").upper()
+    side_raw = (p.get("holdSide") or "").upper()
     lev = fnum(p.get("leverage", 0.0))
     mg_usdt = fnum(p.get("marginSize", 0.0))
     qty = fnum(p.get("total", 0.0))
@@ -410,14 +485,13 @@ for p in positions:
 
     notional_est = mg_usdt * lev
     roe_each_pct = safe_pct(unreal_pl, mg_usdt)
-
     pnl_color_each = "#4ade80" if unreal_pl >= 0 else "#f87171"
 
-    fund_info = funding_data.get(symbol, {"cumulative": 0.000, "last": 0.000})
-    funding_total_val = fund_info.get("cumulative", 0.000)
-    funding_display = f"${funding_total_val:,.3f}"
+    fund_info = funding_data.get(symbol, {"cumulative": 0.0, "last": 0.0})
+    funding_total_val = fund_info.get("cumulative", 0.0)
+    funding_display = f"${funding_total_val:,.2f}"
 
-    badge_html = format_side_badge(side)
+    badge_html = format_side_badge(side_raw)
 
     table_html += f"""<div style="
     display:grid;
@@ -479,18 +553,22 @@ ${liq_price:,.2f}
 </div>"""
 
 table_html += "</div>"
-
 render_html(table_html)
 
+
 # ================= FOOTER =================
-KST = timezone(timedelta(hours=9))  # 한국 표준시
+KST = timezone(timedelta(hours=9))
 now_kst = datetime.now(KST)
 
-footer_html = f"""<div style='font-size:0.7rem;color:{TEXT_SUB};margin-top:8px;margin-bottom:8px;'>
+footer_html = f"""<div style='font-size:0.7rem;color:{TEXT_SUB};
+margin-top:8px;
+margin-bottom:12px;'>
 마지막 갱신: {now_kst.strftime('%H:%M:%S')} (KST) · {REFRESH_INTERVAL_SEC}초 주기 자동 새로고침
 </div>"""
 render_html(footer_html)
 
+
+# ================= DEBUG PANEL =================
 with st.expander("🧩 Debug Panel (펀딩비 확인용)"):
     st.write("### funding_map (full)")
     st.json(funding_map)
@@ -499,7 +577,7 @@ with st.expander("🧩 Debug Panel (펀딩비 확인용)"):
     st.json(funding_map.get("_debug_seen_types", []))
 
     st.write("### computed funding_data")
-    st.json(funding_map.get("_debug_raw_result", {}))
+    st.json(funding_data)
 
     bills_debug = fetch_account_bills(limit=20)
     st.write("### sample bills_debug[:3]")
@@ -517,4 +595,3 @@ try:
     st.experimental_rerun()
 except Exception:
     st.rerun()
-
