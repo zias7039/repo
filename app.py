@@ -518,12 +518,31 @@ footer_html = f"""<div style='font-size:0.7rem;color:{TEXT_SUB};margin-top:8px;'
 </div>"""
 render_html(footer_html)
 
+# ================= DEBUG ZONE (optional dev panel) =================
+
+with st.expander("🧩 Debug Panel (개발용)"):
+    st.markdown("이 영역은 API 응답 확인, 변수 상태 점검용입니다. 배포 시 숨겨도 됩니다.")
+
+    st.write("### 🔹 funding_map (aggregate result)")
+    st.json(funding_map)
+
+    st.write("### 🔹 Positions (symbols raw / normalized)")
+    pos_syms_raw = [p.get("symbol","") for p in positions]
+    pos_syms_norm = [normalize_symbol(p.get("symbol","")) for p in positions]
+    st.write("raw:", pos_syms_raw)
+    st.write("norm:", pos_syms_norm)
+
+    st.write("### 🔹 Sample account bills (limit 10)")
+    bills_debug = fetch_account_bills(limit=10)
+    st.json(bills_debug)
+
 # ================= AUTO REFRESH =================
 time.sleep(REFRESH_INTERVAL_SEC)
 try:
     st.experimental_rerun()
 except Exception:
     st.rerun()
+
 
 
 
