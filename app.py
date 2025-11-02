@@ -159,7 +159,7 @@ def aggregate_funding_by_symbol_with_last():
         ts_raw = b.get("cTime")                 # ms timestamp (string)
 
         # 펀딩비로 카운트할 거래만 필터
-        if bt in ("contract_settle_fee", "funding_fee", "fundingFee", "funding_fee_settle"):
+        if bt in ("contract_settle_fee"):
             # 누적 합산
             cumu_sum[sym] += amt
 
@@ -514,20 +514,7 @@ footer_html = f"""<div style='font-size:0.7rem;color:{TEXT_SUB};margin-top:8px;'
 render_html(footer_html)
 
 with st.expander("🧩 Debug Panel (펀딩비 확인용)"):
-    st.markdown("이 패널은 Bitget API 응답을 직접 확인하기 위한 디버깅용입니다.")
-    
-    bills_debug = fetch_account_bills(limit=20)
-    st.write("### 🧾 Account Bills (raw 10줄)")
-    st.json(bills_debug[:10])
-
-    st.write("### 🔹 funding_map (aggregate result)")
     st.json(funding_map)
-
-    pos_syms_raw = [p.get("symbol","") for p in positions]
-    pos_syms_norm = [normalize_symbol(p.get("symbol","")) for p in positions]
-    st.write("### 📊 Positions symbols")
-    st.write("raw:", pos_syms_raw)
-    st.write("normalized:", pos_syms_norm)
 
 # ================= AUTO REFRESH =================
 time.sleep(REFRESH_INTERVAL_SEC)
@@ -535,6 +522,7 @@ try:
     st.experimental_rerun()
 except Exception:
     st.rerun()
+
 
 
 
