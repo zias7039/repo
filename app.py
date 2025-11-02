@@ -336,22 +336,6 @@ text-align:center;
 # ================= RISK / PNL BLOCKS =================
 margin_usage_pct = safe_pct(total_position_value, total_equity)
 
-risk_color = (
-    "#f87171" if margin_usage_pct > 70 or (nearest_liq_pct is not None and nearest_liq_pct < 3)
-    else "#facc15" if margin_usage_pct > 40
-    else "#4ade80"
-)
-
-risk_html = f"""
-<div style='color:{TEXT_SUB};'>
-  <div style='font-size:0.75rem;'>리스크</div>
-  <div style='font-weight:600;font-size:1rem;color:{risk_color};'>
-    마진 {margin_usage_pct:.1f}% 사용<br/>
-    청산까지 {nearest_liq_pct:.2f}% 남음
-  </div>
-</div>
-"""
-
 pnl_block_html = f"""
 <div style='color:{TEXT_SUB};'>
   <div style='font-size:0.75rem;'>미실현 손익</div>
@@ -397,8 +381,6 @@ justify-content:space-between;
   <div style='color:{TEXT_MAIN};font-weight:600;font-size:1rem;'>${total_position_value:,.2f}</div>
 </div>
 
-{risk_html}
-
 {pnl_block_html}
 
 </div>
@@ -438,7 +420,7 @@ font-weight:500;
 <div>현재가</div>
 <div>청산가</div>
 <div>사용 마진</div>
-<div>펀딩비 (누적 / 최근)</div>
+<div>펀딩비</div>
 </div>
 """
 
@@ -463,7 +445,7 @@ for p in positions:
     fund_info = funding_data.get(symbol, {"cumulative": 0.0, "last": 0.0})
     funding_total_val = fund_info.get("cumulative", 0.0)
     funding_last_val = fund_info.get("last", 0.0)
-    funding_display = f"${funding_total_val:,.2f} / {funding_last_val:,.4f}"
+    funding_display = f"${funding_total_val:,.2f}"
 
     badge_html = format_side_badge(side)
 
@@ -534,7 +516,7 @@ render_html(table_html)
 KST = timezone(timedelta(hours=9))  # 한국 표준시
 now_kst = datetime.now(KST)
 
-footer_html = f"""<div style='font-size:0.7rem;color:{TEXT_SUB};margin-top:8px;'>
+footer_html = f"""<div style='font-size:0.7rem;color:{TEXT_SUB};margin-top:12px;'>
 마지막 갱신: {now_kst.strftime('%H:%M:%S')} (KST) · {REFRESH_INTERVAL_SEC}초 주기 자동 새로고침
 </div>"""
 render_html(footer_html)
@@ -565,6 +547,7 @@ try:
     st.experimental_rerun()
 except Exception:
     st.rerun()
+
 
 
 
