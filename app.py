@@ -92,37 +92,43 @@ def normalize_symbol(sym: str) -> str:
 
 # ================= PUBLIC FETCHERS (차트용) =================
 def fetch_kline(symbol="BTCUSDT", granularity="1h", limit=100):
-    """
-    캔들 데이터 가져오기
-    Bitget mixed futures market 캔들:
-    /api/v2/mix/market/candles
-    symbol 예: BTCUSDT_UMCBL
-    """
     params = {
-        "symbol": f"{symbol}_UMCBL",
+        "symbol": symbol,
         "granularity": granularity,  # '1m','5m','1h','4h','1d' 등
         "limit": str(limit),
     }
-    res = requests.get(f"{BASE_URL}/api/v2/mix/market/candles", params=params).json()
+    res = requests.get(f"{BASE_URL}/api/v2/spot/market/candles", params=params).json()
     if res.get("code") != "00000":
         return pd.DataFrame()
 
-    # response data 배열: [timestamp, open, high, low, close, volume]
     data = res.get("data", [])
+    if not data:
+        return pd.DataFrame()
+
     df = pd.DataFrame(
         data,
-        columns=["timestamp", "open", "high", "low", "close", "volume"]
+        columns=[
+            "timestamp",
+            "open",
+            "high",
+            "low",
+            "close",
+            "vol_base",
+            "vol_usdt",
+            "vol_quote",
+        ],
     )
 
-    # 타입 변환 및 정렬
+    # 타입 변환
     df["timestamp"] = pd.to_datetime(df["timestamp"].astype(float), unit="ms")
     df = df.astype({
         "open": float,
         "high": float,
         "low": float,
         "close": float,
-        "volume": float,
     })
+
+    # Bitget은 최신 -> 과거 순서로 줄 때도 있으니까 시간순으로 정렬
     df = df.sort_values("timestamp")
     return df
 
@@ -592,6 +598,7 @@ with st.expander("🧩 Debug Panel (펀딩비 확인용)"):
 # ================= AUTO REFRESH =================
 time.sleep(REFRESH_INTERVAL_SEC)
 st.rerun()
+
 
 
 
