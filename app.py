@@ -96,36 +96,23 @@ def fetch_account():
     acct = next((a for a in arr if a.get("marginCoin") == MARGIN_COIN), None)
     return acct, res
 
-def fetch_account_bill(symbol=None, business_type=None, limit=200):
-    """
-    선물 계정 청구내역(원장)
-    - symbol: "BTCUSDT" 등 특정 심볼만 보고 싶으면 지정
-    - business_type: 펀딩만 보고 싶으면 지정 (ex: 'fundingFee'), 근데 아래에서 우린 전체 긁고 필터링할거라 안 씀
-    - limit: 최근 N개
-    """
+def fetch_account_bill(limit=100):
     params = {
         "productType": PRODUCT_TYPE,
-        "marginCoin": MARGIN_COIN,
         "limit": str(limit),
     }
-    if symbol:
-        params["symbol"] = symbol
-    if business_type:
-        params["businessType"] = business_type
 
     res = _private_get("/api/v2/mix/account/accountBill", params)
     if res.get("code") != "00000":
         return []
-    return res.get("data") or []
+        
+    data_obj = res.get("data", {})
+    bills = data_obj.get("bills", [])
+    return bills
 
 def aggregate_funding_by_symbol_with_last():
-    """
-    accountBill에서 businessType이 '펀딩' 관련인 항목만 모아서
-    심볼별 누적 펀딩비 / 가장 최근 펀딩비를 계산.
-    """
     bills = fetch_account_bill(limit=200)
 
-    # 누적 합 / 최근 1건
     cumu_sum = defaultdict(float)
     last_amt = {}
     last_ts = {}
@@ -133,26 +120,17 @@ def aggregate_funding_by_symbol_with_last():
     for b in bills:
         sym = b.get("symbol", "")  # ex. 'BTCUSDT'
         bt = b.get("businessType", "")  # ex. 'fundingFee', 'Funding Fee', etc.
-        # Bitget 응답에서 실제 금액 필드 확인 필요:
-        # 보통 'amount' 또는 'billAmount' 같은 키로 금액이 들어온다.
         amt = fnum(b.get("amount", 0.0)) or fnum(b.get("billAmount", 0.0))
-
-        # timestamp / 정렬기준으로 쓰일 값. Bitget은 보통 'cTime'(ms) 같은거 준다.
         ts_raw = b.get("cTime") or b.get("ctime") or b.get("ts")
 
-        # 펀딩 관련 라인만 잡기: businessType 안에 'fund' 라는 문자열이 있으면 펀딩으로 간주
-        # (대소문자 무시)
-        if "fund" in str(bt).lower():
+        if bt == "contract_settle_fee":
             cumu_sum[sym] += amt
 
-            # 최신 1건 추적
             if ts_raw is None:
-                # timestamp 없으면 그냥 덮어쓰기만
+                last_ts[sym] = ts_raw
                 last_amt[sym] = amt
             else:
-                # 더 최신인지 비교
-                old_ts = last_ts.get(sym)
-                if old_ts is None or (ts_raw > old_ts):
+                if ts_raw and last_ts[sym] and ts_raw > last_ts[sym]:
                     last_ts[sym] = ts_raw
                     last_amt[sym] = amt
 
@@ -415,6 +393,7 @@ for p in positions:
     fund_info = funding_map.get(symbol, {"cumulative": 0.0, "last": 0.0})
     funding_total_val = fund_info.get("cumulative", 0.0)
     funding_last_val = fund_info.get("last", 0.0)
+
     funding_display = f"${funding_total_val:,.2f} / {funding_last_val:,.4f}"
 
     badge_html = format_side_badge(side)
@@ -497,4 +476,5 @@ try:
     st.experimental_rerun()
 except Exception:
     st.rerun()
+
 
