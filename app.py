@@ -516,7 +516,7 @@ render_html(table_html)
 KST = timezone(timedelta(hours=9))  # 한국 표준시
 now_kst = datetime.now(KST)
 
-footer_html = f"""<div style='font-size:0.7rem;color:{TEXT_SUB};margin-top:8px;margin-bottom:12px;'>
+footer_html = f"""<div style='font-size:0.7rem;color:{TEXT_SUB};margin-top:8px;margin-bottom:8px;'>
 마지막 갱신: {now_kst.strftime('%H:%M:%S')} (KST) · {REFRESH_INTERVAL_SEC}초 주기 자동 새로고침
 </div>"""
 render_html(footer_html)
@@ -547,6 +547,7 @@ try:
     st.experimental_rerun()
 except Exception:
     st.rerun()
+
 
 
 
