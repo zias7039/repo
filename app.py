@@ -218,10 +218,7 @@ total_equity = (
 withdrawable_pct = (available / total_equity * 100.0) if total_equity > 0 else 0.0
 
 total_position_value = 0.0
-long_value = 0.0
-short_value = 0.0
 unrealized_total_pnl = 0.0
-nearest_liq_pct = None  # 가장 가까운 청산까지 거리(%)
 
 for p in positions:
     lev = fnum(p.get("leverage", 0.0))
@@ -229,20 +226,7 @@ for p in positions:
     notional_est = mg * lev
     total_position_value += notional_est
 
-    side = (p.get("holdSide", "") or "").lower()
-    if side == "long":
-        long_value += notional_est
-    elif side == "short":
-        short_value += notional_est
-
     unrealized_total_pnl += fnum(p.get("unrealizedPL", 0.0))
-
-    mark_price = fnum(p.get("markPrice"))
-    liq_price = fnum(p.get("liquidationPrice"))
-    if liq_price:
-        dist_pct = abs((mark_price - liq_price) / liq_price) * 100.0
-        if nearest_liq_pct is None or dist_pct < nearest_liq_pct:
-            nearest_liq_pct = dist_pct
 
 est_leverage = (total_position_value / total_equity) if total_equity > 0 else 0.0
 
@@ -547,6 +531,7 @@ try:
     st.experimental_rerun()
 except Exception:
     st.rerun()
+
 
 
 
