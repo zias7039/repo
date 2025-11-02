@@ -72,6 +72,16 @@ def render_html(block: str):
     clean = dedent(block).lstrip()
     st.markdown(clean, unsafe_allow_html=True)
 
+def normalize_symbol(sym: str) -> str:
+    """
+    Bitget 포지션 심볼이 'BTCUSDT_UMCBL' 이런 식일 수 있음.
+    청구내역 bill은 'BTCUSDT'처럼 뒤 suffix가 없을 수 있음.
+    => '_' 이후를 자르고 대문자화해서 통일.
+    """
+    if not sym:
+        return ""
+    return sym.split("_")[0].upper()
+
 # ================= BITGET FETCHERS =================
 def fetch_positions():
     """
@@ -96,40 +106,74 @@ def fetch_account():
     acct = next((a for a in arr if a.get("marginCoin") == MARGIN_COIN), None)
     return acct, res
 
-def fetch_account_bill(limit=100):
+def fetch_account_bills(limit=100):
+    """
+    Bitget 선물 계정 청구내역 (최근 90일)
+    GET /api/v2/mix/account/bill
+
+    response:
+    {
+        "code":"00000",
+        "data":{
+            "bills":[
+                {
+                    "billId":"1",
+                    "symbol":"BTCUSDT",
+                    "amount":"-0.004992",
+                    "fee":"0",
+                    "businessType":"contract_settle_fee",
+                    "cTime":"1695715200654",
+                    ...
+                },
+                ...
+            ],
+            "endId":"2"
+        }
+    }
+    """
     params = {
         "productType": PRODUCT_TYPE,
         "limit": str(limit),
     }
 
-    res = _private_get("/api/v2/mix/account/accountBill", params)
+    res = _private_get("/api/v2/mix/account/bill", params)
     if res.get("code") != "00000":
         return []
-        
+
     data_obj = res.get("data", {})
     bills = data_obj.get("bills", [])
     return bills
 
 def aggregate_funding_by_symbol_with_last():
-    bills = fetch_account_bill(limit=200)
+    """
+    펀딩비(= funding fee)는 businessType == "contract_settle_fee".
+    각 심볼별로
+      - 누적 펀딩 amount 합계
+      - 가장 최근 펀딩 amount
+    를 구해서 dict로 리턴.
+    키는 정규화된 심볼 (BTCUSDT 등)
+    """
+    bills = fetch_account_bills(limit=200)
 
-    cumu_sum = defaultdict(float)
-    last_amt = {}
-    last_ts = {}
+    cumu_sum = defaultdict(float)  # 누적
+    last_amt = {}                  # 최근 금액
+    last_ts = {}                   # 최근 timestamp
 
     for b in bills:
-        sym = b.get("symbol", "")  # ex. 'BTCUSDT'
-        bt = b.get("businessType", "")  # ex. 'fundingFee', 'Funding Fee', etc.
-        amt = fnum(b.get("amount", 0.0)) or fnum(b.get("billAmount", 0.0))
-        ts_raw = b.get("cTime") or b.get("ctime") or b.get("ts")
+        raw_sym = b.get("symbol", "")          # ex. "BTCUSDT"
+        sym = normalize_symbol(raw_sym)        # ex. "BTCUSDT"
+        bt = b.get("businessType", "")         # ex. "contract_settle_fee"
+        amt = fnum(b.get("amount", 0.0))       # ex. "-0.004992" -> float
+        ts_raw = b.get("cTime")                # ms as string
 
         if bt == "contract_settle_fee":
             cumu_sum[sym] += amt
 
-            if ts_raw is None:
+            if sym not in last_ts:
                 last_ts[sym] = ts_raw
                 last_amt[sym] = amt
             else:
+                # 더 최신인지 비교 (문자열 비교지만 ms timestamp라서 큰 값 = 더 최신)
                 if ts_raw and last_ts[sym] and ts_raw > last_ts[sym]:
                     last_ts[sym] = ts_raw
                     last_amt[sym] = amt
@@ -142,7 +186,7 @@ def aggregate_funding_by_symbol_with_last():
         }
     return result
 
-# ================= FETCH DATA (런타임) =================
+# ================= FETCH DATA (런타임 실행) =================
 positions, raw_pos_res = fetch_positions()
 account, raw_acct_res = fetch_account()
 
@@ -154,16 +198,19 @@ if raw_acct_res.get("code") != "00000":
     st.error(f"계정 조회 실패: {raw_acct_res.get('msg')}")
     account = {}
 
-# 펀딩비 집계
 funding_map = aggregate_funding_by_symbol_with_last()
 
-# ================= CALCULATED METRICS =================
+# ================= METRICS 계산 =================
 available = fnum(account.get("available")) if account else 0.0
 locked = fnum(account.get("locked")) if account else 0.0
 margin_size_acct = fnum(account.get("marginSize")) if account else 0.0
 
-# usdtEquity가 있으면 그걸 총자산으로 쓰고, 없으면 available+locked+margin 추정
-total_equity = fnum(account.get("usdtEquity")) if account and account.get("usdtEquity") else (available + locked + margin_size_acct)
+# 총자산: usdtEquity가 있으면 그걸 쓰고, 없으면 available+locked+marginSize로 추정
+total_equity = (
+    fnum(account.get("usdtEquity"))
+    if (account and account.get("usdtEquity") is not None)
+    else (available + locked + margin_size_acct)
+)
 
 withdrawable_pct = (available / total_equity * 100.0) if total_equity > 0 else 0.0
 
@@ -171,7 +218,7 @@ total_position_value = 0.0
 long_value = 0.0
 short_value = 0.0
 unrealized_total_pnl = 0.0
-nearest_liq_pct = None  # 청산가까지 거리 (%)
+nearest_liq_pct = None  # 가장 가까운 청산까지 거리(%)
 
 for p in positions:
     lev = fnum(p.get("leverage", 0.0))
@@ -196,7 +243,7 @@ for p in positions:
 
 est_leverage = (total_position_value / total_equity) if total_equity > 0 else 0.0
 
-# Bias 라벨
+# 방향성 요약
 bias_label_raw = "long" if long_value > short_value else "short" if short_value > long_value else "flat"
 if bias_label_raw == "long":
     bias_label, bias_color = ("롱 우세", "#4ade80")
@@ -205,7 +252,7 @@ elif bias_label_raw == "short":
 else:
     bias_label, bias_color = ("중립", "#94a3b8")
 
-# 전체 PnL 색
+# 계좌 전체 PnL
 pnl_color = "#4ade80" if unrealized_total_pnl >= 0 else "#f87171"
 roe_pct = (unrealized_total_pnl / total_equity * 100.0) if total_equity > 0 else 0.0
 
@@ -217,7 +264,7 @@ BORDER, SHADOW = "rgba(148,163,184,0.2)", "0 24px 48px rgba(0,0,0,0.6)"
 FONT_FAMILY = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif"
 MONO_FAMILY = "'Roboto Mono', monospace"
 
-# 웹폰트 주입
+# 글로벌 폰트 주입
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Roboto+Mono:wght@400;500&display=swap');
@@ -225,7 +272,7 @@ st.markdown("""
 html, body, [class*="css"] {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
     color: #f8fafc;
-    font-size: 1.5rem; /* 기본 크기 크게 */
+    font-size: 1.5rem;
 }
 .value, .price, .metric, .number {
     font-family: 'Roboto Mono', monospace;
@@ -233,7 +280,7 @@ html, body, [class*="css"] {
 </style>
 """, unsafe_allow_html=True)
 
-# ================= BADGE (LONG/SHORT → 롱/숏) =================
+# ================= BADGE =================
 def format_side_badge(hold_side: str):
     side_up = (hold_side or "").upper()
     if side_up == "LONG":
@@ -339,6 +386,7 @@ justify-content:space-between;
 render_html(top_card_html)
 
 # ================= POSITIONS TABLE =================
+# 테이블 컨테이너 (overflow-x로 가로 스크롤 허용 / min-width 고정)
 table_html = f"""<div style="
 background:#0f172a;
 border:1px solid {BORDER};
@@ -347,12 +395,13 @@ box-shadow:{SHADOW};
 font-family:{FONT_FAMILY};
 font-size:0.8rem;
 color:{TEXT_SUB};
-overflow:hidden;
+overflow-x:auto;
+min-width:1200px;
 ">
 <!-- 헤더 -->
 <div style="
 display:grid;
-grid-template-columns:120px 80px 180px 160px 130px 140px 140px 130px 140px;
+grid-template-columns:100px 70px 160px 150px 110px 120px 120px 110px 140px;
 column-gap:16px;
 padding:12px 16px;
 border-bottom:1px solid rgba(148,163,184,0.15);
@@ -360,7 +409,7 @@ font-size:0.75rem;
 color:{TEXT_SUB};
 font-weight:500;
 ">
-<div>총자산</div>
+<div>자산</div>
 <div>방향</div>
 <div>포지션 가치 / 수량</div>
 <div>미실현 손익</div>
@@ -373,7 +422,9 @@ font-weight:500;
 """
 
 for p in positions:
-    symbol = p.get("symbol", "")
+    raw_symbol = p.get("symbol", "")
+    symbol = normalize_symbol(raw_symbol)
+
     side = (p.get("holdSide") or "").upper()
     lev = fnum(p.get("leverage", 0.0))
     mg_usdt = fnum(p.get("marginSize", 0.0))
@@ -386,21 +437,18 @@ for p in positions:
     notional_est = mg_usdt * lev
     roe_each_pct = safe_pct(unreal_pl, mg_usdt)
 
-    # 색상
     pnl_color_each = "#4ade80" if unreal_pl >= 0 else "#f87171"
 
-    # 펀딩비: funding_map에서 가져온다.
     fund_info = funding_map.get(symbol, {"cumulative": 0.0, "last": 0.0})
     funding_total_val = fund_info.get("cumulative", 0.0)
     funding_last_val = fund_info.get("last", 0.0)
-
     funding_display = f"${funding_total_val:,.2f} / {funding_last_val:,.4f}"
 
     badge_html = format_side_badge(side)
 
     table_html += f"""<div style="
     display:grid;
-    grid-template-columns:120px 80px 180px 160px 130px 140px 140px 130px 140px;
+    grid-template-columns:100px 70px 160px 150px 110px 120px 120px 110px 140px;
     column-gap:16px;
     padding:16px;
     border-bottom:1px solid rgba(148,163,184,0.08);
@@ -476,6 +524,7 @@ try:
     st.experimental_rerun()
 except Exception:
     st.rerun()
+
 
 
 
