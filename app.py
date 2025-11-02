@@ -146,35 +146,47 @@ def fetch_account_bills(limit=100):
 
 def aggregate_funding_by_symbol_with_last():
     bills = fetch_account_bills(limit=200)
-    if not bills:
-        return {}
 
-    cumu_sum = defaultdict(float)
-    last_amt = {}
-    last_ts = {}
+    cumu_sum = defaultdict(float)  # 심볼별 누적 펀딩비 합계
+    last_amt = {}                  # 심볼별 가장 최근 펀딩비 금액
+    last_ts = {}                   # 심볼별 가장 최근 타임스탬프(ms)
+    seen_types = set()             # 디버깅: 어떤 businessType이 있었나 기록
 
     for b in bills:
-        raw_sym = b.get("symbol", "")
-        sym = normalize_symbol(raw_sym)
-        bt_clean = (b.get("businessType", "") or "").strip().lower()
-        amt = fnum(b.get("amount", 0.0))
-        ts_raw = b.get("cTime")
+        raw_sym = b.get("symbol", "")              # "BTCUSDT"
+        sym = normalize_symbol(raw_sym)            # -> "BTCUSDT"
+        bt_raw = b.get("businessType", "")
+        bt_clean = (bt_raw or "").strip().lower()  # "contract_settle_fee"
+        amt = fnum(b.get("amount", 0.0))           # "0.0126341" -> float
+        ts_raw = b.get("cTime")                    # "1762041608855"
 
-        # ✅ 정확한 문자열 비교
-        if bt_clean == "contract_settle_fee":
+        seen_types.add(bt_clean)
+
+        # 펀딩비만 카운트
+        # 1) 정확히 contract_settle_fee
+        # 2) 혹시 모르게 xxx_settle_fee / funding_fee 등 비슷한 변형도 있으면 포함
+        if ("settle_fee" in bt_clean) or ("funding" in bt_clean):
             cumu_sum[sym] += amt
 
+            # 최신값 갱신
             if sym not in last_ts or (ts_raw and ts_raw > last_ts[sym]):
                 last_ts[sym] = ts_raw
                 last_amt[sym] = amt
 
+    # 결과 형태로 묶기
     result = {}
     for sym in cumu_sum:
         result[sym] = {
             "cumulative": cumu_sum[sym],
             "last": last_amt.get(sym, 0.0),
         }
-    return result
+
+    # 디버깅용으로 businessType 정보를 같이 돌려주자
+    # Streamlit 쪽에서 보기 편하게 리턴에 얹는다
+    return {
+        "_debug_seen_types": list(seen_types),  # 우리가 실제로 본 businessType 종류들
+        "_debug_raw_result": dict(result),      # 계산된 결과값
+    }
 
 # ================= FETCH DATA (런타임 실행) =================
 positions, raw_pos_res = fetch_positions()
@@ -189,6 +201,7 @@ if raw_acct_res.get("code") != "00000":
     account = {}
 
 funding_map = aggregate_funding_by_symbol_with_last()
+funding_data = funding_map.get("_debug_raw_result", {})  # 실제 펀딩 합계/최근 값 테이블용
 
 # ================= METRICS 계산 =================
 available = fnum(account.get("available")) if account else 0.0
@@ -429,7 +442,7 @@ for p in positions:
 
     pnl_color_each = "#4ade80" if unreal_pl >= 0 else "#f87171"
 
-    fund_info = funding_map.get(symbol, {"cumulative": 0.0, "last": 0.0})
+    fund_info = funding_data.get(symbol, {"cumulative": 0.0, "last": 0.0})
     funding_total_val = fund_info.get("cumulative", 0.0)
     funding_last_val = fund_info.get("last", 0.0)
     funding_display = f"${funding_total_val:,.2f} / {funding_last_val:,.4f}"
@@ -509,11 +522,16 @@ footer_html = f"""<div style='font-size:0.7rem;color:{TEXT_SUB};margin-top:8px;'
 render_html(footer_html)
 
 with st.expander("🧩 Debug Panel (펀딩비 확인용)"):
-    st.write("### funding_map")
+    st.write("### funding_map (full)")
     st.json(funding_map)
 
+    st.write("### seen businessType values")
+    st.json(funding_map.get("_debug_seen_types", []))
+
+    st.write("### computed funding_data")
+    st.json(funding_map.get("_debug_raw_result", {}))
+
     bills_debug = fetch_account_bills(limit=20)
-    st.write("### len(bills_debug):", len(bills_debug))
     st.write("### sample bills_debug[:3]")
     st.json(bills_debug[:3])
 
@@ -521,7 +539,7 @@ with st.expander("🧩 Debug Panel (펀딩비 확인용)"):
     pos_syms_norm = [normalize_symbol(p.get("symbol","")) for p in positions]
     st.write("### symbols raw   :", pos_syms_raw)
     st.write("### symbols norm  :", pos_syms_norm)
-    st.write("### funding_map keys:", list(funding_map.keys()))
+
 
 # ================= AUTO REFRESH =================
 time.sleep(REFRESH_INTERVAL_SEC)
@@ -529,6 +547,7 @@ try:
     st.experimental_rerun()
 except Exception:
     st.rerun()
+
 
 
 
