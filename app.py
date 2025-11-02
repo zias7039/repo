@@ -152,27 +152,23 @@ def aggregate_funding_by_symbol_with_last():
     last_ts = {}                   # 심볼별 가장 최근 타임스탬프(ms)
 
     for b in bills:
-        raw_sym = b.get("symbol", "")           # 예: "BTCUSDT" or "BTCUSDT_UMCBL"
-        sym = normalize_symbol(raw_sym)         # -> "BTCUSDT"
-        bt = b.get("businessType", "")          # 예: "contract_settle_fee" 또는 "funding_fee"
-        amt = fnum(b.get("amount", 0.0))        # ✅ 네가 방금 확인한 값
-        ts_raw = b.get("cTime")                 # ms timestamp (string)
+        raw_sym = b.get("symbol", "")            # "BTCUSDT"
+        sym = normalize_symbol(raw_sym)          # -> "BTCUSDT"
+        bt_clean = (b.get("businessType", "") or "").strip().lower()
+        amt = fnum(b.get("amount", 0.0))         # 펀딩 금액은 amount
+        ts_raw = b.get("cTime")                  # 예: "1762041608855"
 
-        # 펀딩비로 카운트할 거래만 필터
-        if bt in ("contract_settle_fee"):
+        # 펀딩비만 카운트
+        if bt_clean == "contract_settle_fee":
             # 누적 합산
             cumu_sum[sym] += amt
 
             # 최신값 갱신
-            if sym not in last_ts:
+            if sym not in last_ts or (ts_raw and ts_raw > last_ts[sym]):
                 last_ts[sym] = ts_raw
                 last_amt[sym] = amt
-            else:
-                # 더 최근이면 교체
-                if ts_raw and last_ts[sym] and ts_raw > last_ts[sym]:
-                    last_ts[sym] = ts_raw
-                    last_amt[sym] = amt
 
+    # dict 형태로 정리
     result = {}
     for sym in cumu_sum:
         result[sym] = {
@@ -514,7 +510,19 @@ footer_html = f"""<div style='font-size:0.7rem;color:{TEXT_SUB};margin-top:8px;'
 render_html(footer_html)
 
 with st.expander("🧩 Debug Panel (펀딩비 확인용)"):
+    st.write("### funding_map")
     st.json(funding_map)
+
+    bills_debug = fetch_account_bills(limit=20)
+    st.write("### len(bills_debug):", len(bills_debug))
+    st.write("### sample bills_debug[:3]")
+    st.json(bills_debug[:3])
+
+    pos_syms_raw = [p.get("symbol","") for p in positions]
+    pos_syms_norm = [normalize_symbol(p.get("symbol","")) for p in positions]
+    st.write("### symbols raw   :", pos_syms_raw)
+    st.write("### symbols norm  :", pos_syms_norm)
+    st.write("### funding_map keys:", list(funding_map.keys()))
 
 # ================= AUTO REFRESH =================
 time.sleep(REFRESH_INTERVAL_SEC)
@@ -522,6 +530,7 @@ try:
     st.experimental_rerun()
 except Exception:
     st.rerun()
+
 
 
 
