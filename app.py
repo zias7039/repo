@@ -192,6 +192,22 @@ def safe_pct(numerator, denominator):
     return (numerator / denominator) * 100.0
 
 # ================= TOP CARD (한국어 버전) =================
+margin_usage_pct = safe_pct(total_position_value, total_equity)
+risk_color = (
+    "#f87171" if margin_usage_pct > 70 or (nearest_liq_pct is not None and nearest_liq_pct < 3)
+    else "#facc15" if margin_usage_pct > 40
+    else "#4ade80"
+)
+risk_html = f"""
+<div style='color:{TEXT_SUB};'>
+  <div style='font-size:0.75rem;'>리스크</div>
+  <div style='font-weight:600;font-size:1rem;color:{risk_color};'>
+    마진 {margin_usage_pct:.1f}% 사용<br/>
+    청산까지 {nearest_liq_pct:.2f}% 남음
+  </div>
+</div>
+"""
+
 top_card_html = f"""<div style='background:{CARD_BG};
 border:1px solid {BORDER};
 border-radius:8px;
@@ -224,6 +240,8 @@ font-size:0.7rem;font-weight:600;'>{est_leverage:.2f}x</span>
 </div>
 <div style='color:{TEXT_MAIN};font-weight:600;font-size:1rem;'>${total_position_value:,.2f}</div>
 </div>
+
+{risk_html}
 </div>
 </div>"""
 
@@ -358,6 +376,7 @@ try:
     st.experimental_rerun()
 except Exception:
     st.rerun()
+
 
 
 
