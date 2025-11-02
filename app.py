@@ -243,7 +243,7 @@ overflow:hidden;
 <!-- 헤더 -->
 <div style="
 display:grid;
-grid-template-columns:120px 80px 180px 160px 110px 110px 110px 130px 110px;
+grid-template-columns:120px 80px 180px 160px 130px 140px 140px 130px 110px;
 column-gap:16px;
 padding:12px 16px;
 border-bottom:1px solid rgba(148,163,184,0.15);
@@ -358,6 +358,7 @@ try:
     st.experimental_rerun()
 except Exception:
     st.rerun()
+
 
 
 
