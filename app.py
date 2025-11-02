@@ -1,3 +1,5 @@
+$ conda install -c plotly plotly
+
 import time
 import hmac
 import hashlib
@@ -595,3 +597,4 @@ try:
     st.experimental_rerun()
 except Exception:
     st.rerun()
+
