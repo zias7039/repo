@@ -152,7 +152,7 @@ def render_chart(symbol_display: str, granularity="1h"):
     )
 
     fig.update_layout(
-        title=f"{symbol} / Perp",
+        title=f"{symbol_display} / {granularity}",
         height=320,
         margin=dict(l=0, r=0, t=30, b=0),
         template="plotly_dark",
@@ -610,6 +610,7 @@ with st.expander("🧩 Debug Panel (펀딩비 확인용)"):
 # ================= AUTO REFRESH =================
 time.sleep(REFRESH_INTERVAL_SEC)
 st.rerun()
+
 
 
 
