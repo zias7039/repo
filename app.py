@@ -425,19 +425,18 @@ justify-content:space-between;
 # ================== LAYOUT: CHART + CARD ==================
 # 먼저 차트 보여주기
 st.markdown(
-    f"#### 📈 {st.session_state.selected_symbol} Perp 가격"
+    f"#### 📈 {st.session_state.selected_symbol} 가격 ({selected_granularity_label})"
 )
-render_chart(st.session_state.selected_symbol, granularity=selected_granularity)
+render_chart(
+    st.session_state.selected_symbol,
+    granularity=selected_granularity
+)
 
 # 그 다음 상단 카드
 render_html(top_card_html)
 
 
 # ================= POSITIONS TABLE =================
-# 이건 Streamlit 기본 요소로 만들면 정렬/스타일 깨지니까
-# 지금처럼 HTML grid로 그리되, 심볼 클릭은 별도로 제공해주자.
-
-# 심볼 선택 안내 버튼들 (현재 보유한 심볼마다 버튼 하나씩)
 st.markdown(
     "<div style='font-size:0.8rem;color:#94a3b8;margin-top:4px;'>심볼 변경:</div>",
     unsafe_allow_html=True
@@ -608,6 +607,7 @@ with st.expander("🧩 Debug Panel (펀딩비 확인용)"):
 # ================= AUTO REFRESH =================
 time.sleep(REFRESH_INTERVAL_SEC)
 st.rerun()
+
 
 
 
