@@ -230,15 +230,6 @@ for p in positions:
 
 est_leverage = (total_position_value / total_equity) if total_equity > 0 else 0.0
 
-# 방향성 요약
-bias_label_raw = "long" if long_value > short_value else "short" if short_value > long_value else "flat"
-if bias_label_raw == "long":
-    bias_label, bias_color = ("롱 우세", "#4ade80")
-elif bias_label_raw == "short":
-    bias_label, bias_color = ("숏 우세", "#f87171")
-else:
-    bias_label, bias_color = ("중립", "#94a3b8")
-
 # 계좌 전체 PnL
 pnl_color = "#4ade80" if unrealized_total_pnl >= 0 else "#f87171"
 roe_pct = (unrealized_total_pnl / total_equity * 100.0) if total_equity > 0 else 0.0
@@ -531,6 +522,7 @@ try:
     st.experimental_rerun()
 except Exception:
     st.rerun()
+
 
 
 
