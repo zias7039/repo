@@ -91,7 +91,7 @@ def normalize_symbol(sym: str) -> str:
 
 
 # ================= PUBLIC FETCHERS (차트용) =================
-def fetch_kline(symbol="BTCUSDT", granularity="1h", limit=100):
+def fetch_kline_spot(symbol="BTCUSDT", granularity="1h", limit=100):
     params = {
         "symbol": symbol,
         "granularity": granularity,  # '1m','5m','1h','4h','1d' 등
@@ -610,6 +610,7 @@ with st.expander("🧩 Debug Panel (펀딩비 확인용)"):
 # ================= AUTO REFRESH =================
 time.sleep(REFRESH_INTERVAL_SEC)
 st.rerun()
+
 
 
 
