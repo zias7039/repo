@@ -146,29 +146,28 @@ def fetch_account_bills(limit=100):
 
 def aggregate_funding_by_symbol_with_last():
     bills = fetch_account_bills(limit=200)
+    if not bills:
+        return {}
 
-    cumu_sum = defaultdict(float)  # 심볼별 누적 펀딩비 합계
-    last_amt = {}                  # 심볼별 가장 최근 펀딩비 금액
-    last_ts = {}                   # 심볼별 가장 최근 타임스탬프(ms)
+    cumu_sum = defaultdict(float)
+    last_amt = {}
+    last_ts = {}
 
     for b in bills:
-        raw_sym = b.get("symbol", "")            # "BTCUSDT"
-        sym = normalize_symbol(raw_sym)          # -> "BTCUSDT"
+        raw_sym = b.get("symbol", "")
+        sym = normalize_symbol(raw_sym)
         bt_clean = (b.get("businessType", "") or "").strip().lower()
-        amt = fnum(b.get("amount", 0.0))         # 펀딩 금액은 amount
-        ts_raw = b.get("cTime")                  # 예: "1762041608855"
+        amt = fnum(b.get("amount", 0.0))
+        ts_raw = b.get("cTime")
 
-        # 펀딩비만 카운트
+        # ✅ 정확한 문자열 비교
         if bt_clean == "contract_settle_fee":
-            # 누적 합산
             cumu_sum[sym] += amt
 
-            # 최신값 갱신
             if sym not in last_ts or (ts_raw and ts_raw > last_ts[sym]):
                 last_ts[sym] = ts_raw
                 last_amt[sym] = amt
 
-    # dict 형태로 정리
     result = {}
     for sym in cumu_sum:
         result[sym] = {
@@ -530,6 +529,7 @@ try:
     st.experimental_rerun()
 except Exception:
     st.rerun()
+
 
 
 
