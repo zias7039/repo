@@ -141,7 +141,13 @@ def fetch_kline(symbol="BTCUSDT", granularity="1h", limit=100):
         "4시간": "4h",
         "1일": "1day",
     }
-    selected_granularity_label = st.selectbox("⏱️ 차트 간격 선택", list(granularity_map.keys()), index=2)
+
+    # 차트 간격 선택 드롭다운 (항상 chart 위쪽)
+    selected_granularity_label = st.selectbox(
+    "⏱️ 차트 간격 선택",
+    list(granularity_map.keys()),
+    index=2  # 기본값: 15분
+    )
     selected_granularity = granularity_map[selected_granularity_label]
 
 def render_chart(symbol_display: str, granularity="1h"):
@@ -421,7 +427,6 @@ justify-content:space-between;
 </div>
 </div>"""
 
-
 # ================== LAYOUT: CHART + CARD ==================
 # 먼저 차트 보여주기
 st.markdown(
@@ -607,6 +612,7 @@ with st.expander("🧩 Debug Panel (펀딩비 확인용)"):
 # ================= AUTO REFRESH =================
 time.sleep(REFRESH_INTERVAL_SEC)
 st.rerun()
+
 
 
 
