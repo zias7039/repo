@@ -415,7 +415,7 @@ for p in positions:
 
     fund_info = funding_data.get(symbol, {"cumulative": 0.000, "last": 0.000})
     funding_total_val = fund_info.get("cumulative", 0.000)
-    funding_display = f"${funding_total_val:,.2f}"
+    funding_display = f"${funding_total_val:,.3f}"
 
     badge_html = format_side_badge(side)
 
@@ -517,3 +517,4 @@ try:
     st.experimental_rerun()
 except Exception:
     st.rerun()
+
