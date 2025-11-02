@@ -234,8 +234,6 @@ est_leverage = (total_position_value / total_equity) if total_equity > 0 else 0.
 pnl_color = "#4ade80" if unrealized_total_pnl >= 0 else "#f87171"
 roe_pct = (unrealized_total_pnl / total_equity * 100.0) if total_equity > 0 else 0.0
 
-positions_count = len(positions)
-
 # ================= STYLE =================
 CARD_BG, TEXT_SUB, TEXT_MAIN = "#1e2538", "#94a3b8", "#f8fafc"
 BORDER, SHADOW = "rgba(148,163,184,0.2)", "0 24px 48px rgba(0,0,0,0.6)"
@@ -309,8 +307,6 @@ text-align:center;
 ">{label}</span>"""
 
 # ================= RISK / PNL BLOCKS =================
-margin_usage_pct = safe_pct(total_position_value, total_equity)
-
 pnl_block_html = f"""
 <div style='color:{TEXT_SUB};'>
   <div style='font-size:0.75rem;'>미실현 손익</div>
@@ -417,9 +413,8 @@ for p in positions:
 
     pnl_color_each = "#4ade80" if unreal_pl >= 0 else "#f87171"
 
-    fund_info = funding_data.get(symbol, {"cumulative": 0.0, "last": 0.0})
-    funding_total_val = fund_info.get("cumulative", 0.0)
-    funding_last_val = fund_info.get("last", 0.0)
+    fund_info = funding_data.get(symbol, {"cumulative": 0.00, "last": 0.00})
+    funding_total_val = fund_info.get("cumulative", 0.00)
     funding_display = f"${funding_total_val:,.2f}"
 
     badge_html = format_side_badge(side)
@@ -522,6 +517,7 @@ try:
     st.experimental_rerun()
 except Exception:
     st.rerun()
+
 
 
 
