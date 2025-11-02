@@ -591,9 +591,7 @@ with st.expander("🧩 Debug Panel (펀딩비 확인용)"):
 
 # ================= AUTO REFRESH =================
 time.sleep(REFRESH_INTERVAL_SEC)
-try:
-    st.experimental_rerun()
-except Exception:
-    st.rerun()
+st.rerun()
+
 
 
