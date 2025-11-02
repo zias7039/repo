@@ -296,8 +296,9 @@ for p in positions:
 
     badge_html = format_side_badge(side)
     pnl_color_each = "#4ade80" if unreal_pl >= 0 else "#f87171"
-    funding_fee = fnum(p.get("cumulativeFunding", 0.0))
-    funding_display = f"${funding_fee:,.2f}"
+    funding_total = fnum(p.get("cumulativeFunding", 0.0))
+    funding_last = fnum(p.get("fundingFee", 0.0))  # 키 이름은 실제 응답에 맞춰 조정
+    funding_display = f"${funding_total:,.2f} / {funding_last:,.4f}"
 
     table_html += f"""  <div style="
     display:grid;
@@ -376,6 +377,7 @@ try:
     st.experimental_rerun()
 except Exception:
     st.rerun()
+
 
 
 
