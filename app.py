@@ -145,35 +145,30 @@ def fetch_account_bills(limit=100):
     return bills
 
 def aggregate_funding_by_symbol_with_last():
-    """
-    펀딩비(= funding fee)는 businessType == "contract_settle_fee".
-    각 심볼별로
-      - 누적 펀딩 amount 합계
-      - 가장 최근 펀딩 amount
-    를 구해서 dict로 리턴.
-    키는 정규화된 심볼 (BTCUSDT 등)
-    """
     bills = fetch_account_bills(limit=200)
 
-    cumu_sum = defaultdict(float)  # 누적
-    last_amt = {}                  # 최근 금액
-    last_ts = {}                   # 최근 timestamp
+    cumu_sum = defaultdict(float)  # 심볼별 누적 펀딩비 합계
+    last_amt = {}                  # 심볼별 가장 최근 펀딩비 금액
+    last_ts = {}                   # 심볼별 가장 최근 타임스탬프(ms)
 
     for b in bills:
-        raw_sym = b.get("symbol", "")          # ex. "BTCUSDT"
-        sym = normalize_symbol(raw_sym)        # ex. "BTCUSDT"
-        bt = b.get("businessType", "")         # ex. "contract_settle_fee"
-        amt = fnum(b.get("amount", 0.0))       # ex. "-0.004992" -> float
-        ts_raw = b.get("cTime")                # ms as string
+        raw_sym = b.get("symbol", "")           # 예: "BTCUSDT" or "BTCUSDT_UMCBL"
+        sym = normalize_symbol(raw_sym)         # -> "BTCUSDT"
+        bt = b.get("businessType", "")          # 예: "contract_settle_fee" 또는 "funding_fee"
+        amt = fnum(b.get("amount", 0.0))        # ✅ 네가 방금 확인한 값
+        ts_raw = b.get("cTime")                 # ms timestamp (string)
 
-        if bt == "contract_settle_fee":
+        # 펀딩비로 카운트할 거래만 필터
+        if bt in ("contract_settle_fee", "funding_fee", "fundingFee", "funding_fee_settle"):
+            # 누적 합산
             cumu_sum[sym] += amt
 
+            # 최신값 갱신
             if sym not in last_ts:
                 last_ts[sym] = ts_raw
                 last_amt[sym] = amt
             else:
-                # 더 최신인지 비교 (문자열 비교지만 ms timestamp라서 큰 값 = 더 최신)
+                # 더 최근이면 교체
                 if ts_raw and last_ts[sym] and ts_raw > last_ts[sym]:
                     last_ts[sym] = ts_raw
                     last_amt[sym] = amt
@@ -540,6 +535,7 @@ try:
     st.experimental_rerun()
 except Exception:
     st.rerun()
+
 
 
 
