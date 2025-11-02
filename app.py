@@ -360,7 +360,7 @@ font-size:0.75rem;
 color:{TEXT_SUB};
 font-weight:500;
 ">
-<div>자산</div>
+<div>총자산</div>
 <div>방향</div>
 <div>포지션 가치 / 수량</div>
 <div>미실현 손익</div>
@@ -476,5 +476,6 @@ try:
     st.experimental_rerun()
 except Exception:
     st.rerun()
+
 
 
