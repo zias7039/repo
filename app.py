@@ -431,8 +431,8 @@ for idx, p in enumerate(positions):
     symbol_norm = normalize_symbol(p.get("symbol", ""))
     with sym_cols[idx]:
         if st.button(symbol_norm, key=f"symbtn_{symbol_norm}"):
-            st.session_state.selected_symbol = symbol_norm
-            st.experimental_rerun()
+           st.session_state.selected_symbol = symbol_norm
+           st.rerun()
 
 # 실제 상세 테이블
 table_html = f"""<div style="
@@ -592,6 +592,7 @@ with st.expander("🧩 Debug Panel (펀딩비 확인용)"):
 # ================= AUTO REFRESH =================
 time.sleep(REFRESH_INTERVAL_SEC)
 st.rerun()
+
 
 
 
