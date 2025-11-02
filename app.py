@@ -132,8 +132,21 @@ def fetch_kline(symbol="BTCUSDT", granularity="1h", limit=100):
     df = df.sort_values("timestamp")
     return df
 
-def render_chart(symbol: str):
-    df = fetch_kline(symbol, granularity="1h", limit=100)
+    # granularity 옵션 선택
+    granularity_map = {
+        "1분": "1min",
+        "5분": "5min",
+        "15분": "15min",
+        "1시간": "1h",
+        "4시간": "4h",
+        "1일": "1day",
+    }
+    selected_granularity_label = st.selectbox("⏱️ 차트 간격 선택", list(granularity_map.keys()), index=2)
+    selected_granularity = granularity_map[selected_granularity_label]
+
+def render_chart(symbol_display: str, granularity="1h"):
+    df = fetch_kline_spot(symbol_display, granularity=granularity, limit=100)
+    
     if df.empty:
         st.warning(f"{symbol} 차트를 불러올 수 없습니다.")
         return
@@ -145,11 +158,8 @@ def render_chart(symbol: str):
             high=df["high"],
             low=df["low"],
             close=df["close"],
-            # 색은 살짝만 지정 (초록 up / 빨강 down)
             increasing_line_color="#22c55e",
             decreasing_line_color="#ef4444",
-            increasing_fillcolor="#22c55e",
-            decreasing_fillcolor="#ef4444",
         )]
     )
 
@@ -417,7 +427,7 @@ justify-content:space-between;
 st.markdown(
     f"#### 📈 {st.session_state.selected_symbol} Perp 가격"
 )
-render_chart(st.session_state.selected_symbol)
+render_chart(st.session_state.selected_symbol, granularity=selected_granularity)
 
 # 그 다음 상단 카드
 render_html(top_card_html)
@@ -598,6 +608,7 @@ with st.expander("🧩 Debug Panel (펀딩비 확인용)"):
 # ================= AUTO REFRESH =================
 time.sleep(REFRESH_INTERVAL_SEC)
 st.rerun()
+
 
 
 
