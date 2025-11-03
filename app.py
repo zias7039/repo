@@ -525,7 +525,7 @@ if st.session_state.selected_symbol not in pos_symbols:
 
 # ===== 컨트롤 툴바: 심볼(왼쪽) + 간격(오른쪽) =====
 st.markdown('<div class="toolbar">', unsafe_allow_html=True)
-left_ctrl, right_ctrl = st.columns([0.45, 0.1, 0.45], vertical_alignment="center")
+left_ctrl, spacer, right_ctrl = st.columns([0.45, 0.1, 0.45], vertical_alignment="center")
 
 with left_ctrl:
     st.markdown('<div class="small-label">', unsafe_allow_html=True)
@@ -703,6 +703,7 @@ render_html(footer_html)
 # ================= AUTO REFRESH =================
 time.sleep(REFRESH_INTERVAL_SEC)
 st.rerun()
+
 
 
 
