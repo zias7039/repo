@@ -49,19 +49,7 @@ def krw_line(amount_usd: float, color: str | None = None) -> str:
         return ""
     won = amount_usd * USDT_KRW
     style_color = f"color:{color};" if color else f"color:{TEXT_SUB};"
-    return f"<div style='font-size:0.70rem;{style_color}margin-top:2px;'>≈ ₩{won:,.0f}</div>"
-
-def krw_line(amount_usd: float, color: str | None = None) -> str:
-    """
-    달러 금액 바로 아래에 '≈ ₩원화' 라인을 그려준다.
-    환율을 못 가져오면 빈 문자열.
-    color 지정 시 그 색으로 표시(미실현손익과 일치).
-    """
-    if not USDT_KRW:
-        return ""
-    won = amount_usd * USDT_KRW
-    style_color = f"color:{color};" if color else f"color:{TEXT_SUB};"
-    return f"<div style='font-size:0.70rem;{style_color}margin-top:2px;'>≈ ₩{won:,.0f}</div>"
+    return f"<div style='font-size:0.70rem;{style_color}margin-top:1px;'>≈ ₩{won:,.0f}</div>"
 
 # ================= SESSION STATE (차트 선택 심볼) =================
 if "selected_symbol" not in st.session_state:
@@ -651,6 +639,7 @@ with st.expander("🧩 Debug Panel (펀딩비 확인용)"):
 # ================= AUTO REFRESH =================
 time.sleep(REFRESH_INTERVAL_SEC)
 st.rerun()
+
 
 
 
