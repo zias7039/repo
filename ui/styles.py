@@ -1,10 +1,11 @@
 def inject(st):
     st.markdown("""
 <style>
-:root {
-  --bg-pill:#111827;
-  --bg-pill-hover:#1f2937;
-  --bg-pill-active:#1e293b;
+/* ------------------ Design tokens ------------------ */
+:root{
+  --bg-pill:#111827;          /* pill 배경 */
+  --bg-pill-hover:#1f2937;    /* hover */
+  --bg-pill-active:#1e293b;   /* active */
   --bd-muted:rgba(148,163,184,.25);
   --bd-active:#60a5fa;
   --fg:#e5e7eb;
@@ -16,12 +17,12 @@ def inject(st):
   --pill-font:.9rem;
 }
 
-/* ------------------ 기본 구조 ------------------ */
+/* ------------------ 기본 설정 ------------------ */
 
-/* 상단 라벨(“심볼/차트 간격”) 숨김 */
+/* 라벨 텍스트(“심볼/차트 간격”) 숨김 */
 .stRadio > label { display:none !important; }
 
-/* 라디오 원형, SVG, pseudo 제거 */
+/* 라디오 원형, 아이콘 등 제거 */
 .stRadio [role="radiogroup"] input[type="radio"],
 .stRadio [role="radiogroup"] > label > div:first-child,
 .stRadio [role="radiogroup"] > label svg,
@@ -30,24 +31,43 @@ def inject(st):
   display:none !important; content:none !important;
 }
 
-/* span 여백 초기화 */
+/* 내부 여백 초기화 */
+.stRadio [role="radiogroup"] > label > * {
+  margin:0 !important; padding:0 !important;
+}
 .stRadio [role="radiogroup"] > label span {
-  display:flex; align-items:center; justify-content:center;
-  line-height:1 !important; margin:0 !important; padding:0 !important;
+  line-height:1 !important;
 }
 
-/* ------------------ pill 디자인 ------------------ */
-.stRadio [role="radiogroup"] {
-  display:flex; align-items:center; gap:var(--pill-gap);
+/* ------------------ 그룹 래퍼 ------------------ */
+.symbol-wrap, .gran-wrap {
+  display:flex;
+  justify-content:center;
+  width:100%;
+}
+.symbol-wrap .stRadio > div,
+.gran-wrap .stRadio > div {
+  display:flex;
+  justify-content:center !important;
+}
+.symbol-wrap [role="radiogroup"],
+.gran-wrap [role="radiogroup"] {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:var(--pill-gap);
+  width:fit-content;
+  margin:0 auto;
 }
 
+/* ------------------ pill 공통 ------------------ */
 .stRadio [role="radiogroup"] > label {
   display:inline-flex !important;
   align-items:center !important;
   justify-content:center !important;
   padding:var(--pill-py) var(--pill-px);
-  border:1px solid var(--bd-muted);
   border-radius:var(--pill-radius);
+  border:1px solid var(--bd-muted);
   background:var(--bg-pill);
   color:var(--fg);
   font-size:var(--pill-font);
@@ -55,10 +75,12 @@ def inject(st):
   white-space:nowrap;
   box-shadow:none !important;
   outline:none !important;
+  background-image:none !important;
   background-clip:padding-box !important;
   overflow:hidden !important;
   transition:transform .15s ease, background .15s ease, border-color .15s ease;
   flex:0 0 auto;
+  min-width:0;
 }
 
 .stRadio [role="radiogroup"] > label:hover {
@@ -73,42 +95,36 @@ def inject(st):
   box-shadow:inset 0 0 0 1px var(--bd-active);
 }
 
-/* ------------------ 좌/우 정렬 ------------------ */
-
-/* 왼쪽 (심볼 그룹) */
-.symbol-wrap {
-  display:flex;
-  justify-content:flex-start;
-  width:100%;
-}
-
-/* 오른쪽 (차트 간격 그룹) */
+/* ------------------ 오른쪽 정렬(차트 간격) ------------------ */
 .gran-wrap {
   display:flex;
   justify-content:flex-end;
   width:100%;
-  padding-right:0;
   margin-right:0;
+  padding-right:0;
 }
+
+/* 내부 라디오 그룹 내용만큼 차지 */
 .gran-wrap [role="radiogroup"] {
   width:fit-content;
   margin-left:auto;
+  margin-right:0;
 }
 
-/* Streamlit 컬럼 패딩 제거 */
+/* Streamlit column 기본 패딩 제거 */
 div[data-testid="column"]:has(.gran-wrap) {
   padding-right:0 !important;
   margin-right:0 !important;
 }
 
-/* 전체 좌/우 블록 벌리기 */
+/* 상위 컨테이너 좌우 끝 벌리기 */
 div[data-testid="stHorizontalBlock"] {
   justify-content:space-between !important;
 }
 
 /* ------------------ 반응형 ------------------ */
 @media (max-width:768px){
-  :root {
+  :root{
     --pill-gap:10px;
     --pill-px:14px;
   }
