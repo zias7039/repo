@@ -362,22 +362,40 @@ html, body, [class*="css"] {
 }
 .toolbar .title .sub { color:#94a3b8; font-weight:500; }
 
-/* ===== Radio -> Pill 화 ===== */
-div[role="radiogroup"] {
+/* 라디오 그룹: 한 줄 유지 + 가로 스크롤 허용 */
+div[role="radiogroup"]{
   display:flex;
-  flex-wrap:nowrap;     /* 한 줄로 고정 */
-  gap:16px;
-  overflow-x:auto;      /* 공간이 부족하면 가로 스크롤 */
-  scrollbar-width:none; /* 스크롤바 숨김 (Firefox) */
+  flex-wrap:nowrap;
+  gap:8px;
+  overflow-x:auto;
+  scrollbar-width:none;
 }
-div[role="radiogroup"]::-webkit-scrollbar { display:none; } /* 스크롤바 숨김 (Chrome) */
+div[role="radiogroup"]::-webkit-scrollbar{ display:none; }
+
+/* 라디오 항목(label) 내부를 가로 정렬로 고정 */
+div[role="radiogroup"] > label{
+  display:flex !important;
+  flex-direction:row !important;   /* ← 아이콘과 텍스트를 가로로 */
+  align-items:center !important;
+  white-space:nowrap;               /* ← 글자 줄바꿈 금지 */
+  word-break:keep-all;              /* ← 한글 낱글자 단위 줄바꿈 방지 */
+  gap:8px;                          /* 아이콘-텍스트 사이 간격 */
+  margin:0 !important;
+  padding:6px 12px;
+  border-radius:999px;
+  border:1px solid rgba(148,163,184,.25);
+  background:#111827;
+  color:#e5e7eb;
+  transition:all .15s ease;
+  font-size:.85rem;
+  cursor:pointer;
 }
-div[role="radiogroup"] > label:hover {
-  background:#1f2937; transform:translateY(-1px);
-}
-div[role="radiogroup"] > label[data-checked="true"] {
-  background:#1e293b; border-color:#60a5fa; box-shadow:0 0 0 1px #60a5fa inset;
-  color:#f8fafc; font-weight:700;
+div[role="radiogroup"] > label[data-checked="true"]{
+  background:#1e293b;
+  border-color:#60a5fa;
+  box-shadow:0 0 0 1px #60a5fa inset;
+  color:#f8fafc;
+  font-weight:700;
 }
 
 /* 라벨 숨김(공간 최소화) */
@@ -677,6 +695,7 @@ render_html(footer_html)
 # ================= AUTO REFRESH =================
 time.sleep(REFRESH_INTERVAL_SEC)
 st.rerun()
+
 
 
 
