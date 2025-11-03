@@ -364,8 +364,13 @@ html, body, [class*="css"] {
 
 /* ===== Radio -> Pill 화 ===== */
 div[role="radiogroup"] {
-  display:flex; flex-wrap:wrap; gap:8px;
+  display:flex;
+  flex-wrap:nowrap;     /* 한 줄로 고정 */
+  gap:8px;
+  overflow-x:auto;      /* 공간이 부족하면 가로 스크롤 */
+  scrollbar-width:none; /* 스크롤바 숨김 (Firefox) */
 }
+div[role="radiogroup"]::-webkit-scrollbar { display:none; } /* 스크롤바 숨김 (Chrome) */
 div[role="radiogroup"] > label {
   margin:0 !important; padding:6px 12px; border-radius:999px;
   border:1px solid rgba(148,163,184,.25);
@@ -677,6 +682,7 @@ render_html(footer_html)
 # ================= AUTO REFRESH =================
 time.sleep(REFRESH_INTERVAL_SEC)
 st.rerun()
+
 
 
 
