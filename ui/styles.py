@@ -52,7 +52,12 @@ div[data-testid="stHorizontalBlock"] > div:nth-child(2) {
   content:none !important;
 }
 .stRadio [role="radiogroup"] > label > * { margin:0 !important; padding:0 !important; }
-.stRadio [role="radiogroup"] > label span { line-height:1 !important; }
+.stRadio [role="radiogroup"] > label span,
+.stRadio [role="radiogroup"] > label p,
+.stRadio [role="radiogroup"] > label div[data-testid="stMarkdown"] {
+  line-height:1 !important;
+  font-size:var(--pill-font) !important;
+}
 
 /* 버튼(텍스트 칩) */
 .stRadio [role="radiogroup"]{
