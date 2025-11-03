@@ -38,6 +38,8 @@ div[data-testid="stHorizontalBlock"] > div:nth-child(2) {
   --pill-radius:999px;
   --pill-font:.8rem;
 }
+.stRadio [role="radiogroup"] > label > * { margin:0 !important; padding:0 !important; }
+.stRadio [role="radiogroup"] > label span { line-height:1 !important; }
 
 /* 라벨 텍스트 숨김 */
 .stRadio > label { display:none !important; }
