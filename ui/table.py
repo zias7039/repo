@@ -13,12 +13,13 @@ def side_badge(side: str):
         bg,border,color = "#1e2538","#94a3b8","#94a3b8"
         label = side_up
     return f"""<span style="background:{bg};color:{color};border:1px solid {border};
-font-size:rem;font-weight:600;border-radius:4px;padding:2px 6px;line-height:1;display:inline-block;min-width:44px;text-align:center;">{label}</span>"""
+font-size:0.75rem;font-weight:600;border-radius:4px;padding:2px 6px;line-height:1;display:inline-block;min-width:44px;text-align:center;">{label}</span>"""
 
 def positions_table(st, positions, funding_data, *, border="rgba(148,163,184,0.2)",
                     text_sub="#94a3b8", text_main="#f8fafc", shadow="0 24px 48px rgba(0,0,0,0.6)"):
-    table_html = f"""<div style="background:#0f172a;border:1px solid {border};border-radius:8px;
-box-shadow:{shadow};font-size:0.9rem;color:{text_sub};width:100%;max-width:1080px;margin:8px auto 0;">
+    table_html = f"""<div class="layout-boundary">
+<div style="background:#0f172a;border:1px solid {border};border-radius:8px;
+box-shadow:{shadow};font-size:0.9rem;color:{text_sub};width:100%;margin:8px 0 0;">
 <div style="display:grid;grid-template-columns:90px 64px 150px 140px 100px 110px 110px 100px 120px;column-gap:12px;
 padding:12px 16px;border-bottom:1px solid rgba(148,163,184,0.15);font-size:0.8rem;color:{text_sub};font-weight:500;">
 <div>자산</div><div>방향</div><div>포지션 가치 / 수량</div><div>미실현 손익</div>
@@ -47,5 +48,5 @@ padding:16px;border-bottom:1px solid rgba(148,163,184,0.08);color:{text_main};fo
 <div style="color:#4ade80;font-weight:500;">{funding_display}</div>
 </div>"""
 
-    table_html += "</div>"
+    table_html += "</div></div>"
     render_html(st, table_html)
