@@ -14,7 +14,7 @@ GRANULARITY_MAP = {
 def render_toolbar(positions, default_symbol="BTCUSDT", default_gran_label="15분"):
     # 심볼 목록
     pos_symbols = [normalize_symbol(p.get("symbol", "")) for p in (positions or [])]
-    pos_symbols = [s for s in pos_symbols if s] or ["BTCUSDT", "ETHUSDT"]
+    pos_symbols = [s for s in pos_symbols if s] or ["BTCUSDT", "ETHUSDT", "XRPUSDT"]
 
     # 선택 상태 유지
     if "selected_symbol" not in st.session_state:
