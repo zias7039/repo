@@ -524,7 +524,6 @@ if st.session_state.selected_symbol not in pos_symbols:
     pos_symbols = [st.session_state.selected_symbol] + [s for s in pos_symbols if s != st.session_state.selected_symbol]
 
 # ===== 컨트롤 툴바: 심볼(왼쪽) + 간격(오른쪽) =====
-st.markdown('<div class="toolbar">', unsafe_allow_html=True)
 left_ctrl, right_ctrl = st.columns([0.45, 0.55], vertical_alignment="center")
 
 with left_ctrl:
@@ -538,7 +537,6 @@ with left_ctrl:
         index=0 if "selected_symbol" not in st.session_state else 0,  # 표시만, 실제 선택은 아래에서 반영
         key="symbol_radio",
     )
-    st.markdown('</div>', unsafe_allow_html=True)
 
 with right_ctrl:
     st.markdown('<div class="small-label">', unsafe_allow_html=True)
@@ -703,52 +701,3 @@ render_html(footer_html)
 # ================= AUTO REFRESH =================
 time.sleep(REFRESH_INTERVAL_SEC)
 st.rerun()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
