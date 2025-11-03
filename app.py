@@ -366,40 +366,38 @@ html, body, [class*="css"] {
 div[role="radiogroup"] {
   display: flex;
   flex-wrap: nowrap;         /* 한 줄 고정 */
+  justify-content: space-between;
+  align-items: center;
   gap: 8px;
-  max-width: 100%;           /* 부모 영역 너비를 넘지 않도록 */
-  overflow-x: auto;          /* 좁으면 가로 스크롤 */
-  scrollbar-width: thin;     /* 스크롤 얇게 (Firefox) */
-}
-div[role="radiogroup"]::-webkit-scrollbar {
-  height: 6px;               /* 스크롤 높이 */
-}
-div[role="radiogroup"]::-webkit-scrollbar-thumb {
-  background: rgba(148,163,184,.25);
-  border-radius: 3px;
-}
-div[role="radiogroup"]::-webkit-scrollbar-track {
-  background: transparent;
+  width: 100%;           /* 부모 영역 너비를 넘지 않도록 */
+  overflow-x: hidden;
 }
 
-/* 라디오 항목을 가로 정렬 */
+/* 각 라디오 버튼 스타일 */
 div[role="radiogroup"] > label {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center;
-  flex-direction: row !important;
+  flex: 1 1 auto;             /* 전체 공간 균등 분배 */
   white-space: nowrap;
-  word-break: keep-all;
-  margin: 0 !important;
   padding: 6px 12px;
   border-radius: 999px;
   border: 1px solid rgba(148,163,184,.25);
   background: #111827;
   color: #e5e7eb;
   font-size: .85rem;
+  font-weight: 500;
   transition: all .15s ease;
   cursor: pointer;
+  min-width: 60px;
+  max-width: 130px;
 }
+
+div[role="radiogroup"] > label:hover {
+  background: #1f2937;
+  transform: translateY(-1px);
+}
+
 div[role="radiogroup"] > label[data-checked="true"] {
   background: #1e293b;
   border-color: #60a5fa;
@@ -705,6 +703,7 @@ render_html(footer_html)
 # ================= AUTO REFRESH =================
 time.sleep(REFRESH_INTERVAL_SEC)
 st.rerun()
+
 
 
 
