@@ -26,6 +26,25 @@ div[data-testid="stHorizontalBlock"] > div:nth-child(2) {
   margin-right: 0 !important;
 }
 
+/* 툴바 전용: 두 라디오 그룹 간 간격을 줄이고 컨텐츠 폭만큼만 차지 */
+.toolbar-row div[data-testid="stHorizontalBlock"] {
+  justify-content: flex-start !important;
+  gap: 16px !important;
+  flex-wrap: wrap;
+  row-gap: 8px;
+}
+
+.toolbar-row div[data-testid="stHorizontalBlock"] > div {
+  flex: 0 0 auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.toolbar-row div[data-testid="stHorizontalBlock"] > div:nth-child(2) {
+  justify-content: flex-start !important;
+}
+
+
 /* ------------------ Pill Style ------------------ */
 :root{
   --bg-pill:#111827;
