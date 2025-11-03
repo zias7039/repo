@@ -614,31 +614,10 @@ margin-bottom:12px;'>
 </div>"""
 render_html(footer_html)
 
-
-# ================= DEBUG PANEL =================
-with st.expander("🧩 Debug Panel (펀딩비 확인용)"):
-    st.write("### funding_map (full)")
-    st.json(funding_map)
-
-    st.write("### seen businessType values")
-    st.json(funding_map.get("_debug_seen_types", []))
-
-    st.write("### computed funding_data")
-    st.json(funding_data)
-
-    bills_debug = fetch_account_bills(limit=20)
-    st.write("### sample bills_debug[:3]")
-    st.json(bills_debug[:3])
-
-    pos_syms_raw = [p.get("symbol","") for p in positions]
-    pos_syms_norm = [normalize_symbol(p.get("symbol","")) for p in positions]
-    st.write("### symbols raw   :", pos_syms_raw)
-    st.write("### symbols norm  :", pos_syms_norm)
-
-
 # ================= AUTO REFRESH =================
 time.sleep(REFRESH_INTERVAL_SEC)
 st.rerun()
+
 
 
 
