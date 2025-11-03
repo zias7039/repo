@@ -27,31 +27,24 @@ BASE_URL = "https://api.bitget.com"
 REFRESH_INTERVAL_SEC = 15
 
 # ===== KRW 환율 (USDT 기준) =====
-@st.cache_data(ttl=300)
+@st.cache_data(ttl=60)
 def fetch_usdt_krw() -> float | None:
-    """
-    CoinGecko에서 테더(USDT) 원화 시세를 읽어온다.
-    실패 시 None 반환 (표시는 생략).
-    """
     try:
-        resp = requests.get(
-            "https://api.coingecko.com/api/v3/simple/price",
-            params={"ids": "tether", "vs_currencies": "krw"},
-            timeout=5,
-        )
-        data = resp.json()
-        return float(data["tether"]["krw"])
+        res = requests.get("https://api.upbit.com/v1/ticker", params={"markets": "USDT-BTC,KRW-BTC"}, timeout=5)
+        data = res.json()
+
+        btc_usdt = next((d["trade_price"] for d in data if d["market"] == "USDT-BTC"), None)
+        btc_krw = next((d["trade_price"] for d in data if d["market"] == "KRW-BTC"), None)
+
+        if btc_usdt and btc_krw:
+            return float(btc_krw) / float(btc_usdt)
+        return None
     except Exception:
         return None
 
 USDT_KRW = fetch_usdt_krw()
 
 def krw_line(amount_usd: float, color: str | None = None) -> str:
-    """
-    달러 금액 바로 아래에 '≈ ₩원화' 라인을 그려준다.
-    환율을 못 가져오면 빈 문자열.
-    color 지정 시 그 색으로 표시(미실현손익과 일치).
-    """
     if not USDT_KRW:
         return ""
     won = amount_usd * USDT_KRW
@@ -658,6 +651,7 @@ with st.expander("🧩 Debug Panel (펀딩비 확인용)"):
 # ================= AUTO REFRESH =================
 time.sleep(REFRESH_INTERVAL_SEC)
 st.rerun()
+
 
 
 
