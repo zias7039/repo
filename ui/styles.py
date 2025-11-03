@@ -28,7 +28,7 @@ div[data-testid="stHorizontalBlock"] > div:nth-child(2) {
 /* 툴바 전용: 두 라디오 그룹이 한 줄에 유지되도록 정렬 */
 .toolbar-row div[data-testid="stHorizontalBlock"] {
   justify-content: flex-start !important;
-  gap: 16px !important;
+  gap: 0px !important;
   flex-wrap: nowrap;
   align-items: center;
 }
@@ -88,7 +88,7 @@ div[data-testid="stPlotlyChart"] > div:nth-child(1) > div{
 }
 
 /* 라벨 텍스트 숨김 */
-.stRadio > label { display:none !important; }
+.stRadio > label { display:none !important;}
 
 /* 원형 라디오 및 잔여 영역 제거 */
 .stRadio [role="radiogroup"] input[type="radio"],
