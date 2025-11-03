@@ -371,11 +371,6 @@ div[role="radiogroup"] {
   scrollbar-width:none; /* 스크롤바 숨김 (Firefox) */
 }
 div[role="radiogroup"]::-webkit-scrollbar { display:none; } /* 스크롤바 숨김 (Chrome) */
-div[role="radiogroup"] > label {
-  margin:0 !important; padding:6px 12px; border-radius:999px;
-  border:1px solid rgba(148,163,184,.25);
-  background:#111827; color:#e5e7eb; transition:all .15s ease;
-  font-size:.85rem; cursor:pointer;
 }
 div[role="radiogroup"] > label:hover {
   background:#1f2937; transform:translateY(-1px);
@@ -682,6 +677,7 @@ render_html(footer_html)
 # ================= AUTO REFRESH =================
 time.sleep(REFRESH_INTERVAL_SEC)
 st.rerun()
+
 
 
 
