@@ -56,6 +56,32 @@ def inject(st):
   background:var(--bg-pill-active); color:var(--fg-active); border-color:var(--bd-active); box-shadow:inset 0 0 0 1px var(--bd-active);
 }
 
+.gran-wrap {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  margin-right: 0;
+  padding-right: 0;
+}
+
+/* 2️⃣ 내부 라디오 그룹이 내용만큼만 차지하도록 */
+.gran-wrap [role="radiogroup"] {
+  width: fit-content;
+  margin-left: auto;       /* 오른쪽 끝으로 밀착 */
+  margin-right: 0;
+}
+
+/* 3️⃣ Streamlit column 기본 패딩 제거 */
+div[data-testid="column"]:has(.gran-wrap) {
+  padding-right: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* 4️⃣ 혹시 상위 컨테이너가 가운데 정렬일 경우 대비 */
+div[data-testid="stHorizontalBlock"] {
+  justify-content: space-between !important;  /* 좌/우 끝으로 벌리기 */
+}
+
 /* (선택) 작은 화면에서 pill 간격 조금 줄이기 */
 @media (max-width: 768px){
   :root{ --pill-gap:10px; --pill-px:14px; }
