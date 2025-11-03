@@ -36,7 +36,15 @@ div[data-testid="stHorizontalBlock"] > div:nth-child(2) {
   --pill-px:16px;
   --pill-gap:12px;
   --pill-radius:999px;
-  --pill-font:.8rem;
+  --pill-font:.55rem;
+  --layout-max:1080px;
+}
+
+.layout-boundary{
+  width:100%;
+  max-width:var(--layout-max);
+  margin-left:auto;
+  margin-right:auto;
 }
 .stRadio [role="radiogroup"] > label > * { margin:0 !important; padding:0 !important; }
 .stRadio [role="radiogroup"] > label span { line-height:1 !important; }
