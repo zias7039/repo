@@ -551,18 +551,6 @@ if selected_symbol != st.session_state.selected_symbol:
     st.session_state.selected_symbol = selected_symbol
     st.rerun()
 
-# ================== LAYOUT: CHART + CARD ==================
-st.markdown(
-    f"#### 📈 {st.session_state.selected_symbol} 가격 ({selected_granularity_label})"
-)
-render_chart(
-    st.session_state.selected_symbol,
-    granularity=selected_granularity
-)
-
-# 그 다음 상단 카드
-render_html(top_card_html)
-
 # ================= POSITIONS TABLE =================
 st.markdown(
     "<div style='font-size:0.8rem;color:#94a3b8;margin-top:4px;'>심볼 변경:</div>",
@@ -712,6 +700,7 @@ render_html(footer_html)
 # ================= AUTO REFRESH =================
 time.sleep(REFRESH_INTERVAL_SEC)
 st.rerun()
+
 
 
 
