@@ -43,8 +43,7 @@ div[role="radiogroup"] > label {
   border-radius:999px;
   background:#111827;
   color:#e5e7eb;
-  font-size:.6rem;
-  font-weight:600;
+  font-size:.3rem;
   white-space:nowrap;
   cursor:pointer;
   transition:all .15s ease;
