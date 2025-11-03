@@ -25,13 +25,12 @@ div[data-testid="stHorizontalBlock"] > div:nth-child(2) {
   padding-right: 0 !important;
   margin-right: 0 !important;
 }
-
-/* 툴바 전용: 두 라디오 그룹 간 간격을 줄이고 컨텐츠 폭만큼만 차지 */
+/* 툴바 전용: 두 라디오 그룹이 한 줄에 유지되도록 정렬 */
 .toolbar-row div[data-testid="stHorizontalBlock"] {
   justify-content: flex-start !important;
-  gap: 0px !important;
-  flex-wrap: wrap;
-  row-gap: 0px;
+  gap: 16px !important;
+  flex-wrap: nowrap;
+  align-items: center;
 }
 
 .toolbar-row div[data-testid="stHorizontalBlock"] > div {
@@ -44,6 +43,12 @@ div[data-testid="stHorizontalBlock"] > div:nth-child(2) {
   justify-content: flex-start !important;
 }
 
+@media (max-width: 960px) {
+  .toolbar-row div[data-testid="stHorizontalBlock"] {
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+}
 
 /* ------------------ Pill Style ------------------ */
 :root{
