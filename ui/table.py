@@ -20,7 +20,7 @@ def positions_table(st, positions, funding_data, *, border="rgba(148,163,184,0.2
     table_html = f"""<div style="background:#0f172a;border:1px solid {border};border-radius:8px;
 box-shadow:{shadow};font-size:0.8rem;color:{text_sub};min-width:1200px;margin-top:8px;">
 <div style="display:grid;grid-template-columns:100px 70px 160px 150px 110px 120px 120px 110px 140px;column-gap:16px;
-padding:12px 16px;border-bottom:1px solid rgba(148,163,184,0.15);font-size:0.75rem;color:{text_sub};font-weight:500;">
+padding:12px 16px;border-bottom:1px solid rgba(148,163,184,0.15);font-size:0.9rem;color:{text_sub};font-weight:500;">
 <div>자산</div><div>방향</div><div>포지션 가치 / 수량</div><div>미실현 손익</div>
 <div>진입가</div><div>현재가</div><div>청산가</div><div>사용 마진</div><div>펀딩비</div></div>"""
 
