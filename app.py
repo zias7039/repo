@@ -531,6 +531,12 @@ st.markdown('</div>', unsafe_allow_html=True)  # /toolbar
 granularity_map = {"1분":"1min","5분":"5min","15분":"15min","1시간":"1h","4시간":"4h","1일":"1day"}
 selected_granularity = granularity_map[selected_granularity_label]
 
+# ⬇️ 차트 그리기
+render_chart(st.session_state.selected_symbol, granularity=selected_granularity)
+
+# ⬇️ 상단 카드 표시 (원화 라인 포함)
+render_html(top_card_html)
+
 if selected_symbol != st.session_state.selected_symbol:
     st.session_state.selected_symbol = selected_symbol
     st.rerun()
@@ -671,6 +677,7 @@ render_html(footer_html)
 # ================= AUTO REFRESH =================
 time.sleep(REFRESH_INTERVAL_SEC)
 st.rerun()
+
 
 
 
