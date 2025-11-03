@@ -1,4 +1,5 @@
-st.markdown("""
+def inject(st):
+    st.markdown("""
 <style>
 /* 1️⃣ 상단 라벨 (심볼 / 차트 간격) 숨기기 */
 .stRadio > label {
