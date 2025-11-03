@@ -378,19 +378,32 @@ div[role="radiogroup"] > label {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center;
-  flex: 1 1 auto;             /* 전체 공간 균등 분배 */
+  flex: 0 0 auto;             /* 전체 공간 균등 분배 */
   white-space: nowrap;
-  padding: 6px 12px;
+  padding: 10px 20px;
+  margin: 0 !important;
   border-radius: 999px;
   border: 1px solid rgba(148,163,184,.25);
   background: #111827;
   color: #e5e7eb;
-  font-size: .85rem;
-  font-weight: 500;
+  font-size: .9rem;
+  font-weight: 600;
   transition: all .15s ease;
   cursor: pointer;
-  min-width: 60px;
-  max-width: 130px;
+  min-width: 80px;
+}
+
+div[role="radiogroup"] > label:hover {
+  background: #1f2937;
+  transform: translateY(-1px);
+}
+
+div[role="radiogroup"] > label[data-checked="true"] {
+  background: #1e293b;
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 1px #60a5fa inset;
+  color: #f8fafc;
+  font-weight: 700;
 }
 
 /* 라벨 숨김(공간 최소화) */
@@ -690,6 +703,7 @@ render_html(footer_html)
 # ================= AUTO REFRESH =================
 time.sleep(REFRESH_INTERVAL_SEC)
 st.rerun()
+
 
 
 
