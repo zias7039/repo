@@ -381,7 +381,6 @@ div[role="radiogroup"] > label {
   align-items: center !important;
   justify-content: center;
   padding: 10px 0px;
-  border-radius: 999px;
   border: 1px solid rgba(148,163,184,.25);
   background: #111827;
   color: #e5e7eb;
@@ -703,6 +702,7 @@ render_html(footer_html)
 # ================= AUTO REFRESH =================
 time.sleep(REFRESH_INTERVAL_SEC)
 st.rerun()
+
 
 
 
