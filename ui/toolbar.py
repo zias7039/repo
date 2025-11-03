@@ -32,26 +32,28 @@ def render_toolbar(positions, default_symbol="BTCUSDT", default_gran_label="1분
     with st.container():
         st.markdown("<div class='layout-boundary'>", unsafe_allow_html=True)
 
-        left, right = st.columns([1, 1], vertical_alignment="center")
+        boundary = st.container()
+        with boundary:
+            left, right = st.columns([1, 1], vertical_alignment="center")
 
-        with left:
-            selected_symbol = st.radio(
-                "심볼",
-                merged_symbols,
-                horizontal=True,
-                index=merged_symbols.index(st.session_state.selected_symbol)
-                      if st.session_state.selected_symbol in merged_symbols else 0,
-                key="symbol_radio",
-            )
+            with left:
+                selected_symbol = st.radio(
+                    "심볼",
+                    merged_symbols,
+                    horizontal=True,
+                    index=merged_symbols.index(st.session_state.selected_symbol)
+                          if st.session_state.selected_symbol in merged_symbols else 0,
+                    key="symbol_radio",
+                )
 
-        with right:
-            selected_gran_label = st.radio(
-                "차트 간격",
-                list(GRANULARITY_MAP.keys()),
-                horizontal=True,
-                index=list(GRANULARITY_MAP.keys()).index(default_gran_label),
-                key="granularity_radio",
-            )
+            with right:
+                selected_gran_label = st.radio(
+                    "차트 간격",
+                    list(GRANULARITY_MAP.keys()),
+                    horizontal=True,
+                    index=list(GRANULARITY_MAP.keys()).index(default_gran_label),
+                    key="granularity_radio",
+                )
 
         st.markdown("</div>", unsafe_allow_html=True)
 
