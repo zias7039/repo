@@ -53,8 +53,6 @@ div[data-testid="stHorizontalBlock"] > div:nth-child(2) {
   display:none !important;
   content:none !important;
 }
-.stRadio [role="radiogroup"] > label > * { margin:0 !important; padding:0 !important; }
-.stRadio [role="radiogroup"] > label span,
 .stRadio [role="radiogroup"] > label p,
 .stRadio [role="radiogroup"] > label div[data-testid="stMarkdown"] {
   line-height:1 !important;
@@ -76,7 +74,6 @@ div[data-testid="stHorizontalBlock"] > div:nth-child(2) {
   border:1px solid var(--bd-muted);
   background:var(--bg-pill);
   color:var(--fg);
-  font-size:var(--pill-font) !important;
   font-weight:600;
   white-space:nowrap;
   box-shadow:none !important;
