@@ -4,11 +4,14 @@ def inject(st):
 <style>
 /* ------------------ Global Layout Fix ------------------ */
 
-/* Streamlit 기본 컨테이너 폭 제한 해제 → 화면 전체 폭 사용 */
+/* Streamlit 기본 컨테이너를 공통 최대 폭으로 정렬 */
 .block-container{
-  max-width: 100% !important;
+  max-width: var(--layout-max) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
   padding-left: 16px !important;
   padding-right: 16px !important;
+  box-sizing: border-box;
 }
 
 /* columns 간격 최소화 */
