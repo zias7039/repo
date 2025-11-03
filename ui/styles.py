@@ -36,7 +36,7 @@ div[data-testid="stHorizontalBlock"] > div:nth-child(2) {
   --pill-px:16px;
   --pill-gap:12px;
   --pill-radius:999px;
-  --pill-font:.5rem;
+  --pill-font:.9rem;
 }
 
 /* 라벨 텍스트 숨김 */
