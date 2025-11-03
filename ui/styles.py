@@ -39,7 +39,7 @@ div[data-testid="stHorizontalBlock"] > div:nth-child(2) {
   --pill-px:16px;
   --pill-gap:12px;
   --pill-radius:999px;
-  --pill-font:.55rem;
+  --pill-font:.8rem;
   --layout-max:1080px;
 }
 
