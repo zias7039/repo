@@ -578,7 +578,7 @@ box-shadow:{SHADOW};
 font-family:{FONT_FAMILY};
 font-size:0.8rem;
 color:{TEXT_SUB};
-overflow-x:auto;
+justify-content: space-between;
 min-width:1200px;
 margin-top:8px;
 ">
@@ -705,6 +705,7 @@ render_html(footer_html)
 # ================= AUTO REFRESH =================
 time.sleep(REFRESH_INTERVAL_SEC)
 st.rerun()
+
 
 
 
