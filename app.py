@@ -379,7 +379,7 @@ div[role="radiogroup"] > label {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center;
-  padding: 10px 5px;
+  padding: 5px 5px;
   border: 1px solid rgba(148,163,184,.25);
   border-radius: 999px;
   background: #111827;
@@ -702,6 +702,7 @@ render_html(footer_html)
 # ================= AUTO REFRESH =================
 time.sleep(REFRESH_INTERVAL_SEC)
 st.rerun()
+
 
 
 
