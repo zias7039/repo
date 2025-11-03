@@ -376,7 +376,8 @@ div[role="radiogroup"] {
 
 /* 각 라디오 버튼 스타일 */
 div[role="radiogroup"] > label {
-  flex:1 1 0; min-width:0;
+  flex:1 1 0; 
+  min-width:0;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center;
@@ -524,7 +525,7 @@ if st.session_state.selected_symbol not in pos_symbols:
 
 # ===== 컨트롤 툴바: 심볼(왼쪽) + 간격(오른쪽) =====
 st.markdown('<div class="toolbar">', unsafe_allow_html=True)
-left_ctrl, right_ctrl = st.columns([0.62, 0.38], vertical_alignment="center")
+left_ctrl, right_ctrl = st.columns([0.45, 0.1, 0.45], vertical_alignment="center")
 
 with left_ctrl:
     st.markdown('<div class="small-label">', unsafe_allow_html=True)
@@ -702,6 +703,7 @@ render_html(footer_html)
 # ================= AUTO REFRESH =================
 time.sleep(REFRESH_INTERVAL_SEC)
 st.rerun()
+
 
 
 
