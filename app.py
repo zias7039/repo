@@ -552,19 +552,6 @@ if selected_symbol != st.session_state.selected_symbol:
     st.rerun()
 
 # ================= POSITIONS TABLE =================
-st.markdown(
-    "<div style='font-size:0.8rem;color:#94a3b8;margin-top:4px;'>심볼 변경:</div>",
-    unsafe_allow_html=True
-)
-sym_cols = st.columns(len(positions) if positions else 1)
-for idx, p in enumerate(positions):
-    symbol_norm = normalize_symbol(p.get("symbol", ""))
-    with sym_cols[idx]:
-        if st.button(symbol_norm, key=f"symbtn_{symbol_norm}"):
-           st.session_state.selected_symbol = symbol_norm
-           st.rerun()
-
-# 실제 상세 테이블
 table_html = f"""<div style="
 background:#0f172a;
 border:1px solid {BORDER};
@@ -700,6 +687,7 @@ render_html(footer_html)
 # ================= AUTO REFRESH =================
 time.sleep(REFRESH_INTERVAL_SEC)
 st.rerun()
+
 
 
 
