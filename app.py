@@ -420,7 +420,7 @@ display:flex;
 align-items:flex-start;
 justify-content:space-between;
 '>
-<div style='display:flex;flex-wrap:wrap;row-gap:4px;column-gap:32px;'>
+<div style='display:flex;flex-wrap:wrap;row-gap:1px;column-gap:32px;'>
 
 <div style='color:{TEXT_SUB};'>
   <div style='font-size:0.75rem;'>총자산</div>
@@ -651,6 +651,7 @@ with st.expander("🧩 Debug Panel (펀딩비 확인용)"):
 # ================= AUTO REFRESH =================
 time.sleep(REFRESH_INTERVAL_SEC)
 st.rerun()
+
 
 
 
