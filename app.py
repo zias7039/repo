@@ -497,55 +497,39 @@ pos_symbols = [s for s in pos_symbols if s] or ["BTCUSDT","ETHUSDT"]
 if st.session_state.selected_symbol not in pos_symbols:
     pos_symbols = [st.session_state.selected_symbol] + [s for s in pos_symbols if s != st.session_state.selected_symbol]
 
-# ===== Toolbar (타이틀 + 간격칩) =====
-left, right = st.columns([0.52, 0.48], vertical_alignment="center")
-with left:
-    st.markdown(
-        f"""
-        <div class="toolbar">
-          <div class="title">
-            <span>📈</span>
-            <div>
-              <div style="font-size:1.05rem;">{st.session_state.selected_symbol} <span class="sub">가격</span></div>
-              <div class="sub">{st.session_state.selected_symbol} / {granularity_labels[default_granularity_index]}</div>
-            </div>
-          </div>
-          <div></div>
-        </div>
-        """, unsafe_allow_html=True
+# ===== 컨트롤 툴바: 심볼(왼쪽) + 간격(오른쪽) =====
+st.markdown('<div class="toolbar">', unsafe_allow_html=True)
+left_ctrl, right_ctrl = st.columns([0.62, 0.38], vertical_alignment="center")
+
+with left_ctrl:
+    st.markdown('<div class="small-label">', unsafe_allow_html=True)
+    selected_symbol = st.radio(
+        "심볼",
+        [  # 보유 포지션에서 추출하되 비어있으면 기본 세트
+            *( [normalize_symbol(p.get("symbol","")) for p in positions] or ["BTCUSDT","ETHUSDT"] )
+        ],
+        horizontal=True,
+        index=0 if "selected_symbol" not in st.session_state else 0,  # 표시만, 실제 선택은 아래에서 반영
+        key="symbol_radio",
     )
+    st.markdown('</div>', unsafe_allow_html=True)
 
-with right:
-    st.container()  # 자리 맞추기용
-
-# ===== 간격 선택(칩) - 라벨 숨김, 가로 나열 =====
-with st.container():
+with right_ctrl:
     st.markdown('<div class="small-label">', unsafe_allow_html=True)
     selected_granularity_label = st.radio(
         "차트 간격",
-        granularity_labels,
+        ["1분","5분","15분","1시간","4시간","1일"],
         horizontal=True,
-        index=default_granularity_index,
+        index=2,
         key="granularity_radio",
     )
     st.markdown('</div>', unsafe_allow_html=True)
 
+st.markdown('</div>', unsafe_allow_html=True)  # /toolbar
+
+# 상태 반영
+granularity_map = {"1분":"1min","5분":"5min","15분":"15min","1시간":"1h","4시간":"4h","1일":"1day"}
 selected_granularity = granularity_map[selected_granularity_label]
-
-# ===== 차트 렌더 =====
-st.markdown(f"### ")
-render_chart(st.session_state.selected_symbol, granularity=selected_granularity)
-
-# ===== 심볼 선택(칩) =====
-st.markdown('<div class="symbols small-label">', unsafe_allow_html=True)
-selected_symbol = st.radio(
-    "심볼",
-    pos_symbols,
-    horizontal=True,
-    index=pos_symbols.index(st.session_state.selected_symbol) if st.session_state.selected_symbol in pos_symbols else 0,
-    key="symbol_radio",
-)
-st.markdown('</div>', unsafe_allow_html=True)
 
 if selected_symbol != st.session_state.selected_symbol:
     st.session_state.selected_symbol = selected_symbol
@@ -687,6 +671,7 @@ render_html(footer_html)
 # ================= AUTO REFRESH =================
 time.sleep(REFRESH_INTERVAL_SEC)
 st.rerun()
+
 
 
 
