@@ -532,6 +532,25 @@ with st.container():
 
 selected_granularity = granularity_map[selected_granularity_label]
 
+# ===== 차트 렌더 =====
+st.markdown(f"### ")
+render_chart(st.session_state.selected_symbol, granularity=selected_granularity)
+
+# ===== 심볼 선택(칩) =====
+st.markdown('<div class="symbols small-label">', unsafe_allow_html=True)
+selected_symbol = st.radio(
+    "심볼",
+    pos_symbols,
+    horizontal=True,
+    index=pos_symbols.index(st.session_state.selected_symbol) if st.session_state.selected_symbol in pos_symbols else 0,
+    key="symbol_radio",
+)
+st.markdown('</div>', unsafe_allow_html=True)
+
+if selected_symbol != st.session_state.selected_symbol:
+    st.session_state.selected_symbol = selected_symbol
+    st.rerun()
+
 # ================== LAYOUT: CHART + CARD ==================
 st.markdown(
     f"#### 📈 {st.session_state.selected_symbol} 가격 ({selected_granularity_label})"
@@ -693,6 +712,7 @@ render_html(footer_html)
 # ================= AUTO REFRESH =================
 time.sleep(REFRESH_INTERVAL_SEC)
 st.rerun()
+
 
 
 
