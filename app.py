@@ -366,7 +366,7 @@ html, body, [class*="css"] {
 div[role="radiogroup"] {
   display:flex;
   flex-wrap:nowrap;     /* 한 줄로 고정 */
-  gap:8px;
+  gap:16px;
   overflow-x:auto;      /* 공간이 부족하면 가로 스크롤 */
   scrollbar-width:none; /* 스크롤바 숨김 (Firefox) */
 }
@@ -677,6 +677,7 @@ render_html(footer_html)
 # ================= AUTO REFRESH =================
 time.sleep(REFRESH_INTERVAL_SEC)
 st.rerun()
+
 
 
 
