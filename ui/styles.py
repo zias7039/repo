@@ -74,7 +74,6 @@ div[data-testid="stHorizontalBlock"] > div:nth-child(2) {
   background:var(--bg-pill);
   color:var(--fg);
   font-size:var(--pill-font) !important;
-  line-height:1 !important;
   font-weight:600;
   white-space:nowrap;
   box-shadow:none !important;
