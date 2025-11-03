@@ -486,11 +486,50 @@ granularity_map = {
     "1일": "1day",
 }
 
-selected_granularity_label = st.selectbox(
-    "⏱️ 차트 간격 선택",
-    list(granularity_map.keys()),
-    index=2  # 기본값: 15분
-)
+granularity_labels = list(granularity_map.keys())
+default_granularity_index = 2  # 15분
+
+# 현재 보유 포지션 기준 심볼 목록 (없으면 BTC/ETH fallback)
+pos_symbols = [normalize_symbol(p.get("symbol","")) for p in positions] if positions else []
+pos_symbols = [s for s in pos_symbols if s] or ["BTCUSDT","ETHUSDT"]
+
+# 현재 선택 심볼이 목록에 없으면 넣기
+if st.session_state.selected_symbol not in pos_symbols:
+    pos_symbols = [st.session_state.selected_symbol] + [s for s in pos_symbols if s != st.session_state.selected_symbol]
+
+# ===== Toolbar (타이틀 + 간격칩) =====
+left, right = st.columns([0.52, 0.48], vertical_alignment="center")
+with left:
+    st.markdown(
+        f"""
+        <div class="toolbar">
+          <div class="title">
+            <span>📈</span>
+            <div>
+              <div style="font-size:1.05rem;">{st.session_state.selected_symbol} <span class="sub">가격</span></div>
+              <div class="sub">{st.session_state.selected_symbol} / {granularity_labels[default_granularity_index]}</div>
+            </div>
+          </div>
+          <div></div>
+        </div>
+        """, unsafe_allow_html=True
+    )
+
+with right:
+    st.container()  # 자리 맞추기용
+
+# ===== 간격 선택(칩) - 라벨 숨김, 가로 나열 =====
+with st.container():
+    st.markdown('<div class="small-label">', unsafe_allow_html=True)
+    selected_granularity_label = st.radio(
+        "차트 간격",
+        granularity_labels,
+        horizontal=True,
+        index=default_granularity_index,
+        key="granularity_radio",
+    )
+    st.markdown('</div>', unsafe_allow_html=True)
+
 selected_granularity = granularity_map[selected_granularity_label]
 
 # ================== LAYOUT: CHART + CARD ==================
@@ -504,7 +543,6 @@ render_chart(
 
 # 그 다음 상단 카드
 render_html(top_card_html)
-
 
 # ================= POSITIONS TABLE =================
 st.markdown(
@@ -655,6 +693,7 @@ render_html(footer_html)
 # ================= AUTO REFRESH =================
 time.sleep(REFRESH_INTERVAL_SEC)
 st.rerun()
+
 
 
 
