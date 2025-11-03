@@ -13,7 +13,7 @@ def top_card(st, *, total_equity, available, withdrawable_pct, est_leverage,
     pnl_color = "#4ade80" if unrealized_total_pnl >= 0 else "#f87171"
     pnl_block_html = f"""
 <div style='color:{text_sub};'>
-  <div style='font-size:0.75rem;'>미실현 손익</div>
+  <div style='font-size:1rem;'>미실현 손익</div>
   <div style='font-weight:600;font-size:1rem;color:{pnl_color};'>
     ${unrealized_total_pnl:,.2f}
     <span style='font-size:0.7rem;color:{pnl_color};'>({roe_pct:.2f}%)</span>
@@ -26,19 +26,19 @@ padding:12px 16px;margin-bottom:8px;box-shadow:{shadow};font-size:0.8rem;display
 <div style='display:flex;flex-wrap:wrap;row-gap:1px;column-gap:32px;'>
 
 <div style='color:{text_sub};'>
-  <div style='font-size:0.75rem;'>총자산</div>
+  <div style='font-size:1rem;'>총자산</div>
   <div style='color:{text_main};font-weight:600;font-size:1rem;'>${total_equity:,.2f}</div>
   {krw_line(total_equity, usdt_krw)}
 </div>
 
 <div style='color:{text_sub};'>
-  <div style='font-size:0.75rem;'>출금 가능 <span style='color:#4ade80;'>{withdrawable_pct:.2f}%</span></div>
+  <div style='font-size:1rem;'>출금 가능 <span style='color:#4ade80;'>{withdrawable_pct:.2f}%</span></div>
   <div style='color:{text_main};font-weight:600;font-size:1rem;'>${available:,.2f}</div>
   {krw_line(available, usdt_krw)}
 </div>
 
 <div style='color:{text_sub};'>
-  <div style='font-size:0.75rem;'>레버리지
+  <div style='font-size:1rem;'>레버리지
     <span style='background:#7f1d1d;color:#fff;padding:2px 6px;border-radius:6px;font-size:0.7rem;font-weight:600;'>
       {est_leverage:.2f}x
     </span>
