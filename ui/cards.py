@@ -21,9 +21,10 @@ def top_card(st, *, total_equity, available, withdrawable_pct, est_leverage,
   {krw_line(unrealized_total_pnl, usdt_krw, color=pnl_color)}
 </div>"""
 
-    html = f"""<div style='background:{card_bg};border:1px solid {border};border-radius:8px;
-padding:12px 16px;margin-bottom:8px;box-shadow:{shadow};font-size:0.8rem;display:flex;justify-content:space-between;'>
-<div style='display:flex;flex-wrap:wrap;row-gap:1px;column-gap:32px;'>
+    html = f"""<div class='layout-boundary'>
+  <div style='background:{card_bg};border:1px solid {border};border-radius:8px;
+  padding:12px 16px;margin-bottom:8px;box-shadow:{shadow};font-size:0.8rem;display:flex;
+  justify-content:space-between;width:100%;'>
 
 <div style='color:{text_sub};'>
   <div style='font-size:1rem;'>총자산</div>
