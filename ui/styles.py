@@ -46,7 +46,8 @@ div[data-testid="stHorizontalBlock"] > div:nth-child(2) {
 
 /* 원형 라디오 및 잔여 영역 제거 */
 .stRadio [role="radiogroup"] input[type="radio"],
-.stRadio [role="radiogroup"] > label :where(div:first-child, svg),
+.stRadio [role="radiogroup"] > label > div:first-child,
+.stRadio [role="radiogroup"] > label svg,
 .stRadio [role="radiogroup"] > label::before,
 .stRadio [role="radiogroup"] > label::after {
   display:none !important;
