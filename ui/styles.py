@@ -96,5 +96,16 @@ div[data-testid="stHorizontalBlock"] > div:nth-child(2) {
 @media (max-width: 768px){
   :root{ --pill-gap:10px; --pill-px:14px; }
 }
+
+/* 심볼 버튼만 */
+.symbol-wrap [role="radiogroup"] > label {
+  font-size: .6rem !important;
+}
+
+/* 차트 간격 버튼만 */
+.gran-wrap [role="radiogroup"] > label {
+  font-size: .6rem !important;
+}
+
 </style>
 """, unsafe_allow_html=True)
