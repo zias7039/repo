@@ -36,7 +36,7 @@ div[data-testid="stHorizontalBlock"] > div:nth-child(2) {
   --pill-px:16px;
   --pill-gap:12px;
   --pill-radius:999px;
-  --pill-font:.6rem;
+  --pill-font:.5rem;
 }
 
 /* 라벨 텍스트 숨김 */
@@ -69,7 +69,7 @@ div[data-testid="stHorizontalBlock"] > div:nth-child(2) {
   border:1px solid var(--bd-muted);
   background:var(--bg-pill);
   color:var(--fg);
-  font-size:var(--pill-font); !important;
+  font-size:var(--pill-font) !important;
   font-weight:600;
   white-space:nowrap;
   box-shadow:none !important;
