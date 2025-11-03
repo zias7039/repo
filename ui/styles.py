@@ -1,135 +1,64 @@
 def inject(st):
     st.markdown("""
 <style>
-/* ========== 기본 라벨 숨기기 ========== */
+/* ------------------ Design tokens ------------------ */
+:root{
+  --bg-pill:#111827;         /* pill 배경 */
+  --bg-pill-hover:#1f2937;   /* hover */
+  --bg-pill-active:#1e293b;  /* active */
+  --bd-muted:rgba(148,163,184,.25);
+  --bd-active:#60a5fa;
+  --fg:#e5e7eb;
+  --fg-active:#f8fafc;
+
+  --pill-py:8px;
+  --pill-px:16px;
+  --pill-gap:12px;
+  --pill-radius:999px;
+  --pill-font:.9rem;
+}
+
+/* 라벨 텍스트(“심볼/차트 간격”) 숨김 */
 .stRadio > label { display:none !important; }
 
-/* ========== 라디오 원형 및 잔여 여백 완전 제거 ========== */
-.stRadio [role="radiogroup"] input[type="radio"] { display:none !important; }
-.stRadio [role="radiogroup"] > label > div:first-child {
-  display:none !important;
-  width:0 !important; height:0 !important;
-  margin:0 !important; padding:0 !important; border:0 !important;
-}
-.stRadio [role="radiogroup"] > label svg { display:none !important; }
+/* 라디오 원형과 그 자리를 전부 제거 */
+.stRadio [role="radiogroup"] input[type="radio"],
+.stRadio [role="radiogroup"] > label > div:first-child,
+.stRadio [role="radiogroup"] > label svg,
 .stRadio [role="radiogroup"] > label::before,
-.stRadio [role="radiogroup"] > label::after { content:none !important; display:none !important; }
-.stRadio [role="radiogroup"] > label span {
-  margin:0 !important; padding:0 !important; line-height:1 !important;
-}
+.stRadio [role="radiogroup"] > label::after { display:none !important; content:none !important; }
 
-/* ========== 중앙 정렬 컨테이너 ========== */
+.stRadio [role="radiogroup"] > label > * { margin:0 !important; padding:0 !important; }
+.stRadio [role="radiogroup"] > label span { line-height:1 !important; }
+
+/* 그룹 래퍼(중앙 정렬) */
 .symbol-wrap, .gran-wrap { display:flex; justify-content:center; width:100%; }
 .symbol-wrap .stRadio > div, .gran-wrap .stRadio > div { display:flex; justify-content:center !important; }
-
-.symbol-wrap [role="radiogroup"], .gran-wrap [role="radiogroup"] {
-  display:flex; align-items:center; justify-content:center; gap:12px;
-  width:fit-content; margin:0 auto;
-}
-
-/* 버튼 크기 고정 */
-.symbol-wrap [role="radiogroup"] > label,
-.gran-wrap [role="radiogroup"] > label {
-  flex:0 0 auto; min-width:0;
-}
-
-/* ========== 버튼(칩) 스타일 ========== */
-div[role="radiogroup"] > label {
-  display:inline-flex !important;
-  align-items:center !important;
-  justify-content:center;
-  padding:8px 16px;
-  border:1px solid rgba(148,163,184,.25);
-  border-radius:999px;
-  background:#111827;
-  color:#e5e7eb;
-  font-size:.3rem;
-  white-space:nowrap;
-  cursor:pointer;
-  transition:all .15s ease;
-  box-shadow:none !important;
-  outline:none !important;
-  background-image:none !important;
-  background-clip:padding-box;
-  overflow:hidden;
-}
-
-div[role="radiogroup"] > label:hover {
-  background:#1f2937;
-  transform:translateY(-1px);
-}
-
-div[role="radiogroup"] > label[data-checked="true"] {
-  background:#1e293b;
-  border-color:#60a5fa;
-  box-shadow:inset 0 0 0 1px #60a5fa;
-  color:#f8fafc;
-}
-
-/* 1) label을 강제로 flex 중앙 정렬, grid 흔적 제거 */
-.stRadio [role="radiogroup"] > label {
-  display:inline-flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  position:relative;
-  gap:0 !important;
-  /* 좌우 패딩을 완전 대칭으로 */
-  padding:8px 16px !important;
-  text-align:center !important;
-
-  /* 시각 잡음 제거 */
-  box-shadow:none !important;
-  outline:none !important;
-  background-image:none !important;
-  background-clip:padding-box !important;
-  overflow:hidden !important;
-}
-
-/* 2) label 내부의 모든 자식 여백/패딩 제거 (원형 자리, span 등) */
-.stRadio [role="radiogroup"] > label > * {
-  margin:0 !important;
-  padding:0 !important;
-}
-
-/* 3) 텍스트 노드(span) 강제 중앙화 */
-.stRadio [role="radiogroup"] > label span {
-  display:block !important;
-  margin:0 !important;
-  padding:0 !important;
-  line-height:1 !important;
-  text-align:center !important;
-}
-
-/* 4) 숨긴 라디오/아이콘 칸이 공간을 차지하지 못하게 */
-.stRadio [role="radiogroup"] input[type="radio"] { display:none !important; }
-.stRadio [role="radiogroup"] > label > div:first-child {
-  display:none !important;
-  width:0 !important; height:0 !important;
-  margin:0 !important; padding:0 !important; border:0 !important;
-}
-.stRadio [role="radiogroup"] > label svg { display:none !important; }
-.stRadio [role="radiogroup"] > label::before,
-.stRadio [role="radiogroup"] > label::after { content:none !important; display:none !important; }
-
-/* 5) (선택) 시각적 중심 맞춤 미세 튜닝
-   Inter 대문자에서 약간 왼쪽으로 보이면 1px 정도 오른쪽에 더 주면 균형이 좋아짐 */
-.symbol-wrap [role="radiogroup"] > label,
-.gran-wrap   [role="radiogroup"] > label {
-  padding-left:17px !important;
-  padding-right:17px !important;  /* 좌우 완전 동일(원래 16px이면 17px/17px 같이 맞춰도 OK) */
-}
-
-/* 6) 그룹 자체 중앙 정렬 재확인 */
-.symbol-wrap, .gran-wrap { display:flex; justify-content:center; width:100%; }
-.symbol-wrap .stRadio > div, .gran-wrap .stRadio > div {
-  display:flex; justify-content:center !important;
-}
-.symbol-wrap [role="radiogroup"], .gran-wrap [role="radiogroup"] {
+.symbol-wrap [role="radiogroup"], .gran-wrap [role="radiogroup"]{
   display:flex; align-items:center; justify-content:center;
-  gap:12px; width:fit-content; margin:0 auto;
+  gap:var(--pill-gap); width:fit-content; margin:0 auto;
 }
-.symbol-wrap [role="radiogroup"] > label, .gran-wrap [role="radiogroup"] > label {
+
+/* ---- pill 공통 ---- */
+.stRadio [role="radiogroup"] > label{
+  display:inline-flex !important; align-items:center !important; justify-content:center !important;
+  padding:var(--pill-py) var(--pill-px);
+  border-radius:var(--pill-radius);
+  border:1px solid var(--bd-muted);
+  background:var(--bg-pill); color:var(--fg);
+  font-size:var(--pill-font); font-weight:600; white-space:nowrap;
+  box-shadow:none !important; outline:none !important; background-image:none !important; background-clip:padding-box !important; overflow:hidden !important;
+  transition:transform .15s ease, background .15s ease, border-color .15s ease;
   flex:0 0 auto; min-width:0;
+}
+.stRadio [role="radiogroup"] > label:hover{ background:var(--bg-pill-hover); transform:translateY(-1px); }
+.stRadio [role="radiogroup"] > label[data-checked="true"]{
+  background:var(--bg-pill-active); color:var(--fg-active); border-color:var(--bd-active); box-shadow:inset 0 0 0 1px var(--bd-active);
+}
+
+/* (선택) 작은 화면에서 pill 간격 조금 줄이기 */
+@media (max-width: 768px){
+  :root{ --pill-gap:10px; --pill-px:14px; }
 }
 </style>
 """, unsafe_allow_html=True)
