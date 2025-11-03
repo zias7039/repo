@@ -11,32 +11,32 @@ GRANULARITY_MAP = {
 }
 
 def render_toolbar(positions, default_symbol="BTCUSDT", default_gran_label="15분"):
+    # ===== 심볼 목록 =====
     pos_symbols = [normalize_symbol(p.get("symbol", "")) for p in (positions or [])]
     pos_symbols = [s for s in pos_symbols if s] or ["BTCUSDT", "ETHUSDT"]
 
-    if "selected_symbol" not in st.session_state:
-        st.session_state.selected_symbol = default_symbol
+    st.session_state.setdefault("selected_symbol", default_symbol)
 
-    left_ctrl, spacer, right_ctrl = st.columns([0.45, 0.1, 0.45], vertical_alignment="center")
+    # ===== 레이아웃 =====
+    left, right = st.columns([0.5, 0.5], vertical_alignment="center")
 
-    # ---- 심볼 선택 ----
-    with left_ctrl:
+    # 좌측: 심볼
+    with left:
         st.markdown('<div class="symbol-wrap">', unsafe_allow_html=True)
-        selected_symbol = st.radio(
-            label='',
+        sym = st.radio(
+            label='',  # 문구 제거
             options=pos_symbols,
             horizontal=True,
             index=pos_symbols.index(st.session_state.selected_symbol)
-            if st.session_state.selected_symbol in pos_symbols
-            else 0,
+                if st.session_state.selected_symbol in pos_symbols else 0,
             key="symbol_radio",
         )
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # ---- 차트 간격 ----
-    with right_ctrl:
+    # 우측: 차트 간격
+    with right:
         st.markdown('<div class="gran-wrap">', unsafe_allow_html=True)
-        selected_gran_label = st.radio(
+        gran_label = st.radio(
             label='',
             options=list(GRANULARITY_MAP.keys()),
             horizontal=True,
@@ -45,8 +45,9 @@ def render_toolbar(positions, default_symbol="BTCUSDT", default_gran_label="15�
         )
         st.markdown('</div>', unsafe_allow_html=True)
 
-    if selected_symbol != st.session_state.selected_symbol:
-        st.session_state.selected_symbol = selected_symbol
+    # 상태 반영
+    if sym != st.session_state.selected_symbol:
+        st.session_state.selected_symbol = sym
         st.rerun()
 
-    return selected_symbol, GRANULARITY_MAP[selected_gran_label]
+    return sym, GRANULARITY_MAP[gran_label]
