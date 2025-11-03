@@ -31,7 +31,7 @@ div[data-testid="stHorizontalBlock"] > div:nth-child(2) {
   justify-content: flex-start !important;
   gap: 0px !important;
   flex-wrap: wrap;
-  row-gap: 8px;
+  row-gap: 0px;
 }
 
 .toolbar-row div[data-testid="stHorizontalBlock"] > div {
