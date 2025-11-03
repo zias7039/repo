@@ -376,12 +376,12 @@ div[role="radiogroup"] {
 
 /* 각 라디오 버튼 스타일 */
 div[role="radiogroup"] > label {
-  flex: 1 1 0;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center;
-  padding: 10px 0px;
+  padding: 10px 5px;
   border: 1px solid rgba(148,163,184,.25);
+  border-radius: 999px;
   background: #111827;
   color: #e5e7eb;
   font-size: .9rem;
@@ -702,6 +702,7 @@ render_html(footer_html)
 # ================= AUTO REFRESH =================
 time.sleep(REFRESH_INTERVAL_SEC)
 st.rerun()
+
 
 
 
