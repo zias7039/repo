@@ -44,8 +44,7 @@ div[data-testid="stHorizontalBlock"] > div:nth-child(2) {
 
 /* 원형 라디오 및 잔여 영역 제거 */
 .stRadio [role="radiogroup"] input[type="radio"],
-.stRadio [role="radiogroup"] > label > div:first-child,
-.stRadio [role="radiogroup"] > label svg,
+.stRadio [role="radiogroup"] > label :where(div:first-child, svg),
 .stRadio [role="radiogroup"] > label::before,
 .stRadio [role="radiogroup"] > label::after {
   display:none !important;
@@ -75,6 +74,7 @@ div[data-testid="stHorizontalBlock"] > div:nth-child(2) {
   background:var(--bg-pill);
   color:var(--fg);
   font-size:var(--pill-font) !important;
+  line-height:1 !important;
   font-weight:600;
   white-space:nowrap;
   box-shadow:none !important;
@@ -86,9 +86,11 @@ div[data-testid="stHorizontalBlock"] > div:nth-child(2) {
   flex:0 0 auto;
   min-width:0;
 }
-.stRadio [role="radiogroup"] > label:hover{
-  background:var(--bg-pill-hover);
-  transform:translateY(-1px);
+.stRadio [role="radiogroup"] > label > *,
+.stRadio [role="radiogroup"] > label div[data-testid="stMarkdownContainer"] * {
+  margin:0 !important;
+  padding:0 !important;
+  font:inherit !important;
 }
 .stRadio [role="radiogroup"] > label[data-checked="true"]{
   background:var(--bg-pill-active);
