@@ -5,7 +5,7 @@ def krw_line(amount_usd: float, usdt_krw: float, color: str | None = None) -> st
     if not usdt_krw: return ""
     won = amount_usd * usdt_krw
     style = f"color:{color};" if color else "color:#94a3b8;"
-    return f"<div style='font-size:0.70rem;{style}margin-top:0px;'>≈ ₩{won:,.0f}</div>"
+    return f"<div style='font-size:0.9rem;{style}margin-top:0px;'>≈ ₩{won:,.0f}</div>"
 
 def top_card(st, *, total_equity, available, withdrawable_pct, est_leverage,
              total_position_value, unrealized_total_pnl, roe_pct, usdt_krw, text_sub="#94a3b8",
