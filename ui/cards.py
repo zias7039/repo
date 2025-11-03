@@ -12,7 +12,7 @@ def top_card(st, *, total_equity, available, withdrawable_pct, est_leverage,
              text_main="#f8fafc", card_bg="#1e2538", border="rgba(148,163,184,0.2)", shadow="0 24px 48px rgba(0,0,0,0.6)"):
     pnl_color = "#4ade80" if unrealized_total_pnl >= 0 else "#f87171"
     pnl_block_html = f"""
-<div style='color:{text_sub};'>
+<div style='color:{text_sub};flex:1 1 220px;min-width:200px;'>
   <div style='font-size:1rem;'>미실현 손익</div>
   <div style='font-weight:600;font-size:1rem;color:{pnl_color};'>
     ${unrealized_total_pnl:,.2f}
@@ -23,22 +23,22 @@ def top_card(st, *, total_equity, available, withdrawable_pct, est_leverage,
 
     html = f"""<div class='layout-boundary'>
   <div style='background:{card_bg};border:1px solid {border};border-radius:8px;
-  padding:12px 16px;margin-bottom:8px;box-shadow:{shadow};font-size:0.8rem;display:flex;
-  justify-content:space-between;width:100%;'>
+  padding:12px 16px;margin-bottom:8px;box-shadow:{shadow};font-size:0.8rem;width:100%;'>
+<div style='display:flex;flex-wrap:wrap;column-gap:24px;row-gap:12px;align-items:flex-start;'>
 
-<div style='color:{text_sub};'>
+<div style='color:{text_sub};flex:1 1 220px;min-width:200px;'>
   <div style='font-size:1rem;'>총자산</div>
   <div style='color:{text_main};font-weight:600;font-size:1rem;'>${total_equity:,.2f}</div>
   {krw_line(total_equity, usdt_krw)}
 </div>
 
-<div style='color:{text_sub};'>
+<div style='color:{text_sub};flex:1 1 220px;min-width:200px;'>
   <div style='font-size:1rem;'>출금 가능 <span style='color:#4ade80;'>{withdrawable_pct:.2f}%</span></div>
   <div style='color:{text_main};font-weight:600;font-size:1rem;'>${available:,.2f}</div>
   {krw_line(available, usdt_krw)}
 </div>
 
-<div style='color:{text_sub};'>
+<div style='color:{text_sub};flex:1 1 220px;min-width:200px;'>
   <div style='font-size:1rem;'>레버리지
     <span style='background:#7f1d1d;color:#fff;padding:2px 6px;border-radius:6px;font-size:0.7rem;font-weight:600;'>
       {est_leverage:.2f}x
@@ -50,5 +50,6 @@ def top_card(st, *, total_equity, available, withdrawable_pct, est_leverage,
 
 {pnl_block_html}
 
-</div></div>"""
+</div></div>
+</div>"""
     render_html(st, html)
