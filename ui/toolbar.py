@@ -2,15 +2,25 @@
 import streamlit as st
 from utils.format import normalize_symbol
 
-GRANULARITY_MAP = {"1분":"1min","5분":"5min","15분":"15min","1시간":"1h","4시간":"4h","1일":"1day"}
+GRANULARITY_MAP = {
+    "1분": "1min",
+    "5분": "5min",
+    "15분": "15min",
+    "1시간": "1h",
+    "4시간": "4h",
+    "1일": "1day"
+}
 
 def render_toolbar(positions, default_symbol="BTCUSDT", default_gran_label="15분"):
-    pos_symbols = [normalize_symbol(p.get("symbol","")) for p in (positions or [])]
-    pos_symbols = [s for s in pos_symbols if s] or ["BTCUSDT","ETHUSDT"]
+    # 심볼 목록
+    pos_symbols = [normalize_symbol(p.get("symbol", "")) for p in (positions or [])]
+    pos_symbols = [s for s in pos_symbols if s] or ["BTCUSDT", "ETHUSDT"]
 
+    # 선택 상태 유지
     if "selected_symbol" not in st.session_state:
         st.session_state.selected_symbol = default_symbol
 
+    # 좌 / 우 2분할 (한 줄 정렬용)
     left, right = st.columns([1, 1], vertical_alignment="center")
 
     with left:
@@ -32,6 +42,7 @@ def render_toolbar(positions, default_symbol="BTCUSDT", default_gran_label="15�
             key="granularity_radio",
         )
 
+    # 선택 상태 반영
     if selected_symbol != st.session_state.selected_symbol:
         st.session_state.selected_symbol = selected_symbol
         st.rerun()
