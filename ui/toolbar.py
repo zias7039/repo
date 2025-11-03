@@ -11,25 +11,34 @@ GRANULARITY_MAP = {
     "1일": "1day"
 }
 
-def render_toolbar(positions, default_symbol="BTCUSDT", default_gran_label="15분"):
-    # 심볼 목록
+def render_toolbar(positions, default_symbol="BTCUSDT", default_gran_label="1분"):
+    # ✅ 심볼 목록 구성 (포지션 기반 + 기본값 + XRPUSDT 추가)
     pos_symbols = [normalize_symbol(p.get("symbol", "")) for p in (positions or [])]
-    pos_symbols = [s for s in pos_symbols if s] or ["BTCUSDT", "ETHUSDT", "XRPUSDT"]
+    pos_symbols = [s for s in pos_symbols if s]
+
+    # 항상 기본 3개 포함하도록
+    default_symbols = ["BTCUSDT", "ETHUSDT", "XRPUSDT"]
+
+    # 중복 없이 병합
+    merged_symbols = []
+    for sym in default_symbols + pos_symbols:
+        if sym not in merged_symbols:
+            merged_symbols.append(sym)
 
     # 선택 상태 유지
     if "selected_symbol" not in st.session_state:
         st.session_state.selected_symbol = default_symbol
 
-    # 좌 / 우 2분할 (한 줄 정렬용)
+    # 좌 / 우 분할
     left, right = st.columns([1, 1], vertical_alignment="center")
 
     with left:
         selected_symbol = st.radio(
             "심볼",
-            pos_symbols,
+            merged_symbols,
             horizontal=True,
-            index=pos_symbols.index(st.session_state.selected_symbol)
-                  if st.session_state.selected_symbol in pos_symbols else 0,
+            index=merged_symbols.index(st.session_state.selected_symbol)
+                  if st.session_state.selected_symbol in merged_symbols else 0,
             key="symbol_radio",
         )
 
@@ -42,7 +51,7 @@ def render_toolbar(positions, default_symbol="BTCUSDT", default_gran_label="15�
             key="granularity_radio",
         )
 
-    # 선택 상태 반영
+    # 상태 반영
     if selected_symbol != st.session_state.selected_symbol:
         st.session_state.selected_symbol = selected_symbol
         st.rerun()
