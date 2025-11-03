@@ -1,47 +1,39 @@
 def inject(st):
     st.markdown("""
 <style>
-/* ========== 공통 초기화 ========== */
-.stRadio > label { display:none !important; } /* 라벨 숨김 */
+/* ========== 기본 라벨 숨기기 ========== */
+.stRadio > label { display:none !important; }
 
-/* 기본 라디오 input 숨기기 */
-div[role="radiogroup"] input[type="radio"]{ display:none !important; }
-div[role="radiogroup"] > label > div:first-child{ display:none !important; }
-div[role="radiogroup"] > label svg{ display:none !important; }
-div[role="radiogroup"] > label::before,
-div[role="radiogroup"] > label::after{ content:none !important; display:none !important; }
-
-/* ========== 레이아웃 정렬 ========== */
-.symbol-wrap, .gran-wrap {
-  display:flex;
-  justify-content:center;
-  width:100%;
+/* ========== 라디오 원형 및 잔여 여백 완전 제거 ========== */
+.stRadio [role="radiogroup"] input[type="radio"] { display:none !important; }
+.stRadio [role="radiogroup"] > label > div:first-child {
+  display:none !important;
+  width:0 !important; height:0 !important;
+  margin:0 !important; padding:0 !important; border:0 !important;
+}
+.stRadio [role="radiogroup"] > label svg { display:none !important; }
+.stRadio [role="radiogroup"] > label::before,
+.stRadio [role="radiogroup"] > label::after { content:none !important; display:none !important; }
+.stRadio [role="radiogroup"] > label span {
+  margin:0 !important; padding:0 !important; line-height:1 !important;
 }
 
-.symbol-wrap .stRadio > div,
-.gran-wrap .stRadio > div {
-  display:flex;
-  justify-content:center !important;
-}
+/* ========== 중앙 정렬 컨테이너 ========== */
+.symbol-wrap, .gran-wrap { display:flex; justify-content:center; width:100%; }
+.symbol-wrap .stRadio > div, .gran-wrap .stRadio > div { display:flex; justify-content:center !important; }
 
-.symbol-wrap div[role="radiogroup"],
-.gran-wrap div[role="radiogroup"] {
-  display:flex;
-  align-items:center;
-  gap:12px;
-  justify-content:center;
-  width:fit-content;
-  margin:0 auto;
+.symbol-wrap [role="radiogroup"], .gran-wrap [role="radiogroup"] {
+  display:flex; align-items:center; justify-content:center; gap:12px;
+  width:fit-content; margin:0 auto;
 }
 
 /* 버튼 크기 고정 */
-.symbol-wrap div[role="radiogroup"] > label,
-.gran-wrap div[role="radiogroup"] > label {
-  flex:0 0 auto;
-  min-width:0;
+.symbol-wrap [role="radiogroup"] > label,
+.gran-wrap [role="radiogroup"] > label {
+  flex:0 0 auto; min-width:0;
 }
 
-/* ========== 버튼 스타일 ========== */
+/* ========== 버튼(칩) 스타일 ========== */
 div[role="radiogroup"] > label {
   display:inline-flex !important;
   align-items:center !important;
