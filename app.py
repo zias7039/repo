@@ -347,6 +347,44 @@ html, body, [class*="css"] {
     font-size: 1.2rem;
     letter-spacing: -0.02rem;
 }
+
+.toolbar {
+  display:flex; align-items:center; justify-content:space-between;
+  gap:16px; padding:8px 12px; border:1px solid rgba(148,163,184,.15);
+  background:#0f172a; border-radius:10px; margin:4px 0 10px 0;
+  box-shadow: 0 12px 32px rgba(0,0,0,.35);
+}
+
+/* title */
+.toolbar .title {
+  display:flex; align-items:center; gap:10px; color:#e2e8f0; font-weight:700;
+  letter-spacing:-0.02rem;
+}
+.toolbar .title .sub { color:#94a3b8; font-weight:500; }
+
+/* ===== Radio -> Pill 화 ===== */
+div[role="radiogroup"] {
+  display:flex; flex-wrap:wrap; gap:8px;
+}
+div[role="radiogroup"] > label {
+  margin:0 !important; padding:6px 12px; border-radius:999px;
+  border:1px solid rgba(148,163,184,.25);
+  background:#111827; color:#e5e7eb; transition:all .15s ease;
+  font-size:.85rem; cursor:pointer;
+}
+div[role="radiogroup"] > label:hover {
+  background:#1f2937; transform:translateY(-1px);
+}
+div[role="radiogroup"] > label[data-checked="true"] {
+  background:#1e293b; border-color:#60a5fa; box-shadow:0 0 0 1px #60a5fa inset;
+  color:#f8fafc; font-weight:700;
+}
+
+/* 라벨 숨김(공간 최소화) */
+.small-label .stRadio > label, .small-label .stRadio > div > label { display:none; }
+
+/* 심볼 라디오를 칩처럼 */
+.symbols { margin-top:6px; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -617,6 +655,7 @@ render_html(footer_html)
 # ================= AUTO REFRESH =================
 time.sleep(REFRESH_INTERVAL_SEC)
 st.rerun()
+
 
 
 
