@@ -86,12 +86,6 @@ div[data-testid="stHorizontalBlock"] > div:nth-child(2) {
   flex:0 0 auto;
   min-width:0;
 }
-.stRadio [role="radiogroup"] > label > *,
-.stRadio [role="radiogroup"] > label div[data-testid="stMarkdownContainer"] * {
-  margin:0 !important;
-  padding:0 !important;
-  font:inherit !important;
-}
 .stRadio [role="radiogroup"] > label[data-checked="true"]{
   background:var(--bg-pill-active);
   color:var(--fg-active);
