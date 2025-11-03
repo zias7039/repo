@@ -365,23 +365,22 @@ html, body, [class*="css"] {
 /* 라디오 그룹을 한 줄로, 스크롤 가능하게 */
 div[role="radiogroup"] {
   display: flex;
-  flex-wrap: wrap;         /* 한 줄 고정 */
-  justify-content: flex-start;
+  flex-wrap: nowrap;         /* 한 줄 고정 */
+  justify-content: space-between;
   align-items: center;
-  gap: 10px 12px;
+  gap: 8px;
   width: 100%;           /* 부모 영역 너비를 넘지 않도록 */
-  overflow-x: visible;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 /* 각 라디오 버튼 스타일 */
 div[role="radiogroup"] > label {
+  flex: 1 1 0;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center;
-  flex: 0 0 auto;             /* 전체 공간 균등 분배 */
-  white-space: nowrap;
-  padding: 10px 20px;
-  margin: 0 !important;
+  padding: 10px 0px;
   border-radius: 999px;
   border: 1px solid rgba(148,163,184,.25);
   background: #111827;
@@ -390,7 +389,8 @@ div[role="radiogroup"] > label {
   font-weight: 600;
   transition: all .15s ease;
   cursor: pointer;
-  min-width: 80px;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 div[role="radiogroup"] > label:hover {
@@ -703,6 +703,7 @@ render_html(footer_html)
 # ================= AUTO REFRESH =================
 time.sleep(REFRESH_INTERVAL_SEC)
 st.rerun()
+
 
 
 
