@@ -13,7 +13,7 @@ def side_badge(side: str):
         bg,border,color = "#1e2538","#94a3b8","#94a3b8"
         label = side_up
     return f"""<span style="background:{bg};color:{color};border:1px solid {border};
-font-size:0.7rem;font-weight:600;border-radius:4px;padding:2px 6px;line-height:1;display:inline-block;min-width:44px;text-align:center;">{label}</span>"""
+font-size:1rem;font-weight:600;border-radius:4px;padding:2px 6px;line-height:1;display:inline-block;min-width:44px;text-align:center;">{label}</span>"""
 
 def positions_table(st, positions, funding_data, *, border="rgba(148,163,184,0.2)",
                     text_sub="#94a3b8", text_main="#f8fafc", shadow="0 24px 48px rgba(0,0,0,0.6)"):
