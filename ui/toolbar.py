@@ -30,7 +30,7 @@ def render_toolbar(positions, default_symbol="BTCUSDT", default_gran_label="1분
         st.session_state.selected_symbol = default_symbol
 
     with st.container():
-        st.markdown("<div class='layout-boundary'>", unsafe_allow_html=True)
+        st.markdown("<div class='layout-boundary toolbar-row'>", unsafe_allow_html=True)
 
         boundary = st.container()
         with boundary:
