@@ -58,6 +58,7 @@ div[data-testid="stPlotlyChart"] > div:nth-child(1),
 div[data-testid="stPlotlyChart"] > div:nth-child(1) > div{
   width:100% !important;
   margin:0 auto !important;
+}
 
 /* 라벨 텍스트 숨김 */
 .stRadio > label { display:none !important; }
