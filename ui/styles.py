@@ -46,8 +46,18 @@ div[data-testid="stHorizontalBlock"] > div:nth-child(2) {
   margin-left:auto;
   margin-right:auto;
 }
-.stRadio [role="radiogroup"] > label > * { margin:0 !important; padding:0 !important; }
-.stRadio [role="radiogroup"] > label span { line-height:1 !important; }
+
+/* Plotly 차트 컨테이너도 동일한 폭을 따르도록 조정 */
+div[data-testid="stPlotlyChart"]{
+  max-width:var(--layout-max);
+  margin:0 auto;
+  width:100%;
+}
+
+div[data-testid="stPlotlyChart"] > div:nth-child(1),
+div[data-testid="stPlotlyChart"] > div:nth-child(1) > div{
+  width:100% !important;
+  margin:0 auto !important;
 
 /* 라벨 텍스트 숨김 */
 .stRadio > label { display:none !important; }
