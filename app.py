@@ -26,6 +26,50 @@ BASE_URL = "https://api.bitget.com"
 # 새로고침 주기 (초)
 REFRESH_INTERVAL_SEC = 15
 
+# ===== KRW 환율 (USDT 기준) =====
+@st.cache_data(ttl=300)
+def fetch_usdt_krw() -> float | None:
+    """
+    CoinGecko에서 테더(USDT) 원화 시세를 읽어온다.
+    실패 시 None 반환 (표시는 생략).
+    """
+    try:
+        resp = requests.get(
+            "https://api.coingecko.com/api/v3/simple/price",
+            params={"ids": "tether", "vs_currencies": "krw"},
+            timeout=5,
+        )
+        data = resp.json()
+        return float(data["tether"]["krw"])
+    except Exception:
+        return None
+
+USDT_KRW = fetch_usdt_krw()
+
+def krw_line(amount_usd: float, color: str | None = None) -> str:
+    """
+    달러 금액 바로 아래에 '≈ ₩원화' 라인을 그려준다.
+    환율을 못 가져오면 빈 문자열.
+    color 지정 시 그 색으로 표시(미실현손익과 일치).
+    """
+    if not USDT_KRW:
+        return ""
+    won = amount_usd * USDT_KRW
+    style_color = f"color:{color};" if color else f"color:{TEXT_SUB};"
+    return f"<div style='font-size:0.70rem;{style_color}margin-top:2px;'>≈ ₩{won:,.0f}</div>"
+
+def krw_line(amount_usd: float, color: str | None = None) -> str:
+    """
+    달러 금액 바로 아래에 '≈ ₩원화' 라인을 그려준다.
+    환율을 못 가져오면 빈 문자열.
+    color 지정 시 그 색으로 표시(미실현손익과 일치).
+    """
+    if not USDT_KRW:
+        return ""
+    won = amount_usd * USDT_KRW
+    style_color = f"color:{color};" if color else f"color:{TEXT_SUB};"
+    return f"<div style='font-size:0.70rem;{style_color}margin-top:2px;'>≈ ₩{won:,.0f}</div>"
+
 # ================= SESSION STATE (차트 선택 심볼) =================
 if "selected_symbol" not in st.session_state:
     # 기본 심볼: BTCUSDT
@@ -367,6 +411,7 @@ pnl_block_html = f"""
     ${unrealized_total_pnl:,.2f}
     <span style='font-size:0.7rem;color:{pnl_color};'>({roe_pct:.2f}%)</span>
   </div>
+  {krw_line(unrealized_total_pnl, color=pnl_color)}
 </div>
 """
 
@@ -387,6 +432,7 @@ justify-content:space-between;
 <div style='color:{TEXT_SUB};'>
   <div style='font-size:0.75rem;'>총자산</div>
   <div style='color:{TEXT_MAIN};font-weight:600;font-size:1rem;'>${total_equity:,.2f}</div>
+  {krw_line(total_equity)}
 </div>
 
 <div style='color:{TEXT_SUB};'>
@@ -394,6 +440,7 @@ justify-content:space-between;
     <span style='color:#4ade80;'>{withdrawable_pct:.2f}%</span>
   </div>
   <div style='color:{TEXT_MAIN};font-weight:600;font-size:1rem;'>${available:,.2f}</div>
+  {krw_line(available)}
 </div>
 
 <div style='color:{TEXT_SUB};'>
@@ -402,6 +449,7 @@ justify-content:space-between;
     font-size:0.7rem;font-weight:600;'>{est_leverage:.2f}x</span>
   </div>
   <div style='color:{TEXT_MAIN};font-weight:600;font-size:1rem;'>${total_position_value:,.2f}</div>
+  {krw_line(total_position_value)}
 </div>
 
 {pnl_block_html}
@@ -610,6 +658,7 @@ with st.expander("🧩 Debug Panel (펀딩비 확인용)"):
 # ================= AUTO REFRESH =================
 time.sleep(REFRESH_INTERVAL_SEC)
 st.rerun()
+
 
 
 
