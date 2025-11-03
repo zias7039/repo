@@ -11,22 +11,19 @@ GRANULARITY_MAP = {
 }
 
 def render_toolbar(positions, default_symbol="BTCUSDT", default_gran_label="15분"):
-    # 심볼 목록
     pos_symbols = [normalize_symbol(p.get("symbol", "")) for p in (positions or [])]
     pos_symbols = [s for s in pos_symbols if s] or ["BTCUSDT", "ETHUSDT"]
 
-    # 선택 상태 유지
     if "selected_symbol" not in st.session_state:
         st.session_state.selected_symbol = default_symbol
 
-    # 좌/중/우 컬럼 분할
     left_ctrl, spacer, right_ctrl = st.columns([0.45, 0.1, 0.45], vertical_alignment="center")
 
     # ---- 심볼 선택 ----
     with left_ctrl:
         st.markdown('<div class="symbol-wrap">', unsafe_allow_html=True)
         selected_symbol = st.radio(
-            label='',  # 문구 제거
+            label='',
             options=pos_symbols,
             horizontal=True,
             index=pos_symbols.index(st.session_state.selected_symbol)
@@ -40,7 +37,7 @@ def render_toolbar(positions, default_symbol="BTCUSDT", default_gran_label="15�
     with right_ctrl:
         st.markdown('<div class="gran-wrap">', unsafe_allow_html=True)
         selected_gran_label = st.radio(
-            label='',  # 문구 제거
+            label='',
             options=list(GRANULARITY_MAP.keys()),
             horizontal=True,
             index=list(GRANULARITY_MAP.keys()).index(default_gran_label),
@@ -48,7 +45,6 @@ def render_toolbar(positions, default_symbol="BTCUSDT", default_gran_label="15�
         )
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # 상태 갱신
     if selected_symbol != st.session_state.selected_symbol:
         st.session_state.selected_symbol = selected_symbol
         st.rerun()
