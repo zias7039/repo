@@ -13,5 +13,5 @@ def render_chart(df, title):
     fig.update_layout(title=title, height=320, margin=dict(l=0,r=0,t=30,b=0),
                       template="plotly_dark", xaxis_rangeslider_visible=False)
     st.markdown("<div class='layout-boundary'>", unsafe_allow_html=True)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width='stretch')
     st.markdown("</div>", unsafe_allow_html=True)
