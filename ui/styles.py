@@ -2,194 +2,136 @@
 def inject(st):
     st.markdown("""
 <style>
-/* ------------------ Global Layout Fix ------------------ */
+:root {
+  --layout-max: 1080px;
+  --pill-height: 36px;
+  --pill-px: 16px;
+  --pill-gap: 12px;
+  --pill-radius: 999px;
+  --pill-font: .8rem;
+  --bg-pill: #111827;
+  --bg-pill-active: #1e293b;
+  --bd-muted: rgba(148,163,184,.25);
+  --bd-active: #60a5fa;
+  --fg: #e5e7eb;
+  --fg-active: #f8fafc;
+}
 
-/* Streamlit 기본 컨테이너를 공통 최대 폭으로 정렬 */
-.block-container{
+.block-container {
   max-width: var(--layout-max) !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  padding-left: 16px !important;
-  padding-right: 16px !important;
+  margin: 0 auto !important;
+  padding: 0 16px !important;
   box-sizing: border-box;
 }
 
-/* columns 간격 최소화 */
 div[data-testid="stHorizontalBlock"] { gap: 0 !important; }
 
-/* 두 번째 column(우측 칼럼) → 우측 정렬 & 패딩 제거 */
-div[data-testid="stHorizontalBlock"] > div:nth-child(2) {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  padding-right: 0 !important;
-  margin-right: 0 !important;
-}
-/* 툴바 전용: 두 라디오 그룹이 한 줄에 유지되도록 정렬 */
-.toolbar-row div[data-testid="stHorizontalBlock"] {
-  justify-content: flex-start !important;
-  gap: 0px !important;
+.toolbar-row [data-testid="stHorizontalBlock"] {
+  align-items: center !important;
   flex-wrap: nowrap;
-  align-items: center;
+  gap: 0 !important;
 }
 
-.toolbar-row div[data-testid="stHorizontalBlock"] > div {
-  flex: 1 1 0% !important;
-  min-width: 0 !important;
-  padding: 0 !important;
-  margin: 0 !important;
+.toolbar-row [data-testid="stHorizontalBlock"] > div {
   display: flex !important;
   justify-content: center !important;
   align-items: center !important;
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
-.toolbar-row div[data-testid="stHorizontalBlock"] > div > div {
+.toolbar-row [data-testid="stHorizontalBlock"] > div > div {
   width: 100% !important;
 }
 
-.toolbar-row div[data-testid="stHorizontalBlock"] > div:nth-child(2) {
-  justify-content: center !important;
-}
-
 @media (max-width: 960px) {
-  .toolbar-row div[data-testid="stHorizontalBlock"] {
+  .toolbar-row [data-testid="stHorizontalBlock"] {
     flex-wrap: wrap;
     row-gap: 8px;
   }
 }
 
-/* ------------------ Pill Style ------------------ */
-:root{
-  --bg-pill:#111827;
-  --bg-pill-hover:#1f2937;
-  --bg-pill-active:#1e293b;
-  --bd-muted:rgba(148,163,184,.25);
-  --bd-active:#60a5fa;
-  --fg:#e5e7eb;
-  --fg-active:#f8fafc;
-  --pill-px:16px;
-  --pill-gap:12px;
-  --pill-radius:999px;
-  --pill-font:.8rem;
-  --pill-height:36px;
-  --layout-max:1080px;
+.layout-boundary,
+div[data-testid="stPlotlyChart"] {
+  width: 100%;
+  max-width: var(--layout-max);
+  margin: 0 auto;
 }
 
-.layout-boundary{
-  width:100%;
-  max-width:var(--layout-max);
-  margin-left:auto;
-  margin-right:auto;
+div[data-testid="stPlotlyChart"] > div:first-child,
+div[data-testid="stPlotlyChart"] > div:first-child > div {
+  width: 100% !important;
+  margin: 0 auto !important;
 }
 
-/* Plotly 차트 컨테이너도 동일한 폭을 따르도록 조정 */
-div[data-testid="stPlotlyChart"]{
-  max-width:var(--layout-max);
-  margin:0 auto;
-  width:100%;
+.stRadio > label { display: none !important; }
+
+.stRadio [role="radiogroup"] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pill-gap);
+  flex-wrap: nowrap;
+  overflow-x: visible;
+  overscroll-behavior-x: none;
 }
 
-div[data-testid="stPlotlyChart"] > div:nth-child(1),
-div[data-testid="stPlotlyChart"] > div:nth-child(1) > div{
-  width:100% !important;
-  margin:0 auto !important;
-}
+.toolbar-row .stRadio { width: 100% !important; }
 
-/* 라벨 텍스트 숨김 */
-.stRadio > label { display:none !important;}
-
-/* 원형 라디오 및 잔여 영역 제거 */
 .stRadio [role="radiogroup"] input[type="radio"],
-.stRadio [role="radiogroup"] > label svg,
 .stRadio [role="radiogroup"] > label::before,
-.stRadio [role="radiogroup"] > label::after {
-  display:none !important;
-  content:none !important;
+.stRadio [role="radiogroup"] > label::after,
+.stRadio [role="radiogroup"] > label :is(svg, button, [role="button"], [aria-hidden="true"], [role="presentation"], [role="img"]) {
+  display: none !important;
+  content: none !important;
 }
 
-.stRadio [role="radiogroup"] > label > div:first-of-type:not([data-testid="stMarkdown"]),
-.stRadio [role="radiogroup"] > label > div[aria-hidden="true"],
-.stRadio [role="radiogroup"] > label > div[role="presentation"],
-.stRadio [role="radiogroup"] > label > div[role="img"] {
-  display:none !important;
+.stRadio [role="radiogroup"] > label {
+  display: grid !important;
+  place-items: center !important;
+  padding: 0 var(--pill-px) !important;
+  border-radius: var(--pill-radius);
+  border: 1px solid var(--bd-muted);
+  background: var(--bg-pill);
+  color: var(--fg);
+  font-weight: 600;
+  white-space: nowrap;
+  min-height: var(--pill-height);
+  height: var(--pill-height);
+  text-align: center !important;
+  overflow: hidden !important;
+  transition: background .15s ease, border-color .15s ease;
 }
 
 .stRadio [role="radiogroup"] > label div[data-testid="stMarkdown"] {
-  display:flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  width:100%;
-  height:100%;
-  min-height:100%;
-  line-height:1 !important;
-  font-size:var(--pill-font) !important;
-  margin:0 !important;
-  padding:0 !important;
-  text-align:center !important;
+  display: grid !important;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  margin: 0 !important;
+  font-size: var(--pill-font) !important;
+  text-align: center !important;
 }
 
 .stRadio [role="radiogroup"] > label div[data-testid="stMarkdown"] p {
-  margin:0 !important;
-  line-height:1 !important;
-  display:flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  width:100%;
-  height:100%;
-  text-align:center !important;
+  margin: 0 !important;
 }
 
-/* 버튼(텍스트 칩) */
-.stRadio [role="radiogroup"]{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:var(--pill-gap);
-  flex-wrap:nowrap;
-  overflow-x:visible;
-  overscroll-behavior-x:none;
-}
-.toolbar-row .stRadio{
-  width:100% !important;
-}
-.stRadio [role="radiogroup"] > label{
-  display:grid !important;
-  place-items:center !important;
-  padding:0 var(--pill-px) !important;
-  border-radius:var(--pill-radius);
-  border:1px solid var(--bd-muted);
-  background:var(--bg-pill);
-  color:var(--fg);
-  font-weight:600;
-  white-space:nowrap;
-  box-shadow:none !important;
-  outline:none !important;
-  background-image:none !important;
-  background-clip:padding-box !important;
-  overflow:hidden !important;
-  transition:transform .15s ease, background .15s ease, border-color .15s ease;
-  flex:0 0 auto;
-  min-width:0;
-  height:var(--pill-height);
-  min-height:var(--pill-height);
-  text-align:center !important;
-}
-.stRadio [role="radiogroup"] > label button,
-.stRadio [role="radiogroup"] > label [role="button"],
-.stRadio [role="radiogroup"] > label div[role="button"],
-.stRadio [role="radiogroup"] > label > div[aria-hidden="true"] {
-  display:none !important;
-}
-.stRadio [role="radiogroup"] > label[data-checked="true"]{
-  background:var(--bg-pill-active);
-  color:var(--fg-active);
-  border-color:var(--bd-active);
-  box-shadow:inset 0 0 0 1px var(--bd-active);
+.stRadio [role="radiogroup"] > label[data-checked="true"] {
+  background: var(--bg-pill-active);
+  color: var(--fg-active);
+  border-color: var(--bd-active);
+  box-shadow: inset 0 0 0 1px var(--bd-active);
 }
 
-/* 작은 화면 대응 */
-@media (max-width: 768px){
-  :root{ --pill-gap:10px; --pill-px:14px; --pill-height:34px; }
+@media (max-width: 768px) {
+  :root {
+    --pill-gap: 10px;
+    --pill-px: 14px;
+    --pill-height: 34px;
+  }
 }
 
 </style>
