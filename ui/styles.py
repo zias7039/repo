@@ -99,10 +99,26 @@ div[data-testid="stPlotlyChart"] > div:nth-child(1) > div{
   display:none !important;
   content:none !important;
 }
-.stRadio [role="radiogroup"] > label p,
+.stRadio [role="radiogroup"] > label > :not(div[data-testid="stMarkdown"]) {
+  display:none !important;
+}
+
 .stRadio [role="radiogroup"] > label div[data-testid="stMarkdown"] {
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:100%;
+  height:100%;
   line-height:1 !important;
   font-size:var(--pill-font) !important;
+  margin:0 !important;
+  padding:0 !important;
+  text-align:center !important;
+}
+
+.stRadio [role="radiogroup"] > label div[data-testid="stMarkdown"] p {
+  margin:0 !important;
+  line-height:1 !important;
 }
 
 /* 버튼(텍스트 칩) */
