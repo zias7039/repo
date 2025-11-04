@@ -25,7 +25,7 @@ def inject(st):
 }
 
 .toolbar-row {
-  padding-top: 30px;
+  padding-top: 40px;
 }
 
 div[data-testid="stHorizontalBlock"] { gap: 0 !important; }
