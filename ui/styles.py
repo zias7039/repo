@@ -1,5 +1,4 @@
 # ui/styles.py
-
 def inject(st):
     st.markdown("""
 <style>
@@ -21,8 +20,12 @@ def inject(st):
 .block-container {
   max-width: var(--layout-max) !important;
   margin: 0 auto !important;
-  padding: 0 auto !important;
+  padding: 0 16px !important;
   box-sizing: border-box;
+}
+
+.toolbar-row {
+  padding-top: 12px;
 }
 
 div[data-testid="stHorizontalBlock"] { gap: 0 !important; }
@@ -66,8 +69,6 @@ div[data-testid="stPlotlyChart"] > div:first-child > div {
   width: 100% !important;
   margin: 0 auto !important;
 }
-
-/* ---------- Radio (Option Button) Styling ---------- */
 
 .stRadio > label { display: none !important; }
 
@@ -133,5 +134,6 @@ div[data-testid="stPlotlyChart"] > div:first-child > div {
     --pill-height: 34px;
   }
 }
+
 </style>
 """, unsafe_allow_html=True)
