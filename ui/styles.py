@@ -92,12 +92,18 @@ div[data-testid="stPlotlyChart"] > div:nth-child(1) > div{
 
 /* 원형 라디오 및 잔여 영역 제거 */
 .stRadio [role="radiogroup"] input[type="radio"],
-.stRadio [role="radiogroup"] > label > div[aria-hidden="true"],
 .stRadio [role="radiogroup"] > label svg,
 .stRadio [role="radiogroup"] > label::before,
 .stRadio [role="radiogroup"] > label::after {
   display:none !important;
   content:none !important;
+}
+
+.stRadio [role="radiogroup"] > label > div:first-of-type:not([data-testid="stMarkdown"]),
+.stRadio [role="radiogroup"] > label > div[aria-hidden="true"],
+.stRadio [role="radiogroup"] > label > div[role="presentation"],
+.stRadio [role="radiogroup"] > label > div[role="img"] {
+  display:none !important;
 }
 
 .stRadio [role="radiogroup"] > label div[data-testid="stMarkdown"] {
