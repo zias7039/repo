@@ -80,17 +80,13 @@ div[data-testid="stPlotlyChart"] > div:first-child > div {
 
 .toolbar-row .stRadio { width: 100% !important; }
 
-.stRadio [role="radiogroup"] input[type="radio"],
-.stRadio [role="radiogroup"] > label::before,
-.stRadio [role="radiogroup"] > label::after,
-.stRadio [role="radiogroup"] > label :is(svg, button, [role="button"], [aria-hidden="true"], [role="presentation"], [role="img"]) {
-  display: none !important;
-  content: none !important;
-}
+.stRadio [role="radiogroup"] input[type="radio"] { display: none !important; }
+.stRadio [role="radiogroup"] > label > div:first-child { display: none !important; }
 
 .stRadio [role="radiogroup"] > label {
-  display: grid !important;
-  place-items: center !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
   padding: 0 var(--pill-px) !important;
   border-radius: var(--pill-radius);
   border: 1px solid var(--bd-muted);
@@ -106,8 +102,9 @@ div[data-testid="stPlotlyChart"] > div:first-child > div {
 }
 
 .stRadio [role="radiogroup"] > label div[data-testid="stMarkdown"] {
-  display: grid !important;
-  place-items: center;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   height: 100%;
   margin: 0 !important;
