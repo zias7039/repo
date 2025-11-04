@@ -20,7 +20,7 @@ def inject(st):
 .block-container {
   max-width: var(--layout-max) !important;
   margin: 0 auto !important;
-  padding: 0 16px !important;
+  padding: 0 auto !important;
   box-sizing: border-box;
 }
 
