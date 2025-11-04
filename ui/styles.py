@@ -110,6 +110,8 @@ div[data-testid="stPlotlyChart"] > div:nth-child(1) > div{
   display:flex;
   align-items:center;
   gap:var(--pill-gap);
+  flex-wrap:nowrap;
+  overflow-x:auto;
 }
 .stRadio [role="radiogroup"] > label{
   display:inline-flex !important;
