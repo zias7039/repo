@@ -100,16 +100,13 @@ div[data-testid="stPlotlyChart"] > div:nth-child(1) > div{
   content:none !important;
 }
 
-.stRadio [role="radiogroup"] > label > :not(div[data-testid="stMarkdown"]) {
-  display:flex !important;
-}
-
 .stRadio [role="radiogroup"] > label div[data-testid="stMarkdown"] {
   display:flex !important;
   align-items:center !important;
   justify-content:center !important;
   width:100%;
   height:100%;
+  min-height:100%;
   line-height:1 !important;
   font-size:var(--pill-font) !important;
   margin:0 !important;
@@ -135,7 +132,7 @@ div[data-testid="stPlotlyChart"] > div:nth-child(1) > div{
   display:inline-flex !important;
   align-items:center !important;
   justify-content:center !important;
-  padding:var(--pill-py) var(--pill-px);
+  padding:0 var(--pill-px);
   border-radius:var(--pill-radius);
   border:1px solid var(--bd-muted);
   background:var(--bg-pill);
