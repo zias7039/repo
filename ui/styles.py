@@ -1,4 +1,3 @@
-# ui/styles.py
 def inject(st):
     st.markdown("""
 <style>
@@ -66,63 +65,6 @@ div[data-testid="stPlotlyChart"] > div:first-child > div {
   margin: 0 auto !important;
 }
 
-.stRadio > label { display: none !important; }
-
-.stRadio [role="radiogroup"] {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--pill-gap);
-  flex-wrap: nowrap;
-  overflow-x: visible;
-  overscroll-behavior-x: none;
-}
-
-.toolbar-row .stRadio { width: 100% !important; }
-
-.stRadio [role="radiogroup"] input[type="radio"] { display: none !important; }
-.stRadio [role="radiogroup"] > label > div:first-child { display: none !important; }
-
-.stRadio [role="radiogroup"] > label {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  padding: 0 var(--pill-px) !important;
-  border-radius: var(--pill-radius);
-  border: 1px solid var(--bd-muted);
-  background: var(--bg-pill);
-  color: var(--fg);
-  font-weight: 600;
-  white-space: nowrap;
-  min-height: var(--pill-height);
-  height: var(--pill-height);
-  text-align: center !important;
-  overflow: hidden !important;
-  transition: background .15s ease, border-color .15s ease;
-}
-
-.stRadio [role="radiogroup"] > label div[data-testid="stMarkdown"] {
-  display: inline-flex !important;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  margin: 0 !important;
-  font-size: var(--pill-font) !important;
-  text-align: center !important;
-}
-
-.stRadio [role="radiogroup"] > label div[data-testid="stMarkdown"] p {
-  margin: 0 !important;
-}
-
-.stRadio [role="radiogroup"] > label[data-checked="true"] {
-  background: var(--bg-pill-active);
-  color: var(--fg-active);
-  border-color: var(--bd-active);
-  box-shadow: inset 0 0 0 1px var(--bd-active);
-}
-
 @media (max-width: 768px) {
   :root {
     --pill-gap: 10px;
@@ -130,6 +72,5 @@ div[data-testid="stPlotlyChart"] > div:first-child > div {
     --pill-height: 34px;
   }
 }
-
 </style>
 """, unsafe_allow_html=True)
