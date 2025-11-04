@@ -24,6 +24,10 @@ def inject(st):
   box-sizing: border-box;
 }
 
+.toolbar-row {
+  padding-top: 12px;
+}
+
 div[data-testid="stHorizontalBlock"] { gap: 0 !important; }
 
 .toolbar-row [data-testid="stHorizontalBlock"] {
