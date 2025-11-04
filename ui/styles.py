@@ -136,6 +136,7 @@ div[data-testid="stPlotlyChart"] > div:nth-child(1) > div{
   justify-content:center !important;
   width:100%;
   height:100%;
+  text-align:center !important;
 }
 
 /* 버튼(텍스트 칩) */
@@ -152,10 +153,9 @@ div[data-testid="stPlotlyChart"] > div:nth-child(1) > div{
   width:100% !important;
 }
 .stRadio [role="radiogroup"] > label{
-  display:inline-flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  padding:0 var(--pill-px);
+  display:grid !important;
+  place-items:center !important;
+  padding:0 var(--pill-px) !important;
   border-radius:var(--pill-radius);
   border:1px solid var(--bd-muted);
   background:var(--bg-pill);
@@ -172,6 +172,7 @@ div[data-testid="stPlotlyChart"] > div:nth-child(1) > div{
   min-width:0;
   height:var(--pill-height);
   min-height:var(--pill-height);
+  text-align:center !important;
 }
 .stRadio [role="radiogroup"] > label button,
 .stRadio [role="radiogroup"] > label [role="button"],
