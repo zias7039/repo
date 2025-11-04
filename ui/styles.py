@@ -111,7 +111,8 @@ div[data-testid="stPlotlyChart"] > div:nth-child(1) > div{
   align-items:center;
   gap:var(--pill-gap);
   flex-wrap:nowrap;
-  overflow-x:auto;
+  overflow-x:visible;
+  overscroll-behavior-x:none;
 }
 .stRadio [role="radiogroup"] > label{
   display:inline-flex !important;
