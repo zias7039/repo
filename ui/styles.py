@@ -34,13 +34,21 @@ div[data-testid="stHorizontalBlock"] > div:nth-child(2) {
 }
 
 .toolbar-row div[data-testid="stHorizontalBlock"] > div {
-  flex: 0 0 auto !important;
+  flex: 1 1 0% !important;
+  min-width: 0 !important;
   padding: 0 !important;
   margin: 0 !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+.toolbar-row div[data-testid="stHorizontalBlock"] > div > div {
+  width: 100% !important;
 }
 
 .toolbar-row div[data-testid="stHorizontalBlock"] > div:nth-child(2) {
-  justify-content: flex-start !important;
+  justify-content: center !important;
 }
 
 @media (max-width: 960px) {
@@ -123,16 +131,25 @@ div[data-testid="stPlotlyChart"] > div:nth-child(1) > div{
 .stRadio [role="radiogroup"] > label div[data-testid="stMarkdown"] p {
   margin:0 !important;
   line-height:1 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:100%;
+  height:100%;
 }
 
 /* 버튼(텍스트 칩) */
 .stRadio [role="radiogroup"]{
   display:flex;
   align-items:center;
+  justify-content:center;
   gap:var(--pill-gap);
   flex-wrap:nowrap;
   overflow-x:visible;
   overscroll-behavior-x:none;
+}
+.toolbar-row .stRadio{
+  width:100% !important;
 }
 .stRadio [role="radiogroup"] > label{
   display:inline-flex !important;
