@@ -59,11 +59,11 @@ div[data-testid="stHorizontalBlock"] > div:nth-child(2) {
   --bd-active:#60a5fa;
   --fg:#e5e7eb;
   --fg-active:#f8fafc;
-  --pill-py:8px;
   --pill-px:16px;
   --pill-gap:12px;
   --pill-radius:999px;
   --pill-font:.8rem;
+  --pill-height:36px;
   --layout-max:1080px;
 }
 
@@ -150,6 +150,14 @@ div[data-testid="stPlotlyChart"] > div:nth-child(1) > div{
   transition:transform .15s ease, background .15s ease, border-color .15s ease;
   flex:0 0 auto;
   min-width:0;
+  height:var(--pill-height);
+  min-height:var(--pill-height);
+}
+.stRadio [role="radiogroup"] > label button,
+.stRadio [role="radiogroup"] > label [role="button"],
+.stRadio [role="radiogroup"] > label div[role="button"],
+.stRadio [role="radiogroup"] > label > div[aria-hidden="true"] {
+  display:none !important;
 }
 .stRadio [role="radiogroup"] > label[data-checked="true"]{
   background:var(--bg-pill-active);
@@ -160,7 +168,7 @@ div[data-testid="stPlotlyChart"] > div:nth-child(1) > div{
 
 /* 작은 화면 대응 */
 @media (max-width: 768px){
-  :root{ --pill-gap:10px; --pill-px:14px; }
+  :root{ --pill-gap:10px; --pill-px:14px; --pill-height:34px; }
 }
 
 </style>
