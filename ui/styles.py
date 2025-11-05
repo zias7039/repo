@@ -17,21 +17,10 @@ def inject(st):
   --fg-active: #f8fafc;
 }
 
-/* 라디오 항목 간 간격 줄이기 */
-div[role="radiogroup"] > label {
-  margin-right: 1px !important;  /* 기본은 약 16px */
-  padding-left: 1px !important;
-  padding-right: 1px !important;
-}
-
-/* 선택/비선택 스타일 유지하면서 pill 모양 그대로 */
-div[role="radiogroup"] > label > div {
-  padding-top: 1px !important;
-  padding-bottom: 1px !important;
-}
-
 .toolbar-row {
   padding-top: 50px;
+  padding-bottom: 4px !important;  /* 기존보다 훨씬 줄임 */
+  margin-bottom: 0 !important;
 }
 
 .block-container {
