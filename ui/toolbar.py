@@ -21,13 +21,22 @@ def render_toolbar(positions, default_symbol="BTCUSDT", default_gran_label="1분
 
     # 항상 기본 심볼이 가장 먼저 나타나도록 + 기본 제공 심볼 추가
     merged_symbols = []
-    for sym in [normalized_default, *DEFAULT_SYMBOLS, *pos_symbols]:
+
+    sources = []
+    if normalized_default:
+        sources.append(normalized_default)
+    sources.extend(DEFAULT_SYMBOLS)
+    sources.extend(pos_symbols)
+
+    for sym in sources:
         if sym and sym not in merged_symbols:
             merged_symbols.append(sym)
 
     # 선택 상태 유지
-    if "selected_symbol" not in st.session_state:
+    if "selected_symbol" not in st.session_state or not st.session_state.selected_symbol:
         st.session_state.selected_symbol = normalized_default
+    elif st.session_state.selected_symbol not in merged_symbols:
+        st.session_state.selected_symbol = merged_symbols[0]
 
     with st.container():
         st.markdown("<div class='layout-boundary toolbar-row'>", unsafe_allow_html=True)
@@ -51,5 +60,17 @@ def render_toolbar(positions, default_symbol="BTCUSDT", default_gran_label="1분
                     "차트 간격",
                     list(GRANULARITY_MAP.keys()),
                     horizontal=True,
-                    index=list(GRANULARITY_MAP.keys()).index(default_gran_label),
+                    index=list(GRANULARITY_MAP.keys()).index(default_gran_label)
+                          if default_gran_label in GRANULARITY_MAP
+                          else 0,
                     key="granularity_radio",
+                )
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    # 상태 반영
+    if selected_symbol != st.session_state.selected_symbol:
+        st.session_state.selected_symbol = selected_symbol
+        st.rerun()
+
+    return selected_symbol, GRANULARITY_MAP[selected_gran_label]
