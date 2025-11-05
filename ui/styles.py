@@ -17,6 +17,12 @@ def inject(st):
   --fg-active: #f8fafc;
 }
 
+.chart-title {
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1.1;
+}
+
 .toolbar-row {
   padding-top: 50px;
   padding-bottom: 0 !important;  /* 기존보다 훨씬 줄임 */
