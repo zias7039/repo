@@ -130,6 +130,8 @@ div[data-testid="stPlotlyChart"] > div:first-child > div {
     --pill-height: 34px;
   }
 }
-
+.toolbar-row {
+  padding-top: 28px !important;
+}
 </style>
 """, unsafe_allow_html=True)
