@@ -23,6 +23,7 @@ def render_chart(df, title):
     # ✅ Plotly 내부 제목과 여백 최소화
     fig.update_layout(
         title={'text': ''},
+        height=420,
         margin=dict(l=0, r=0, t=0, b=0),
     )
 
