@@ -22,11 +22,8 @@ def render_chart(df, title):
 
     # ✅ Plotly 내부 제목과 여백 최소화
     fig.update_layout(
-        title=None,
-        height=320,
+        title={'text': ''},
         margin=dict(l=0, r=0, t=20, b=0),
-        template="plotly_dark",
-        xaxis_rangeslider_visible=False,
     )
 
     # ✅ 차트 렌더
