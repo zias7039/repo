@@ -10,8 +10,14 @@ def render_chart(df, title):
         x=df["timestamp"], open=df["open"], high=df["high"], low=df["low"], close=df["close"],
         increasing_line_color="#22c55e", decreasing_line_color="#ef4444",
     )])
-    fig.update_layout(title=None, height=320, margin=dict(l=0,r=0,t=6,b=0),
-                      template="plotly_dark", xaxis_rangeslider_visible=False)
-    st.markdown("<div class='layout-boundary'>", unsafe_allow_html=True)
-    st.plotly_chart(fig, width='stretch')
-    st.markdown("</div>", unsafe_allow_html=True)
+st.markdown(f"<p class='chart-title'>{title}</p>", unsafe_allow_html=True)
+
+fig.update_layout(
+    title=None,
+    height=320,
+    margin=dict(l=0, r=0, t=6, b=0),
+    template="plotly_dark",
+    xaxis_rangeslider_visible=False,
+)
+
+st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
