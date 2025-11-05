@@ -26,5 +26,7 @@ def render_chart(df, title):
         margin=dict(l=0, r=0, t=20, b=0),
     )
 
+    fig.update_xaxes(rangeslider_visible=False)
+
     # ✅ 차트 렌더
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
