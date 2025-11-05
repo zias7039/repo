@@ -23,6 +23,22 @@ def inject(st):
   margin-bottom: -4px !important;
 }
 
+/* 라디오 묶음(containers) 아래 여백 제거 */
+.toolbar-row .stRadio { 
+  margin-bottom: 0 !important;
+}
+
+/* columns로 감싼 가로 블록 자체의 아래 여백 제거 */
+.toolbar-row [data-testid="stHorizontalBlock"] {
+  margin-bottom: 0 !important;
+}
+
+/* radiogroup 자체의 바닥 여백도 제거 */
+.toolbar-row [role="radiogroup"] {
+  margin-bottom: 0 !important;
+  gap: 4px !important;         /* 항목 간격은 유지 */
+}
+
 .block-container {
   max-width: var(--layout-max) !important;
   margin: 0 auto !important;
