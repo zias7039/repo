@@ -24,7 +24,7 @@ def render_chart(df, title):
     fig.update_layout(
         title=None,
         height=320,
-        margin=dict(l=0, r=0, t=0, b=0),
+        margin=dict(l=0, r=0, t=-5, b=0),
         template="plotly_dark",
         xaxis_rangeslider_visible=False,
     )
