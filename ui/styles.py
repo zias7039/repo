@@ -18,7 +18,7 @@ def inject(st):
 }
 
 .toolbar-row {
-  padding-top: 34px !important;
+  padding-top: 40px !important;
 }
 
 .block-container {
