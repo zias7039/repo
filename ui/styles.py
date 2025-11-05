@@ -26,7 +26,7 @@ def inject(st):
 .toolbar-row {
   padding-top: 50px;
   padding-bottom: 0 !important;  /* 기존보다 훨씬 줄임 */
-  margin-bottom: -4px !important;
+  margin-bottom: 0 !important;
 }
 
 /* 라디오 묶음(containers) 아래 여백 제거 */
