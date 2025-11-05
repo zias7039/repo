@@ -19,7 +19,7 @@ def inject(st):
 
 .toolbar-row {
   padding-top: 50px;
-  padding-bottom: 4px !important;  /* 기존보다 훨씬 줄임 */
+  padding-bottom: 0px !important;  /* 기존보다 훨씬 줄임 */
   margin-bottom: 0 !important;
 }
 
