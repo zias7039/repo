@@ -17,6 +17,19 @@ def inject(st):
   --fg-active: #f8fafc;
 }
 
+/* 라디오 항목 간 간격 줄이기 */
+div[role="radiogroup"] > label {
+  margin-right: 6px !important;  /* 기본은 약 16px */
+  padding-left: 10px !important;
+  padding-right: 10px !important;
+}
+
+/* 선택/비선택 스타일 유지하면서 pill 모양 그대로 */
+div[role="radiogroup"] > label > div {
+  padding-top: 1px !important;
+  padding-bottom: 1px !important;
+}
+
 .toolbar-row {
   padding-top: 50px;
 }
@@ -68,19 +81,6 @@ div[data-testid="stPlotlyChart"] > div:first-child,
 div[data-testid="stPlotlyChart"] > div:first-child > div {
   width: 100% !important;
   margin: 0 auto !important;
-}
-
-/* 라디오 항목 간 간격 줄이기 */
-div[role="radiogroup"] > label {
-  margin-right: 6px !important;  /* 기본은 약 16px */
-  padding-left: 10px !important;
-  padding-right: 10px !important;
-}
-
-/* 선택/비선택 스타일 유지하면서 pill 모양 그대로 */
-div[role="radiogroup"] > label > div {
-  padding-top: 6px !important;
-  padding-bottom: 6px !important;
 }
 
 .stRadio > label { display: none !important; }
