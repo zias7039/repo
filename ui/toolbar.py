@@ -17,7 +17,7 @@ def render_toolbar(positions, default_symbol="BTCUSDT", default_gran_label="1분
     pos_symbols = [s for s in pos_symbols if s]
 
     # 항상 기본 3개 포함하도록
-    default_symbols = ["BTCUSDT", "ETHUSDT", "XRPUSDT"]
+    default_symbols = ["BTCUSDT", "ETHUSDT", "XRPUSDT", "BNBUSDT"]
 
     # 중복 없이 병합
     merged_symbols = []
