@@ -17,6 +17,11 @@ def inject(st):
   --fg-active: #f8fafc;
 }
 
+.toolbar-row {
+  padding-top: 28px !important;
+  padding-bottom: 8px !important;
+}
+
 .block-container {
   max-width: var(--layout-max) !important;
   margin: 0 auto !important;
@@ -129,9 +134,6 @@ div[data-testid="stPlotlyChart"] > div:first-child > div {
     --pill-px: 14px;
     --pill-height: 34px;
   }
-}
-.toolbar-row {
-  padding-top: 28px !important;
 }
 </style>
 """, unsafe_allow_html=True)
