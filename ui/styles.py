@@ -124,5 +124,38 @@ div[data-testid="stPlotlyChart"] > div:first-child > div {
   border-color: var(--bd-active);
   box-shadow: inset 0 0 0 1px var(--bd-active);
 }
+
+/* 검색 입력창 */
+.symbol-search .stTextInput > div > div input {
+  background: #121317 !important;
+  border: 1px solid rgba(148,163,184,.25) !important;
+  color: #e5e7eb !important;
+  height: 32px !important;
+  padding-left: 26px !important; /* 아이콘 자리 */
+  border-radius: 8px !important;
+  width: 100% !important;
+  font-size: 0.8rem !important;
+}
+
+.symbol-search .stTextInput > div > div {
+  position: relative;
+}
+
+.symbol-search .stTextInput > div > div::before {
+  content: "🔍";
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: .55;
+  pointer-events: none;
+  font-size: 12px;
+}
+
+/* placeholder 색상 */
+.symbol-search input::placeholder {
+  color: rgba(229,231,235,.45) !important;
+}
+
 </style>
 """, unsafe_allow_html=True)
