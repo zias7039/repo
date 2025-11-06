@@ -20,7 +20,7 @@ def inject(st):
   margin-top: 0px !important;   /* 위 간격 */
   margin-bottom: 0 !important;
   padding: 0 !important;
-  line-height: 0;
+  line-height: 1;
 }
 
 /* 상단 툴바 정렬 */
