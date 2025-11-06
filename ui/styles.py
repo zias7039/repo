@@ -1,4 +1,3 @@
-# ui/styles.py
 def inject(st):
     st.markdown("""
 <style>
@@ -23,26 +22,17 @@ def inject(st):
   line-height: 1.1;
 }
 
+/* 상단 툴바 정렬 */
 .toolbar-row {
   padding-top: 50px;
-  padding-bottom: 0 !important;  /* 기존보다 훨씬 줄임 */
+  padding-bottom: 0 !important;
   margin-bottom: 0 !important;
 }
 
-/* 라디오 묶음(containers) 아래 여백 제거 */
-.toolbar-row .stRadio { 
-  margin-bottom: 0 !important;
-}
-
-/* columns로 감싼 가로 블록 자체의 아래 여백 제거 */
-.toolbar-row [data-testid="stHorizontalBlock"] {
-  margin-bottom: 0 !important;
-}
-
-/* radiogroup 자체의 바닥 여백도 제거 */
+.toolbar-row .stRadio,
+.toolbar-row [data-testid="stHorizontalBlock"],
 .toolbar-row [role="radiogroup"] {
   margin-bottom: 0 !important;
-  gap: 4px !important;         /* 항목 간격은 유지 */
 }
 
 .block-container {
@@ -52,26 +42,21 @@ def inject(st):
   box-sizing: border-box;
 }
 
-div[data-testid="stHorizontalBlock"] { gap: 0 !important; }
-
 .toolbar-row [data-testid="stHorizontalBlock"] {
+  display: flex;
   align-items: center !important;
   flex-wrap: nowrap;
   gap: 0 !important;
 }
 
 .toolbar-row [data-testid="stHorizontalBlock"] > div {
-  display: flex !important;
-  justify-content: center !important;
-  align-items: center !important;
   flex: 1 1 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
   min-width: 0 !important;
   padding: 0 !important;
   margin: 0 !important;
-}
-
-.toolbar-row [data-testid="stHorizontalBlock"] > div > div {
-  width: 100% !important;
 }
 
 @media (max-width: 960px) {
@@ -81,6 +66,7 @@ div[data-testid="stHorizontalBlock"] { gap: 0 !important; }
   }
 }
 
+/* 차트 크기 조정 */
 .layout-boundary,
 div[data-testid="stPlotlyChart"] {
   width: 100%;
@@ -88,33 +74,31 @@ div[data-testid="stPlotlyChart"] {
   margin: 0 auto;
 }
 
-div[data-testid="stPlotlyChart"] > div:first-child,
 div[data-testid="stPlotlyChart"] > div:first-child > div {
   width: 100% !important;
   margin: 0 auto !important;
 }
 
+/* 라디오 버튼 스타일 */
 .stRadio > label { display: none !important; }
 
 .stRadio [role="radiogroup"] {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px !important;
   flex-wrap: nowrap;
-  overflow-x: visible;
-  overscroll-behavior-x: none;
+  gap: var(--pill-gap) !important;
 }
 
-.toolbar-row .stRadio { width: 100% !important; }
-
-.stRadio [role="radiogroup"] input[type="radio"] { display: none !important; }
-.stRadio [role="radiogroup"] > label > div:first-child { display: none !important; }
+.stRadio [role="radiogroup"] input[type="radio"],
+.stRadio [role="radiogroup"] > label > div:first-child {
+  display: none !important;
+}
 
 .stRadio [role="radiogroup"] > label {
   display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
+  align-items: center;
+  justify-content: center;
   padding: 0 var(--pill-px) !important;
   border-radius: var(--pill-radius);
   border: 1px solid var(--bd-muted);
@@ -122,26 +106,16 @@ div[data-testid="stPlotlyChart"] > div:first-child > div {
   color: var(--fg);
   font-weight: 600;
   white-space: nowrap;
-  min-height: var(--pill-height);
   height: var(--pill-height);
-  text-align: center !important;
-  overflow: hidden !important;
   transition: background .15s ease, border-color .15s ease;
 }
 
 .stRadio [role="radiogroup"] > label div[data-testid="stMarkdown"] {
-  display: inline-flex !important;
+  display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  height: 100%;
   margin: 0 !important;
   font-size: var(--pill-font) !important;
-  text-align: center !important;
-}
-
-.stRadio [role="radiogroup"] > label div[data-testid="stMarkdown"] p {
-  margin: 0 !important;
 }
 
 .stRadio [role="radiogroup"] > label[data-checked="true"] {
@@ -149,14 +123,6 @@ div[data-testid="stPlotlyChart"] > div:first-child > div {
   color: var(--fg-active);
   border-color: var(--bd-active);
   box-shadow: inset 0 0 0 1px var(--bd-active);
-}
-
-@media (max-width: 768px) {
-  :root {
-    --pill-gap: 6px;
-    --pill-px: 14px;
-    --pill-height: 34px;
-  }
 }
 </style>
 """, unsafe_allow_html=True)
