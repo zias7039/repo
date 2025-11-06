@@ -7,9 +7,6 @@ def render_chart(df, title):
         st.warning("차트를 불러올 수 없습니다.")
         return
 
-    # ✅ 차트 제목은 Streamlit에서 출력 (Plotly title 아님)
-    st.markdown(f"<p class='chart-title'>{title}</p>", unsafe_allow_html=True)
-
     fig = go.Figure(data=[go.Candlestick(
         x=df["timestamp"],
         open=df["open"],
