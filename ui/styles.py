@@ -6,7 +6,7 @@ def inject(st):
   --layout-max: 1080px;
   --pill-height: 36px;
   --pill-px: 16px;
-  --pill-gap: 12px;
+  --pill-gap: 6px;
   --pill-radius: 999px;
   --pill-font: .8rem;
   --bg-pill: #111827;
