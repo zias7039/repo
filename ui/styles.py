@@ -16,6 +16,10 @@ def inject(st):
   --fg-active: #f8fafc;
 }
 
+.symbol-search { margin-bottom: 2px !important; }
+.chart-title { margin-top: 0 !important; line-height: 1 !important; }
+
+
 .chart-title {
   margin-top: 0px !important;   /* 위 간격 */
   margin-bottom: 0 !important;
