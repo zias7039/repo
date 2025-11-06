@@ -80,7 +80,7 @@ div[data-testid="stPlotlyChart"] > div:first-child > div{
 /* ---------- 차트 제목 ---------- */
 .chart-title{
   margin: var(--title-offset) 0 0 0 !important; 
-  line-height: 1 !important;
+  line-height: 0 !important;
   padding: 0 !important;
 }
 </style>
