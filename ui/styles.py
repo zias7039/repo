@@ -19,7 +19,7 @@ def inject(st):
 .chart-title {
   margin-top: 0px !important;   /* 위 간격 */
   margin-bottom: 0 !important;
-  line-height: 1.2;
+  line-height: 0;
 }
 
 /* 상단 툴바 정렬 */
