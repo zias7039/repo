@@ -16,10 +16,6 @@ def inject(st):
   --fg-active: #f8fafc;
 }
 
-.symbol-search { margin-bottom: 2px !important; }
-.chart-title { margin-top: 0 !important; line-height: 1 !important; }
-
-
 .chart-title {
   margin-top: 0px !important;   /* 위 간격 */
   margin-bottom: 0 !important;
@@ -163,7 +159,7 @@ div[data-testid="stPlotlyChart"] > div:first-child > div {
 }
 /* 검색창과 다음 요소(예: 차트 제목) 간 간격 제거 */
 .symbol-search {
-  margin-bottom: 4px !important;  /* 기본적으로 16px쯤이라 4px로 줄임 */
+  margin-bottom: 0px !important;  /* 기본적으로 16px쯤이라 4px로 줄임 */
 }
 
 </style>
