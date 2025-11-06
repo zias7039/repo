@@ -53,6 +53,7 @@ def render_toolbar(positions=None, default_symbol="BTCUSDT", default_gran_label=
                     index=list(GRANULARITY_MAP.keys()).index(default_gran_label)
                           if default_gran_label in GRANULARITY_MAP else 0,
                     key="granularity_radio",
+                    label_visibility="collapsed", 
                 )
 
         st.markdown("</div>", unsafe_allow_html=True)
