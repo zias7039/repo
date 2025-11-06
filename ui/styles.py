@@ -35,7 +35,6 @@ def inject(st):
   margin-bottom: 0 !important;
 }
 
-/* 툴바 내부 기본 세로 간격 최소화 */
 .layout-boundary [data-testid="stVerticalBlock"]{ row-gap: var(--row-gap) !important; }
 
 /* ---------- 차트(Plotly) 영역 ---------- */
@@ -64,7 +63,7 @@ div[data-testid="stPlotlyChart"] > div:first-child > div{
   color: var(--fg) !important;
   font-size: .8rem !important;
 }
-/* 돋보기 아이콘 */
+
 .symbol-search .stTextInput > div > div::before{
   content: "🔍";
   position: absolute;
@@ -80,8 +79,7 @@ div[data-testid="stPlotlyChart"] > div:first-child > div{
 
 /* ---------- 차트 제목 ---------- */
 .chart-title{
-  /* 검색창 바로 아래에 바짝 붙도록 */
-  margin: var(--title-offset) 0 0 0 !important;  /* 위로 당김 */
+  margin: var(--title-offset) 0 0 0 !important; 
   line-height: 1 !important;
   padding: 0 !important;
 }
