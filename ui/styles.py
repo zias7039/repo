@@ -24,7 +24,7 @@ def inject(st):
 
 /* 상단 툴바 정렬 */
 .toolbar-row {
-  padding-top: 20px;
+  padding-top: 50px;
   padding-bottom: 0 !important;
   margin-bottom: 0 !important;
 }
