@@ -100,7 +100,7 @@ div[data-testid="stPlotlyChart"] > div:first-child > div {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--pill-gap);
+  gap: 6px !important;
   flex-wrap: nowrap;
   overflow-x: visible;
   overscroll-behavior-x: none;
