@@ -6,7 +6,7 @@ def inject(st):
   --layout-max: 1080px;
 
   /* 간격/사이즈 */
-  --toolbar-top: 20px;         /* 상단 여백 (기존 50px → 20px) */
+  --toolbar-top: 50px;         /* 상단 여백 (기존 50px → 20px) */
   --row-gap: 4px;              /* 툴바 내부 세로 간격 */
   --title-offset: -6px;        /* 검색창 아래 타이틀 위쪽 당김값 */
   --input-h: 32px;             /* 검색 입력 높이 */
