@@ -153,7 +153,7 @@ div[data-testid="stPlotlyChart"] > div:first-child > div {
 
 @media (max-width: 768px) {
   :root {
-    --pill-gap: 10px;
+    --pill-gap: 6px;
     --pill-px: 14px;
     --pill-height: 34px;
   }
