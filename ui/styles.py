@@ -1,166 +1,89 @@
 def inject(st):
     st.markdown("""
 <style>
-:root {
+:root{
+  /* ---------- 공통 변수 ---------- */
   --layout-max: 1080px;
-  --pill-height: 36px;
-  --pill-px: 16px;
-  --pill-gap: 6px;
-  --pill-radius: 999px;
-  --pill-font: .8rem;
-  --bg-pill: #111827;
-  --bg-pill-active: #1e293b;
+
+  /* 간격/사이즈 */
+  --toolbar-top: 20px;         /* 상단 여백 (기존 50px → 20px) */
+  --row-gap: 4px;              /* 툴바 내부 세로 간격 */
+  --title-offset: -6px;        /* 검색창 아래 타이틀 위쪽 당김값 */
+  --input-h: 32px;             /* 검색 입력 높이 */
+  --input-radius: 8px;         /* 검색 입력 라운드 */
+  --input-pl: 26px;            /* 아이콘 자리 패딩 */
+
+  /* 팔레트 */
+  --bg-input: #121317;
   --bd-muted: rgba(148,163,184,.25);
-  --bd-active: #60a5fa;
   --fg: #e5e7eb;
-  --fg-active: #f8fafc;
+  --fg-dim: rgba(229,231,235,.45);
 }
 
-.chart-title {
-  margin-top: -6px !important;   /* 위 간격 */
-  margin-bottom: 0 !important;
-  padding: 0 !important;
-  line-height: 0;
-}
-
-/* 상단 툴바 정렬 */
-.toolbar-row {
-  padding-top: 50px;
-  padding-bottom: 0 !important;
-  margin-bottom: 0 !important;
-}
-
-.toolbar-row .stRadio,
-.toolbar-row [data-testid="stHorizontalBlock"],
-.toolbar-row [role="radiogroup"] {
-  margin-bottom: 0 !important;
-}
-
-.block-container {
+/* ---------- 컨테이너/레이아웃 ---------- */
+.block-container{
   max-width: var(--layout-max) !important;
   margin: 0 auto !important;
   padding: 0 16px !important;
   box-sizing: border-box;
 }
 
-.toolbar-row [data-testid="stHorizontalBlock"] {
-  display: flex;
-  align-items: center !important;
-  flex-wrap: nowrap;
-  gap: 0 !important;
+.layout-boundary{ max-width: var(--layout-max); margin: 0 auto; }
+
+.toolbar-row{
+  padding-top: var(--toolbar-top);
+  margin-bottom: 0 !important;
 }
 
-.toolbar-row [data-testid="stHorizontalBlock"] > div {
-  flex: 1 1 0 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  min-width: 0 !important;
-  padding: 0 !important;
-  margin: 0 !important;
-}
+/* 툴바 내부 기본 세로 간격 최소화 */
+.layout-boundary [data-testid="stVerticalBlock"]{ row-gap: var(--row-gap) !important; }
 
-@media (max-width: 960px) {
-  .toolbar-row [data-testid="stHorizontalBlock"] {
-    flex-wrap: wrap;
-    row-gap: 8px;
-  }
-}
-
-/* 차트 크기 조정 */
-.layout-boundary,
-div[data-testid="stPlotlyChart"] {
-  width: 100%;
+/* ---------- 차트(Plotly) 영역 ---------- */
+div[data-testid="stPlotlyChart"]{
   max-width: var(--layout-max);
   margin: 0 auto;
 }
-
-div[data-testid="stPlotlyChart"] > div:first-child > div {
+div[data-testid="stPlotlyChart"] > div:first-child > div{
   width: 100% !important;
   margin: 0 auto !important;
 }
 
-/* 라디오 버튼 스타일 */
-.stRadio > label { display: none !important; }
-
-.stRadio [role="radiogroup"] {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: nowrap;
-  gap: var(--pill-gap) !important;
-}
-
-.stRadio [role="radiogroup"] input[type="radio"],
-.stRadio [role="radiogroup"] > label > div:first-child {
-  display: none !important;
-}
-
-.stRadio [role="radiogroup"] > label {
-  display: inline-flex !important;
-  align-items: center;
-  justify-content: center;
-  padding: 0 var(--pill-px) !important;
-  border-radius: var(--pill-radius);
-  border: 1px solid var(--bd-muted);
-  background: var(--bg-pill);
-  color: var(--fg);
-  font-weight: 600;
-  white-space: nowrap;
-  height: var(--pill-height);
-  transition: background .15s ease, border-color .15s ease;
-}
-
-.stRadio [role="radiogroup"] > label div[data-testid="stMarkdown"] {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 !important;
-  font-size: var(--pill-font) !important;
-}
-
-.stRadio [role="radiogroup"] > label[data-checked="true"] {
-  background: var(--bg-pill-active);
-  color: var(--fg-active);
-  border-color: var(--bd-active);
-  box-shadow: inset 0 0 0 1px var(--bd-active);
-}
-
-/* 검색 입력창 */
-.symbol-search .stTextInput > div > div input {
-  background: #121317 !important;
-  border: 1px solid rgba(148,163,184,.25) !important;
-  color: #e5e7eb !important;
-  height: 32px !important;
-  padding-left: 26px !important; /* 아이콘 자리 */
-  border-radius: 8px !important;
-  width: 100% !important;
-  font-size: 0.8rem !important;
-}
-
-.symbol-search .stTextInput > div > div {
+/* ---------- 검색 입력 ---------- */
+.symbol-search .stTextInput > div > div{
   position: relative;
+  margin-bottom: 0 !important;   /* 입력 아래 여백 제거 */
+  padding-bottom: 0 !important;
 }
-
-.symbol-search .stTextInput > div > div::before {
+.symbol-search .stTextInput > div > div input{
+  height: var(--input-h) !important;
+  width: 100% !important;
+  padding-left: var(--input-pl) !important;
+  border-radius: var(--input-radius) !important;
+  background: var(--bg-input) !important;
+  border: 1px solid var(--bd-muted) !important;
+  color: var(--fg) !important;
+  font-size: .8rem !important;
+}
+/* 돋보기 아이콘 */
+.symbol-search .stTextInput > div > div::before{
   content: "🔍";
   position: absolute;
-  left: 8px;
-  top: 50%;
+  left: 8px; top: 50%;
   transform: translateY(-50%);
-  opacity: .55;
-  pointer-events: none;
-  font-size: 12px;
+  opacity: .55; pointer-events: none; font-size: 12px;
 }
+/* placeholder 톤 다운 */
+.symbol-search input::placeholder{ color: var(--fg-dim) !important; }
 
-/* placeholder 색상 */
-.symbol-search input::placeholder {
-  color: rgba(229,231,235,.45) !important;
-}
-/* 검색창과 다음 요소(예: 차트 제목) 간 간격 제거 */
-.symbol-search {
-  margin-bottom: 0px !important;  /* 기본적으로 16px쯤이라 4px로 줄임 */
-}
+/* 검색창 아래 여백 통제 */
+.symbol-search{ margin-bottom: 0 !important; }
 
+/* ---------- 차트 제목 ---------- */
+.chart-title{
+  /* 검색창 바로 아래에 바짝 붙도록 */
+  margin: var(--title-offset) 0 0 0 !important;  /* 위로 당김 */
+  line-height: 1 !important;
+  padding: 0 !important;
+}
 </style>
 """, unsafe_allow_html=True)
