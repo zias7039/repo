@@ -17,9 +17,10 @@ def inject(st):
 }
 
 .chart-title {
-  margin: 0 !important;
-  padding: 0 !important;
-  line-height: 1.1;
+  margin-top: 6px !important;   /* 위 간격 */
+  margin-bottom: 0 !important;
+  text-align: center;
+  line-height: 1.2;
 }
 
 /* 상단 툴바 정렬 */
