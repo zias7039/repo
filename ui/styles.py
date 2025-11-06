@@ -17,9 +17,8 @@ def inject(st):
 }
 
 .chart-title {
-  margin-top: 6px !important;   /* 위 간격 */
+  margin-top: 0px !important;   /* 위 간격 */
   margin-bottom: 0 !important;
-  text-align: center;
   line-height: 1.2;
 }
 
