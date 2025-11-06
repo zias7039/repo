@@ -41,7 +41,7 @@ def inject(st):
 
 /* ---------- 차트(Plotly) 영역 ---------- */
 div[data-testid="stPlotlyChart"]{
-  margin-top: -10px !important;   /* 0 ~ -10px 사이로 조절 */
+  margin-top: -20px !important;   /* 0 ~ -10px 사이로 조절 */
 }
 div[data-testid="stPlotlyChart"] > div:first-child > div{
   width: 100% !important;
