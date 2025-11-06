@@ -157,6 +157,10 @@ div[data-testid="stPlotlyChart"] > div:first-child > div {
 .symbol-search input::placeholder {
   color: rgba(229,231,235,.45) !important;
 }
+/* 검색창과 다음 요소(예: 차트 제목) 간 간격 제거 */
+.symbol-search {
+  margin-bottom: 4px !important;  /* 기본적으로 16px쯤이라 4px로 줄임 */
+}
 
 </style>
 """, unsafe_allow_html=True)
