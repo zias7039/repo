@@ -35,12 +35,13 @@ def inject(st):
   margin-bottom: 0 !important;
 }
 
-.layout-boundary [data-testid="stVerticalBlock"]{ row-gap: var(--row-gap) !important; }
+.layout-boundary [data-testid="stVerticalBlock"]{ 
+  row-gap: 0 !important; 
+}
 
 /* ---------- 차트(Plotly) 영역 ---------- */
 div[data-testid="stPlotlyChart"]{
-  max-width: var(--layout-max);
-  margin: 0 auto;
+  margin-top: -6px !important;   /* 0 ~ -10px 사이로 조절 */
 }
 div[data-testid="stPlotlyChart"] > div:first-child > div{
   width: 100% !important;
@@ -48,9 +49,12 @@ div[data-testid="stPlotlyChart"] > div:first-child > div{
 }
 
 /* ---------- 검색 입력 ---------- */
-.symbol-search .stTextInput > div > div{
-  position: relative;
-  margin-bottom: 0 !important;   /* 입력 아래 여백 제거 */
+.symbol-search,
+.symbol-search .stTextInput,
+.symbol-search .stTextInput > div,
+.stRadio,
+.stRadio [role="radiogroup"]{
+  margin-bottom: 0 !important;
   padding-bottom: 0 !important;
 }
 .symbol-search .stTextInput > div > div input{
@@ -63,7 +67,6 @@ div[data-testid="stPlotlyChart"] > div:first-child > div{
   color: var(--fg) !important;
   font-size: .8rem !important;
 }
-
 .symbol-search .stTextInput > div > div::before{
   content: "🔍";
   position: absolute;
