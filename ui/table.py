@@ -1,95 +1,93 @@
 # ui/table.py
+import pandas as pd
 import streamlit as st
-from utils.format import render_html, normalize_symbol, fnum, safe_pct
-
-def side_badge(side: str):
-    side = (side or "").upper()
-    if side == "LONG":
-        return '<span class="badge badge-long">Long</span>'
-    elif side == "SHORT":
-        return '<span class="badge badge-short">Short</span>'
-    return f'<span class="badge" style="background:#333;">{side}</span>'
+from utils.format import normalize_symbol, fnum
 
 def positions_table(st, positions, funding_data):
-    # 1. 헤더 (HTML로 깔끔하게 렌더링)
-    # columns 비율: Symbol, Side, Size, PNL, Entry, Mark, Liq, Margin, Funding
-    header_html = """
-    <div class="trade-table-container">
-    <div class="trade-header">
-        <div style="padding-left:4px;">Symbol</div>
-        <div>Side</div>
-        <div style="text-align:right;">Size / Value</div>
-        <div style="text-align:right;">PNL (ROE)</div>
-        <div style="text-align:right;">Entry</div>
-        <div style="text-align:right;">Mark</div>
-        <div style="text-align:right;">Liq.</div>
-        <div style="text-align:right;">Margin</div>
-        <div style="text-align:right;">Funding</div>
-    </div>
-    </div>
-    """
-    render_html(st, header_html)
-
     if not positions:
         st.info("보유 중인 포지션이 없습니다.")
         return
 
-    # 2. 데이터 행 (Streamlit Columns 사용)
-    # 헤더 CSS grid 비율과 비슷하게 맞춤
-    cols_ratio = [1.2, 0.7, 1.5, 1.3, 1.0, 1.0, 1.0, 1.0, 1.0]
-
-    for i, p in enumerate(positions):
+    # 1. 데이터를 리스트로 변환
+    rows = []
+    for p in positions:
         symbol = normalize_symbol(p.get("symbol", ""))
-        side = p.get("holdSide", "")
+        side = (p.get("holdSide") or "").upper()
         lev = fnum(p.get("leverage", 0))
-        mg = fnum(p.get("marginSize", 0))
         qty = fnum(p.get("total", 0))
         entry = fnum(p.get("averageOpenPrice", 0))
         mark = fnum(p.get("markPrice", 0))
         liq = fnum(p.get("liquidationPrice", 0))
         upl = fnum(p.get("unrealizedPL", 0))
-        
-        notional = mg * lev
-        roe = safe_pct(upl, mg)
-        pnl_cls = "var(--color-up)" if upl >= 0 else "var(--color-down)"
+        mg = fnum(p.get("marginSize", 0))
         
         fund_info = funding_data.get(symbol, {"cumulative": 0.0})
         fund_val = fund_info.get("cumulative", 0.0)
-        fund_color = "var(--color-up)" if fund_val >= 0 else "var(--text-secondary)"
-
-        # 행 구분선
-        st.markdown("""<div class="table-row-divider"></div>""", unsafe_allow_html=True)
         
-        # 컬럼 생성
-        c = st.columns(cols_ratio, vertical_alignment="center")
+        # ROE 계산
+        roe = (upl / mg) if mg else 0.0
 
-        # [Col 1] 심볼 (버튼 클릭 시 차트 변경)
-        with c[0]:
-            if st.button(f"{symbol}\n{lev:.0f}x", key=f"btn_{i}"):
-                st.session_state.selected_symbol = symbol
-                st.rerun()
+        rows.append({
+            "Symbol": symbol,
+            "Side": side,
+            "Lev": f"{lev:.0f}x",
+            "Size": qty,
+            "Entry": entry,
+            "Mark": mark,
+            "Liq.": liq,
+            "Margin": mg,
+            "PNL": upl,
+            "ROE": roe, # 숫자 자체로 저장 (포맷팅은 아래 config에서 처리)
+            "Funding": fund_val
+        })
 
-        # [Col 2] 방향
-        with c[1]:
-            st.markdown(side_badge(side), unsafe_allow_html=True)
+    df = pd.DataFrame(rows)
 
-        # [Col 3] Size
-        with c[2]:
-            st.markdown(f"""<div style="text-align:right; line-height:1.2;">
-                <div style="color:var(--text-primary);">${notional:,.0f}</div>
-                <div style="font-size:0.75rem; color:var(--text-secondary);">{qty:,.3f}</div>
-            </div>""", unsafe_allow_html=True)
+    # 2. 색상 스타일링 함수 (Pandas Styler)
+    def highlight_pnl(val):
+        color = '#2ebd85' if val >= 0 else '#f6465d'
+        return f'color: {color}'
+    
+    def highlight_side(val):
+        if val == "LONG": return 'color: #2ebd85; font-weight: bold;'
+        if val == "SHORT": return 'color: #f6465d; font-weight: bold;'
+        return ''
 
-        # [Col 4] PNL
-        with c[3]:
-            st.markdown(f"""<div style="text-align:right; line-height:1.2;">
-                <div style="font-weight:600; color:{pnl_cls};">${upl:,.2f}</div>
-                <div style="font-size:0.75rem; color:{pnl_cls};">{roe:+.2f}%</div>
-            </div>""", unsafe_allow_html=True)
+    # PNL, ROE, Funding, Side 컬럼에 색상 적용
+    styled_df = df.style.map(highlight_pnl, subset=['PNL', 'ROE', 'Funding'])\
+                        .map(highlight_side, subset=['Side'])
+
+    # 3. Streamlit 데이터프레임 출력
+    st.markdown("##### ⚡ Positions (Row Click to Chart)")
+    
+    event = st.dataframe(
+        styled_df,
+        use_container_width=True,
+        hide_index=True,
+        on_select="rerun",           # [핵심] 클릭 시 리런하여 차트 변경
+        selection_mode="single-row", # 한 번에 한 줄만 선택
+        column_order=["Symbol", "Side", "Lev", "Size", "Entry", "Mark", "Liq.", "Margin", "PNL", "ROE", "Funding"],
+        column_config={
+            "Symbol": st.column_config.TextColumn("Symbol", width="medium"),
+            "Side": st.column_config.TextColumn("Side", width="small"),
+            "Lev": st.column_config.TextColumn("Lev", width="small"),
+            "Size": st.column_config.NumberColumn("Size", format="%.4f"),
+            "Entry": st.column_config.NumberColumn("Entry", format="$%.2f"),
+            "Mark": st.column_config.NumberColumn("Mark", format="$%.2f"),
+            "Liq.": st.column_config.NumberColumn("Liq.", format="$%.2f"),
+            "Margin": st.column_config.NumberColumn("Margin", format="$%.2f"),
+            "PNL": st.column_config.NumberColumn("PNL (USDT)", format="$%.2f"),
+            "ROE": st.column_config.NumberColumn("ROE", format="%.2f%%"), # 퍼센트 포맷 자동 적용
+            "Funding": st.column_config.NumberColumn("Funding", format="$%.2f"),
+        }
+    )
+
+    # 4. 선택된 행 처리 (심볼 변경)
+    if event.selection.rows:
+        selected_index = event.selection.rows[0]
+        selected_symbol = df.iloc[selected_index]["Symbol"]
         
-        # [Col 5~9] 나머지 데이터
-        with c[4]: st.markdown(f"<div style='text-align:right;'>${entry:,.2f}</div>", unsafe_allow_html=True)
-        with c[5]: st.markdown(f"<div style='text-align:right; color:var(--text-tertiary);'>${mark:,.2f}</div>", unsafe_allow_html=True)
-        with c[6]: st.markdown(f"<div style='text-align:right; color:var(--color-down);'>${liq:,.2f}</div>", unsafe_allow_html=True)
-        with c[7]: st.markdown(f"<div style='text-align:right;'>${mg:,.2f}</div>", unsafe_allow_html=True)
-        with c[8]: st.markdown(f"<div style='text-align:right; color:{fund_color}; font-size:0.8rem;'>${fund_val:,.2f}</div>", unsafe_allow_html=True)
+        # 현재 차트와 다를 때만 업데이트
+        if st.session_state.selected_symbol != selected_symbol:
+            st.session_state.selected_symbol = selected_symbol
+            st.rerun()
