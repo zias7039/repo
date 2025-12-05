@@ -1,5 +1,6 @@
 # app/app.py
 import time
+import pandas as pd
 import streamlit as st
 from datetime import datetime, timedelta, timezone
 from collections import defaultdict
@@ -18,7 +19,6 @@ st.set_page_config(page_title="Perp Dashboard", page_icon="📈", layout="wide")
 PRODUCT_TYPE = "USDT-FUTURES"
 MARGIN_COIN = "USDT"
 
-# Secrets 체크
 if "bitget" not in st.secrets:
     st.error("Secrets에 'bitget' 설정이 없습니다.")
     st.stop()
@@ -30,8 +30,6 @@ REFRESH_INTERVAL_SEC = 15
 
 # ============ LOGIC HELPERS ============
 def load_data():
-    """API 데이터를 한 번에 호출합니다."""
-    # 병렬 호출 처리가 좋으나, 여기선 순차 호출 유지
     pos_data, pos_res = fetch_positions(API_KEY, API_SECRET, PASSPHRASE, PRODUCT_TYPE, MARGIN_COIN)
     acct_data, acct_res = fetch_account(API_KEY, API_SECRET, PASSPHRASE, PRODUCT_TYPE, MARGIN_COIN)
     bills_data = fetch_account_bills(API_KEY, API_SECRET, PASSPHRASE, PRODUCT_TYPE, limit=100)
@@ -49,23 +47,19 @@ def load_data():
     }
 
 def process_funding(bills):
-    """펀딩비 누적 합계를 계산합니다."""
     funding_sum = defaultdict(float)
     for b in bills:
         bt = (b.get("businessType","") or "").lower()
-        # settle_fee나 funding이 포함된 내역 집계
         if ("settle_fee" in bt) or ("funding" in bt):
             sym = (b.get("symbol","") or "").split("_")[0].upper()
             funding_sum[sym] += fnum(b.get("amount", 0.0))
     return {k: {"cumulative": v} for k,v in funding_sum.items()}
 
 def calculate_metrics(account, positions):
-    """계좌 전체 메트릭을 계산합니다."""
     available = fnum(account.get("available")) if account else 0.0
     locked    = fnum(account.get("locked")) if account else 0.0
     marg_acct = fnum(account.get("marginSize")) if account else 0.0
     
-    # usdtEquity 필드가 있으면 사용, 없으면 계산
     if account and account.get("usdtEquity") is not None:
         total_equity = fnum(account.get("usdtEquity"))
     else:
@@ -94,39 +88,68 @@ def calculate_metrics(account, positions):
         "roe_pct": roe_pct
     }
 
+def calculate_realized_pnl(bills):
+    """
+    최근 내역(bills)에서 '포지션 종료(close)'로 인한 실현 손익 합산
+    """
+    realized_sum = 0.0
+    history_list = []
+    
+    # KST 기준 오늘 날짜 확인 (00:00 이후만 합산하려면 날짜 필터 추가 가능)
+    # 여기서는 가져온 bills(최근 100개) 전체를 대상으로 합산
+    
+    for b in bills:
+        bt = (b.get("businessType", "") or "").lower()
+        amount = fnum(b.get("amount", 0.0))
+        
+        # 실현 손익 관련 타입 필터링 (close_long, close_short 등)
+        if "close" in bt:
+            realized_sum += amount
+            
+            # 히스토리 표시용 데이터 저장
+            ts = int(b.get("cTime", 0))
+            dt = datetime.fromtimestamp(ts / 1000).strftime('%Y-%m-%d %H:%M:%S')
+            symbol = b.get("symbol", "").split("_")[0]
+            history_list.append({
+                "Time": dt,
+                "Symbol": symbol,
+                "Type": bt,
+                "Amount (USDT)": amount
+            })
+            
+    return realized_sum, history_list
+
 # ============ MAIN APP ============
 def main():
     inject_styles(st)
     
-    # 상단 헤더 영역 (새로고침 버튼 포함)
     c1, c2 = st.columns([0.8, 0.2])
     with c2:
         if st.button("🔄 새로고침", use_container_width=True):
             st.rerun()
 
-    # 데이터 로드
     data = load_data()
-    
-    # 에러 표시
     for err in data["errors"]:
         if err: st.error(err)
         
     positions = data["positions"]
     account = data["account"]
+    bills = data["bills"]
     
-    # 계산
     metrics = calculate_metrics(account, positions)
-    funding_data = process_funding(data["bills"])
+    funding_data = process_funding(bills)
     
-    # UI: 툴바 (심볼 선택)
+    # [추가됨] 실현 손익 계산
+    realized_pnl, realized_history = calculate_realized_pnl(bills)
+    
+    # UI: 툴바
     selected_symbol, selected_gran = render_toolbar(positions)
 
-    # UI: 차트 (선물 데이터 사용)
-    # Bitget 선물 심볼은 보통 "BTCUSDT" 형태이나 API 호출 시 그대로 사용
+    # UI: 차트 (MA 지표 포함)
     df = fetch_kline_futures(symbol=selected_symbol, granularity=selected_gran, product_type=PRODUCT_TYPE, limit=100)
     render_chart(df, f"{selected_symbol} ({selected_gran})")
 
-    # UI: 상단 요약 카드
+    # UI: 상단 요약 카드 (실현손익 전달)
     top_card(
         st,
         total_equity=metrics["total_equity"],
@@ -136,16 +159,22 @@ def main():
         total_position_value=metrics["total_position_value"],
         unrealized_total_pnl=metrics["unrealized_total_pnl"],
         roe_pct=metrics["roe_pct"],
+        realized_pnl=realized_pnl,  # 추가됨
         usdt_krw=data["usdt_krw"],
     )
 
     # UI: 포지션 테이블
     positions_table(st, positions, funding_data)
+    
+    # [추가됨] 실현 손익 상세 내역 (아코디언)
+    if realized_history:
+        with st.expander("📝 최근 실현 손익 내역 (Recent Realized PnL)", expanded=False):
+            hf = pd.DataFrame(realized_history)
+            st.dataframe(hf, use_container_width=True, hide_index=True)
 
-    # Footer 및 자동 새로고침 로직
+    # Footer
     KST = timezone(timedelta(hours=9))
     now_kst = datetime.now(KST)
-    
     st.markdown(
         f"""<div style='text-align:right;font-size:0.8rem;color:#64748b;margin-top:20px;'>
         Last Update: {now_kst.strftime('%H:%M:%S')} (KST)
@@ -153,9 +182,6 @@ def main():
         unsafe_allow_html=True
     )
 
-    # 자동 새로고침 (blocking 방식)
-    # Streamlit Cloud 등에서 멈춤 현상을 방지하기 위해 빈 컨테이너 사용 등도 고려 가능하나
-    # 가장 간단한 sleep 루프 유지
     time.sleep(REFRESH_INTERVAL_SEC)
     st.rerun()
 
