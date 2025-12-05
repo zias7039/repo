@@ -7,6 +7,13 @@ def render_chart(df, title):
         st.warning("차트 데이터가 없습니다.")
         return
 
+    # -----------------------------
+    # [추가됨] 보조지표(MA) 계산
+    # -----------------------------
+    df["MA7"] = df["close"].rolling(window=7).mean()
+    df["MA25"] = df["close"].rolling(window=25).mean()
+    df["MA99"] = df["close"].rolling(window=99).mean()
+
     # 캔들스틱 차트 생성
     fig = go.Figure(data=[go.Candlestick(
         x=df["timestamp"],
@@ -14,41 +21,40 @@ def render_chart(df, title):
         high=df["high"],
         low=df["low"],
         close=df["close"],
-        increasing_line_color="#2ebd85", # 테마 Green
-        decreasing_line_color="#f6465d", # 테마 Red
-        name=title
+        increasing_line_color="#2ebd85",
+        decreasing_line_color="#f6465d",
+        name="Price"
     )])
 
-    # 레이아웃 스타일링 (Dark Theme 최적화)
+    # -----------------------------
+    # [추가됨] 이동평균선(MA) 그리기
+    # -----------------------------
+    fig.add_trace(go.Scatter(x=df["timestamp"], y=df["MA7"], line=dict(color='#fcd535', width=1), name='MA 7'))
+    fig.add_trace(go.Scatter(x=df["timestamp"], y=df["MA25"], line=dict(color='#3b82f6', width=1), name='MA 25'))
+    fig.add_trace(go.Scatter(x=df["timestamp"], y=df["MA99"], line=dict(color='#8b5cf6', width=1), name='MA 99'))
+
+    # 레이아웃 스타일링
     fig.update_layout(
         template="plotly_dark",
-        paper_bgcolor='rgba(0,0,0,0)', # 투명 배경
-        plot_bgcolor='rgba(0,0,0,0)',  # 투명 배경
-        margin=dict(l=0, r=40, t=30, b=0),
-        height=380,
-        title=dict(
-            text=title, 
-            font=dict(size=14, color="#848e9c"),
-            x=0.02, y=0.95
-        ),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',
+        margin=dict(l=0, r=50, t=30, b=0),
+        height=400,
+        title=dict(text=title, font=dict(size=14, color="#848e9c"), x=0.02, y=0.95),
         xaxis=dict(
             rangeslider_visible=False,
-            showgrid=True,
-            gridcolor="#2b313a", # 은은한 그리드
-            zeroline=False,
-            showticklabels=True,
+            showgrid=True, gridcolor="#2b313a",
+            zeroline=False, showticklabels=True
         ),
         yaxis=dict(
-            side="right", # 가격축을 오른쪽으로 (TradingView 스타일)
-            showgrid=True,
-            gridcolor="#2b313a",
-            zeroline=False,
-            tickformat=",.1f"
+            side="right",
+            showgrid=True, gridcolor="#2b313a",
+            zeroline=False, tickformat=",.1f"
         ),
         hovermode='x unified',
+        legend=dict(x=0, y=1, orientation="h", bgcolor='rgba(0,0,0,0)')
     )
     
-    # 모드바(줌, 이동 버튼 등) 최소화
     st.plotly_chart(fig, use_container_width=True, config={
         "displayModeBar": True, 
         "modeBarButtonsToRemove": ['select2d', 'lasso2d'],
