@@ -19,9 +19,9 @@ def render_chart(df, title):
     # [수정됨] MA(단순) -> EMA(지수)로 변경
     # span=N : N일 지수이동평균에 해당하는 감쇠 계수 사용
     # ---------------------------------------------------------
-    df["EMA7"] = df["close"].ewm(span=5, adjust=False).mean()
-    df["EMA25"] = df["close"].ewm(span=20, adjust=False).mean()
-    df["EMA99"] = df["close"].ewm(span=40, adjust=False).mean()
+    df["EMA5"] = df["close"].ewm(span=5, adjust=False).mean()
+    df["EMA20"] = df["close"].ewm(span=20, adjust=False).mean()
+    df["EMA40"] = df["close"].ewm(span=40, adjust=False).mean()
 
     # 캔들스틱 차트 생성
     fig = go.Figure(data=[go.Candlestick(
