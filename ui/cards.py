@@ -7,43 +7,47 @@ def krw_line(amount_usd: float, usdt_krw: float, color: str = "#848e9c") -> str:
     return f"<div style='font-size:0.8rem;color:{color};margin-top:2px;'>≈ ₩{won:,.0f}</div>"
 
 def top_card(st, *, total_equity, available, withdrawable_pct, est_leverage,
-             total_position_value, unrealized_total_pnl, roe_pct, usdt_krw):
+             total_position_value, unrealized_total_pnl, roe_pct, realized_pnl, usdt_krw):
     
-    pnl_color = "var(--color-up)" if unrealized_total_pnl >= 0 else "var(--color-down)"
-    pnl_bg = "rgba(46, 189, 133, 0.1)" if unrealized_total_pnl >= 0 else "rgba(246, 70, 93, 0.1)"
+    # 미실현 PNL 색상
+    upl_color = "var(--color-up)" if unrealized_total_pnl >= 0 else "var(--color-down)"
+    upl_bg = "rgba(46, 189, 133, 0.1)" if unrealized_total_pnl >= 0 else "rgba(246, 70, 93, 0.1)"
     
-    # [수정됨] 들여쓰기 문제 방지를 위해 HTML을 왼쪽 끝으로 정렬
+    # [추가됨] 실현 PNL 색상
+    rpl_color = "var(--color-up)" if realized_pnl >= 0 else "var(--color-down)"
+
     html = f"""
-<div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 16px;'>
+<div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px;'>
+
 <div class="stat-card">
     <div style="color:var(--text-secondary); font-size:0.85rem; margin-bottom:4px;">총 자산 (Equity)</div>
     <div style="font-size:1.4rem; font-weight:700; color:var(--text-primary);">${total_equity:,.2f}</div>
     {krw_line(total_equity, usdt_krw)}
 </div>
+
 <div class="stat-card">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-        <div style="color:var(--text-secondary); font-size:0.85rem;">주문 가능 (Available)</div>
+        <div style="color:var(--text-secondary); font-size:0.85rem;">주문 가능</div>
         <div style="font-size:0.75rem; color:var(--color-up); background:rgba(46,189,133,0.1); padding:2px 6px; border-radius:4px;">{withdrawable_pct:.1f}%</div>
     </div>
     <div style="font-size:1.4rem; font-weight:700; color:var(--text-primary);">${available:,.2f}</div>
-    {krw_line(available, usdt_krw)}
 </div>
+
 <div class="stat-card">
-    <div style="color:var(--text-secondary); font-size:0.85rem; margin-bottom:4px;">총 포지션 / 레버리지</div>
-    <div style="font-size:1.4rem; font-weight:700; color:var(--text-primary);">
-        ${total_position_value:,.0f}
-        <span style="font-size:0.9rem; color:var(--color-accent); margin-left:4px; vertical-align:middle;">{est_leverage:.1f}x</span>
-    </div>
-    <div style="font-size:0.8rem; color:var(--text-secondary); margin-top:2px;">실질 레버리지</div>
+    <div style="color:var(--text-secondary); font-size:0.85rem; margin-bottom:4px;">오늘 실현 손익 (Realized)</div>
+    <div style="font-size:1.4rem; font-weight:700; color:{rpl_color};">${realized_pnl:,.2f}</div>
+    {krw_line(realized_pnl, usdt_krw, color=rpl_color)}
 </div>
-<div class="stat-card" style="border:1px solid {pnl_color}; background: linear-gradient(145deg, var(--bg-card), {pnl_bg});">
-    <div style="color:var(--text-secondary); font-size:0.85rem; margin-bottom:4px;">미실현 손익 (PNL)</div>
-    <div style="font-size:1.4rem; font-weight:700; color:{pnl_color};">
+
+<div class="stat-card" style="border:1px solid {upl_color}; background: linear-gradient(145deg, var(--bg-card), {upl_bg});">
+    <div style="color:var(--text-secondary); font-size:0.85rem; margin-bottom:4px;">미실현 손익 (Unrealized)</div>
+    <div style="font-size:1.4rem; font-weight:700; color:{upl_color};">
         ${unrealized_total_pnl:,.2f}
         <span style="font-size:0.9rem; margin-left:4px;">({roe_pct:+.2f}%)</span>
     </div>
-    {krw_line(unrealized_total_pnl, usdt_krw, color=pnl_color)}
+    {krw_line(unrealized_total_pnl, usdt_krw, color=upl_color)}
 </div>
+
 </div>
 """
     render_html(st, html)
