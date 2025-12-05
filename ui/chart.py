@@ -4,15 +4,34 @@ import streamlit as st
 
 def render_chart(df, title):
     if df is None or df.empty:
-        st.warning("차트 데이터가 없습니다.")
+        # [수정됨] 경고 메시지를 감싸는 컨테이너에 스타일 적용하여 일관성 유지
+        st.markdown(f"""
+            <div style='padding: 16px; background-color: #2b2d11; color: #fcd535; border-radius: 8px; border: 1px solid #4d4f21;'>
+                ⚠️ {title} 차트 데이터를 불러올 수 없습니다.
+            </div>
+        """, unsafe_allow_html=True)
         return
 
+    # ---------------------------------------------------------
+    # [추가됨] 차트 영역 스크롤바 숨기기 위한 CSS 주입
+    # ---------------------------------------------------------
+    st.markdown("""
+        <style>
+        /* Plotly 차트 컨테이너의 세로 스크롤바를 강제로 숨김 */
+        div[data-testid="stPlotlyChart"] > div {
+            overflow-y: hidden !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
     # -----------------------------
-    # [추가됨] 보조지표(MA) 계산
+    # [이하 기존 코드와 동일]
     # -----------------------------
-    df["MA5"] = df["close"].rolling(window=5).mean()
-    df["MA20"] = df["close"].rolling(window=20).mean()
-    df["MA40"] = df["close"].rolling(window=40).mean()
+    
+    # 보조지표(MA) 계산
+    df["MA7"] = df["close"].rolling(window=7).mean()
+    df["MA25"] = df["close"].rolling(window=25).mean()
+    df["MA99"] = df["close"].rolling(window=99).mean()
 
     # 캔들스틱 차트 생성
     fig = go.Figure(data=[go.Candlestick(
@@ -26,12 +45,10 @@ def render_chart(df, title):
         name="Price"
     )])
 
-    # -----------------------------
-    # [추가됨] 이동평균선(MA) 그리기
-    # -----------------------------
-    fig.add_trace(go.Scatter(x=df["timestamp"], y=df["MA5"], line=dict(color='#fcd535', width=1), name='MA 5'))
-    fig.add_trace(go.Scatter(x=df["timestamp"], y=df["MA20"], line=dict(color='#3b82f6', width=1), name='MA 20'))
-    fig.add_trace(go.Scatter(x=df["timestamp"], y=df["MA40"], line=dict(color='#8b5cf6', width=1), name='MA 40'))
+    # 이동평균선(MA) 그리기
+    fig.add_trace(go.Scatter(x=df["timestamp"], y=df["MA7"], line=dict(color='#fcd535', width=1), name='MA 7'))
+    fig.add_trace(go.Scatter(x=df["timestamp"], y=df["MA25"], line=dict(color='#3b82f6', width=1), name='MA 25'))
+    fig.add_trace(go.Scatter(x=df["timestamp"], y=df["MA99"], line=dict(color='#8b5cf6', width=1), name='MA 99'))
 
     # 레이아웃 스타일링
     fig.update_layout(
