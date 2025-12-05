@@ -29,9 +29,9 @@ def render_chart(df, title):
     # -----------------------------
     # [추가됨] 이동평균선(MA) 그리기
     # -----------------------------
-    fig.add_trace(go.Scatter(x=df["timestamp"], y=df["MA7"], line=dict(color='#fcd535', width=1), name='MA 7'))
-    fig.add_trace(go.Scatter(x=df["timestamp"], y=df["MA25"], line=dict(color='#3b82f6', width=1), name='MA 25'))
-    fig.add_trace(go.Scatter(x=df["timestamp"], y=df["MA99"], line=dict(color='#8b5cf6', width=1), name='MA 99'))
+    fig.add_trace(go.Scatter(x=df["timestamp"], y=df["MA5"], line=dict(color='#fcd535', width=1), name='MA 7'))
+    fig.add_trace(go.Scatter(x=df["timestamp"], y=df["MA20"], line=dict(color='#3b82f6', width=1), name='MA 25'))
+    fig.add_trace(go.Scatter(x=df["timestamp"], y=df["MA40"], line=dict(color='#8b5cf6', width=1), name='MA 99'))
 
     # 레이아웃 스타일링
     fig.update_layout(
