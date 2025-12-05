@@ -1,5 +1,6 @@
 # utils/format.py
-from urllib.parse import urlencode
+import streamlit as st
+from textwrap import dedent
 
 def fnum(v):
     try: return float(v)
@@ -12,5 +13,9 @@ def normalize_symbol(sym: str) -> str:
     return (sym or "").split("_")[0].upper()
 
 def render_html(st, block: str):
-    from textwrap import dedent
-    st.markdown(dedent(block).lstrip(), unsafe_allow_html=True)
+    # 1. 문자열 앞뒤의 줄바꿈 제거
+    block = block.strip()
+    # 2. 공통 들여쓰기(indentation) 제거
+    clean_html = dedent(block)
+    # 3. HTML 렌더링
+    st.markdown(clean_html, unsafe_allow_html=True)
