@@ -21,11 +21,10 @@ def positions_table(st, positions, funding_data):
         upl = fnum(p.get("unrealizedPL", 0))
         mg = fnum(p.get("marginSize", 0))
         
-        # 펀딩비
         fund_info = funding_data.get(symbol, {"cumulative": 0.0})
         fund_val = fund_info.get("cumulative", 0.0)
         
-        # 수익률 (ROE)
+        # ROE 계산
         roe = (upl / mg * 100) if mg else 0.0
 
         rows.append({
@@ -38,15 +37,15 @@ def positions_table(st, positions, funding_data):
             "Liq.": liq,
             "Margin": mg,
             "PNL": upl,
-            "ROE": roe / 100, # 퍼센트 포맷을 위해 소수로 저장
+            "ROE": roe / 100,
             "Funding": fund_val
         })
 
     df = pd.DataFrame(rows)
 
-    # 2. 스타일링 함수 (색상 적용)
+    # 2. 스타일링 함수 (안전한 문법으로 변경)
     def highlight_pnl(val):
-        color = '#2ebd85' if val >= 0 else '#f6465d' # Green / Red
+        color = '#2ebd85' if val >= 0 else '#f6465d'
         return f'color: {color}'
     
     def highlight_side(val):
@@ -55,19 +54,18 @@ def positions_table(st, positions, funding_data):
         return ''
 
     # Pandas Styler 적용
-    # PNL, ROE, Funding, Side 컬럼에 색상 입히기
-    styled_df = df.style.map(highlight_pnl, subset=['PNL', 'ROE', 'Funding'])\
-                        .map(highlight_side, subset=['Side'])
+    styled_df = df.style.map(highlight_pnl, subset=['PNL', 'ROE', 'Funding'])
+    styled_df = styled_df.map(highlight_side, subset=['Side'])
 
-    # 3. Streamlit 데이터프레임 렌더링 (Select 기능 활성화)
-    st.markdown("##### ⚡ Positions (Click row to chart)") # 소제목
+    # 3. Streamlit 데이터프레임 렌더링
+    st.markdown("##### ⚡ Positions (Click row to chart)")
     
     event = st.dataframe(
         styled_df,
         use_container_width=True,
         hide_index=True,
-        on_select="rerun",          # [핵심] 선택 시 리런
-        selection_mode="single-row", # 한 번에 한 줄만 선택
+        on_select="rerun",           # 선택 시 리런
+        selection_mode="single-row", # 한 줄만 선택 가능
         column_order=["Symbol", "Side", "Lev", "Size", "Entry", "Mark", "Liq.", "Margin", "PNL", "ROE", "Funding"],
         column_config={
             "Symbol": st.column_config.TextColumn("Symbol", width="medium"),
@@ -75,4 +73,21 @@ def positions_table(st, positions, funding_data):
             "Lev": st.column_config.TextColumn("Lev", width="small"),
             "Size": st.column_config.NumberColumn("Size", format="%.4f"),
             "Entry": st.column_config.NumberColumn("Entry", format="$%.2f"),
-            "Mark": st.column_config.NumberColumn("Mark", format="$%.2
+            "Mark": st.column_config.NumberColumn("Mark", format="$%.2f"),
+            "Liq.": st.column_config.NumberColumn("Liq.", format="$%.2f"),
+            "Margin": st.column_config.NumberColumn("Margin", format="$%.2f"),
+            "PNL": st.column_config.NumberColumn("PNL (USDT)", format="$%.2f"),
+            "ROE": st.column_config.NumberColumn("ROE", format="%.2f%%"),
+            "Funding": st.column_config.NumberColumn("Funding", format="$%.2f"),
+        }
+    )
+
+    # 4. 선택된 행이 있으면 차트 심볼 변경
+    if event.selection.rows:
+        selected_index = event.selection.rows[0]
+        selected_symbol = df.iloc[selected_index]["Symbol"]
+        
+        # 현재 선택된 심볼과 다를 경우에만 업데이트
+        if st.session_state.selected_symbol != selected_symbol:
+            st.session_state.selected_symbol = selected_symbol
+            st.rerun()
