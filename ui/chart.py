@@ -10,9 +10,9 @@ def render_chart(df, title):
     # -----------------------------
     # [추가됨] 보조지표(MA) 계산
     # -----------------------------
-    df["MA7"] = df["close"].rolling(window=7).mean()
-    df["MA25"] = df["close"].rolling(window=25).mean()
-    df["MA99"] = df["close"].rolling(window=99).mean()
+    df["MA5"] = df["close"].rolling(window=5).mean()
+    df["MA20"] = df["close"].rolling(window=20).mean()
+    df["MA40"] = df["close"].rolling(window=40).mean()
 
     # 캔들스틱 차트 생성
     fig = go.Figure(data=[go.Candlestick(
@@ -29,9 +29,9 @@ def render_chart(df, title):
     # -----------------------------
     # [추가됨] 이동평균선(MA) 그리기
     # -----------------------------
-    fig.add_trace(go.Scatter(x=df["timestamp"], y=df["MA5"], line=dict(color='#fcd535', width=1), name='MA 7'))
-    fig.add_trace(go.Scatter(x=df["timestamp"], y=df["MA20"], line=dict(color='#3b82f6', width=1), name='MA 25'))
-    fig.add_trace(go.Scatter(x=df["timestamp"], y=df["MA40"], line=dict(color='#8b5cf6', width=1), name='MA 99'))
+    fig.add_trace(go.Scatter(x=df["timestamp"], y=df["MA5"], line=dict(color='#fcd535', width=1), name='MA 5'))
+    fig.add_trace(go.Scatter(x=df["timestamp"], y=df["MA20"], line=dict(color='#3b82f6', width=1), name='MA 20'))
+    fig.add_trace(go.Scatter(x=df["timestamp"], y=df["MA40"], line=dict(color='#8b5cf6', width=1), name='MA 40'))
 
     # 레이아웃 스타일링
     fig.update_layout(
