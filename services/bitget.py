@@ -20,19 +20,23 @@ def _sign(ts, method, path, query_params, body, secret):
     return base64.b64encode(mac.digest()).decode()
 
 def _private_get(api_key, api_secret, passphrase, path, params=None):
-    ts = _timestamp_ms()
-    sig = _sign(ts, "GET", path, params, "", api_secret)
-    from urllib.parse import urlencode
-    url = f"{BASE_URL}{path}" + (f"?{urlencode(params)}" if params else "")
-    headers = {
-        "ACCESS-KEY": api_key,
-        "ACCESS-SIGN": sig,
-        "ACCESS-PASSPHRASE": passphrase,
-        "ACCESS-TIMESTAMP": ts,
-        "locale": "en-US",
-        "Content-Type": "application/json",
-    }
-    return requests.get(url, headers=headers).json()
+    try:
+        ts = _timestamp_ms()
+        sig = _sign(ts, "GET", path, params, "", api_secret)
+        from urllib.parse import urlencode
+        url = f"{BASE_URL}{path}" + (f"?{urlencode(params)}" if params else "")
+        headers = {
+            "ACCESS-KEY": api_key,
+            "ACCESS-SIGN": sig,
+            "ACCESS-PASSPHRASE": passphrase,
+            "ACCESS-TIMESTAMP": ts,
+            "locale": "en-US",
+            "Content-Type": "application/json",
+        }
+        resp = requests.get(url, headers=headers, timeout=10)
+        return resp.json()
+    except Exception as e:
+        return {"code": "99999", "msg": f"Network Error: {str(e)}", "data": None}
 
 def fetch_positions(api_key, api_secret, passphrase, product_type, margin_coin):
     res = _private_get(api_key, api_secret, passphrase,
@@ -52,16 +56,46 @@ def fetch_account_bills(api_key, api_secret, passphrase, product_type, limit=100
     res = _private_get(api_key, api_secret, passphrase,
                        "/api/v2/mix/account/bill",
                        {"productType": product_type, "limit": str(limit)})
-    data_obj = res.get("data", {})
+    data_obj = res.get("data", {}) if res.get("data") else {}
     return data_obj.get("bills", [])
 
 def fetch_kline_spot(symbol="BTCUSDT", granularity="1h", limit=100):
-    params = {"symbol": symbol, "granularity": granularity, "limit": str(limit)}
-    res = requests.get(f"{BASE_URL}/api/v2/spot/market/candles", params=params).json()
-    if res.get("code") != "00000": return pd.DataFrame()
-    data = res.get("data", [])
-    if not data: return pd.DataFrame()
-    df = pd.DataFrame(data, columns=["timestamp","open","high","low","close","vol_base","vol_usdt","vol_quote"])
-    df["timestamp"] = pd.to_datetime(df["timestamp"].astype(float), unit="ms")
-    df = df.astype({"open":float,"high":float,"low":float,"close":float})
-    return df.sort_values("timestamp")
+    try:
+        params = {"symbol": symbol, "granularity": granularity, "limit": str(limit)}
+        res = requests.get(f"{BASE_URL}/api/v2/spot/market/candles", params=params, timeout=5).json()
+        if res.get("code") != "00000": return pd.DataFrame()
+        data = res.get("data", [])
+        if not data: return pd.DataFrame()
+        df = pd.DataFrame(data, columns=["timestamp","open","high","low","close","vol_base","vol_usdt","vol_quote"])
+        df["timestamp"] = pd.to_datetime(df["timestamp"].astype(float), unit="ms")
+        df = df.astype({"open":float,"high":float,"low":float,"close":float})
+        return df.sort_values("timestamp")
+    except:
+        return pd.DataFrame()
+
+def fetch_kline_futures(symbol="BTCUSDT", granularity="1h", product_type="USDT-FUTURES", limit=100):
+    """
+    선물(Mix) 캔들 데이터 조회 (V2)
+    """
+    try:
+        # Bitget V2 Mix Candle Endpoint
+        path = "/api/v2/mix/market/candles"
+        params = {
+            "symbol": symbol,
+            "granularity": granularity,
+            "productType": product_type,
+            "limit": str(limit)
+        }
+        res = requests.get(f"{BASE_URL}{path}", params=params, timeout=5).json()
+        
+        if res.get("code") != "00000": return pd.DataFrame()
+        data = res.get("data", [])
+        if not data: return pd.DataFrame()
+        
+        # V2 Mix Candle response: [ts, open, high, low, close, vol, ...]
+        df = pd.DataFrame(data, columns=["timestamp","open","high","low","close","vol","amount"])
+        df["timestamp"] = pd.to_datetime(df["timestamp"].astype(float), unit="ms")
+        df = df.astype({"open":float,"high":float,"low":float,"close":float})
+        return df.sort_values("timestamp")
+    except Exception:
+        return pd.DataFrame()
