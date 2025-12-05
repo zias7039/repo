@@ -32,6 +32,7 @@ REFRESH_INTERVAL_SEC = 15
 def load_data():
     pos_data, pos_res = fetch_positions(API_KEY, API_SECRET, PASSPHRASE, PRODUCT_TYPE, MARGIN_COIN)
     acct_data, acct_res = fetch_account(API_KEY, API_SECRET, PASSPHRASE, PRODUCT_TYPE, MARGIN_COIN)
+    # 펀딩비 계산용 bills (최소한의 호출 유지)
     bills_data = fetch_account_bills(API_KEY, API_SECRET, PASSPHRASE, PRODUCT_TYPE, limit=100)
     usdt_krw = fetch_usdt_krw()
     
@@ -88,45 +89,11 @@ def calculate_metrics(account, positions):
         "roe_pct": roe_pct
     }
 
-def calculate_realized_pnl(bills):
-    """
-    최근 내역(bills)에서 '포지션 종료(close)'로 인한 실현 손익 합산
-    """
-    realized_sum = 0.0
-    history_list = []
-    
-    # KST 기준 오늘 날짜 확인 (00:00 이후만 합산하려면 날짜 필터 추가 가능)
-    # 여기서는 가져온 bills(최근 100개) 전체를 대상으로 합산
-    
-    for b in bills:
-        bt = (b.get("businessType", "") or "").lower()
-        amount = fnum(b.get("amount", 0.0))
-        
-        # 실현 손익 관련 타입 필터링 (close_long, close_short 등)
-        if "close" in bt:
-            realized_sum += amount
-            
-            # 히스토리 표시용 데이터 저장
-            ts = int(b.get("cTime", 0))
-            dt = datetime.fromtimestamp(ts / 1000).strftime('%Y-%m-%d %H:%M:%S')
-            symbol = b.get("symbol", "").split("_")[0]
-            history_list.append({
-                "Time": dt,
-                "Symbol": symbol,
-                "Type": bt,
-                "Amount (USDT)": amount
-            })
-            
-    return realized_sum, history_list
-
 # ============ MAIN APP ============
 def main():
     inject_styles(st)
     
-    c1, c2 = st.columns([0.8, 0.2])
-    with c2:
-        if st.button("🔄 새로고침", use_container_width=True):
-            st.rerun()
+    # [제거됨] 새로고침 버튼 영역 삭제
 
     data = load_data()
     for err in data["errors"]:
@@ -139,17 +106,14 @@ def main():
     metrics = calculate_metrics(account, positions)
     funding_data = process_funding(bills)
     
-    # [추가됨] 실현 손익 계산
-    realized_pnl, realized_history = calculate_realized_pnl(bills)
-    
     # UI: 툴바
     selected_symbol, selected_gran = render_toolbar(positions)
 
-    # UI: 차트 (MA 지표 포함)
+    # UI: 차트 (MA 지표 유지)
     df = fetch_kline_futures(symbol=selected_symbol, granularity=selected_gran, product_type=PRODUCT_TYPE, limit=100)
     render_chart(df, f"{selected_symbol} ({selected_gran})")
 
-    # UI: 상단 요약 카드 (실현손익 전달)
+    # UI: 상단 요약 카드 (실현 손익 제거됨)
     top_card(
         st,
         total_equity=metrics["total_equity"],
@@ -159,20 +123,15 @@ def main():
         total_position_value=metrics["total_position_value"],
         unrealized_total_pnl=metrics["unrealized_total_pnl"],
         roe_pct=metrics["roe_pct"],
-        realized_pnl=realized_pnl,  # 추가됨
         usdt_krw=data["usdt_krw"],
     )
 
     # UI: 포지션 테이블
     positions_table(st, positions, funding_data)
     
-    # [추가됨] 실현 손익 상세 내역 (아코디언)
-    if realized_history:
-        with st.expander("📝 최근 실현 손익 내역 (Recent Realized PnL)", expanded=False):
-            hf = pd.DataFrame(realized_history)
-            st.dataframe(hf, use_container_width=True, hide_index=True)
+    # [제거됨] 실현 손익 내역 Expander 삭제
 
-    # Footer
+    # Footer & Auto Refresh
     KST = timezone(timedelta(hours=9))
     now_kst = datetime.now(KST)
     st.markdown(
