@@ -10,26 +10,24 @@ def side_badge(side: str):
     return f'<span class="badge" style="background:#333;">{side}</span>'
 
 def positions_table(st, positions, funding_data):
-    # 헤더 정의
+    # [수정됨] 들여쓰기 제거
     table_html = """
-    <div class="trade-table-container">
-        <div class="trade-row trade-header">
-            <div>Symbol</div>
-            <div>Side</div>
-            <div style="text-align:right;">Size / Value</div>
-            <div style="text-align:right;">PNL (ROE)</div>
-            <div style="text-align:right;">Entry Price</div>
-            <div style="text-align:right;">Mark Price</div>
-            <div style="text-align:right;">Liq. Price</div>
-            <div style="text-align:right;">Margin</div>
-            <div style="text-align:right;">Funding</div>
-        </div>
-    """
+<div class="trade-table-container">
+<div class="trade-row trade-header">
+    <div>Symbol</div>
+    <div>Side</div>
+    <div style="text-align:right;">Size / Value</div>
+    <div style="text-align:right;">PNL (ROE)</div>
+    <div style="text-align:right;">Entry</div>
+    <div style="text-align:right;">Mark</div>
+    <div style="text-align:right;">Liq.</div>
+    <div style="text-align:right;">Margin</div>
+    <div style="text-align:right;">Funding</div>
+</div>
+"""
 
     if not positions:
-        table_html += """<div style="padding:32px; text-align:center; color:var(--text-secondary);">
-            보유 중인 포지션이 없습니다.
-        </div></div>"""
+        table_html += """<div style="padding:32px; text-align:center; color:var(--text-secondary);">보유 중인 포지션이 없습니다.</div></div>"""
         render_html(st, table_html)
         return
 
@@ -47,44 +45,34 @@ def positions_table(st, positions, funding_data):
         notional = mg * lev
         roe = safe_pct(upl, mg)
         
-        # PNL Color
         pnl_cls = "var(--color-up)" if upl >= 0 else "var(--color-down)"
         
-        # Funding
         fund_info = funding_data.get(symbol, {"cumulative": 0.0})
         fund_val = fund_info.get("cumulative", 0.0)
         fund_color = "var(--color-up)" if fund_val >= 0 else "var(--text-secondary)"
 
+        # [수정됨] f-string 내부 들여쓰기도 최소화
         table_html += f"""
-        <div class="trade-row trade-item">
-            <div>
-                <div style="font-weight:600; color:var(--text-primary);">{symbol}</div>
-                <div style="font-size:0.75rem; color:var(--color-accent);">{lev:.0f}x</div>
-            </div>
-            
-            <div>{side_badge(side)}</div>
-            
-            <div style="text-align:right;">
-                <div style="color:var(--text-primary);">${notional:,.0f}</div>
-                <div style="font-size:0.75rem; color:var(--text-secondary);">{qty:,.3f}</div>
-            </div>
-            
-            <div style="text-align:right;">
-                <div style="font-weight:600; color:{pnl_cls};">${upl:,.2f}</div>
-                <div style="font-size:0.75rem; color:{pnl_cls};">{roe:+.2f}%</div>
-            </div>
-            
-            <div style="text-align:right; color:var(--text-primary);">${entry:,.2f}</div>
-            <div style="text-align:right; color:var(--text-tertiary);">${mark:,.2f}</div>
-            <div style="text-align:right; color:var(--color-down);">${liq:,.2f}</div>
-            
-            <div style="text-align:right; color:var(--text-primary);">${mg:,.2f}</div>
-            
-            <div style="text-align:right; color:{fund_color}; font-size:0.8rem;">
-                ${fund_val:,.2f}
-            </div>
-        </div>
-        """
+<div class="trade-row trade-item">
+    <div>
+        <div style="font-weight:600; color:var(--text-primary);">{symbol}</div>
+        <div style="font-size:0.75rem; color:var(--color-accent);">{lev:.0f}x</div>
+    </div>
+    <div>{side_badge(side)}</div>
+    <div style="text-align:right;">
+        <div style="color:var(--text-primary);">${notional:,.0f}</div>
+        <div style="font-size:0.75rem; color:var(--text-secondary);">{qty:,.3f}</div>
+    </div>
+    <div style="text-align:right;">
+        <div style="font-weight:600; color:{pnl_cls};">${upl:,.2f}</div>
+        <div style="font-size:0.75rem; color:{pnl_cls};">{roe:+.2f}%</div>
+    </div>
+    <div style="text-align:right; color:var(--text-primary);">${entry:,.2f}</div>
+    <div style="text-align:right; color:var(--text-tertiary);">${mark:,.2f}</div>
+    <div style="text-align:right; color:var(--color-down);">${liq:,.2f}</div>
+    <div style="text-align:right; color:var(--text-primary);">${mg:,.2f}</div>
+    <div style="text-align:right; color:{fund_color}; font-size:0.8rem;">${fund_val:,.2f}</div>
+</div>"""
 
     table_html += "</div>"
     render_html(st, table_html)
