@@ -13,7 +13,7 @@ def inject(st):
   --text-tertiary: #5e6673;
   --color-up: #2ebd85;
   --color-down: #f6465d;
-  --color-accent: #fcd535;
+  --color-accent: #fcd535; /* 강조색 (Gold) */
   --radius-md: 8px;
 }
 
@@ -28,15 +28,62 @@ html, body, [class*="css"] {
     padding-bottom: 3rem !important;
 }
 
-/* ---------------- Table Layout ---------------- */
+/* ---------------- Timeframe Selector Design ---------------- */
+/* 라디오 버튼 컨테이너를 우측 정렬 */
+.timeframe-selector {
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* Streamlit 라디오 버튼 커스텀 */
+div[data-testid="stRadio"] > div[role="radiogroup"] {
+    background-color: transparent;
+    gap: 4px; /* 버튼 사이 간격 */
+}
+
+/* 라디오 버튼 항목 (라벨) */
+div[data-testid="stRadio"] label {
+    background-color: transparent !important;
+    border: none !important;
+    padding: 4px 8px !important;
+    border-radius: 4px !important;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* 라디오 버튼 안의 '동그라미' 숨기기 (핵심) */
+div[data-testid="stRadio"] label > div:first-child {
+    display: none;
+}
+
+/* 텍스트 스타일 (기본: 회색) */
+div[data-testid="stRadio"] label p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* 마우스 올렸을 때 (Hover) */
+div[data-testid="stRadio"] label:hover p {
+    color: var(--text-primary);
+}
+
+/* 선택되었을 때 (Active) - 텍스트 색상 변경 및 배경 */
+div[data-testid="stRadio"] label[data-checked="true"] p {
+    color: var(--color-accent) !important; /* 노란색 텍스트 */
+}
+div[data-testid="stRadio"] label[data-checked="true"] {
+    background-color: rgba(252, 213, 53, 0.1) !important; /* 노란색 배경(연하게) */
+}
+
+/* ---------------- Table & Layout ---------------- */
 .trade-table-container {
     background-color: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: 8px 8px 0 0;
     margin-top: 12px;
 }
-
-/* 헤더: st.columns 비율과 비슷하게 CSS Grid로 맞춤 */
 .trade-header {
     display: grid;
     grid-template-columns: 1.2fr 0.7fr 1.5fr 1.3fr 1fr 1fr 1fr 1fr 1fr;
@@ -46,22 +93,13 @@ html, body, [class*="css"] {
     font-weight: 500;
     color: var(--text-secondary);
 }
-
 .table-row-divider {
     border-top: 1px solid var(--border-color);
     margin: 4px 0;
 }
 
-/* ---------------- Badges ---------------- */
-.badge {
-    padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;
-    display: inline-block;
-}
-.badge-long { background: rgba(46, 189, 133, 0.15); color: var(--color-up); }
-.badge-short { background: rgba(246, 70, 93, 0.15); color: var(--color-down); }
-
-/* ---------------- Invisible Button Style ---------------- */
-/* 버튼을 텍스트처럼 보이게 만드는 마법 */
+/* ---------------- Buttons & Cards ---------------- */
+/* 투명 버튼 (심볼 클릭용) */
 div[data-testid="stVerticalBlock"] button {
     border: none !important;
     background: transparent !important;
@@ -71,16 +109,11 @@ div[data-testid="stVerticalBlock"] button {
     font-weight: 600 !important;
     font-size: 0.9rem !important;
     line-height: 1.2 !important;
-    transition: color 0.2s;
 }
 div[data-testid="stVerticalBlock"] button:hover {
     color: var(--color-accent) !important;
 }
-div[data-testid="stVerticalBlock"] button p {
-    font-size: 0.9rem;
-}
 
-/* ---------------- Others ---------------- */
 .stat-card {
     background-color: var(--bg-card);
     border: 1px solid var(--border-color);
@@ -92,6 +125,8 @@ div[data-testid="stVerticalBlock"] button p {
     color: var(--text-primary) !important;
     border: 1px solid var(--border-color) !important;
 }
+
+/* 차트 스크롤 숨김 */
 div[data-testid="stPlotlyChart"] { overflow: hidden !important; }
 div[data-testid="stPlotlyChart"] > div { overflow: hidden !important; }
 </style>
