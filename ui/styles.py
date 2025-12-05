@@ -1,90 +1,50 @@
+# ui/styles.py
 def inject(st):
     st.markdown("""
 <style>
 :root{
-  /* ---------- 공통 변수 ---------- */
-  --layout-max: 1080px;
-
-  /* 간격/사이즈 */
-  --toolbar-top: 50px;         /* 상단 여백 (기존 50px → 20px) */
-  --row-gap: 4px;              /* 툴바 내부 세로 간격 */
-  --title-offset: -6px;        /* 검색창 아래 타이틀 위쪽 당김값 */
-  --input-h: 32px;             /* 검색 입력 높이 */
-  --input-radius: 8px;         /* 검색 입력 라운드 */
-  --input-pl: 26px;            /* 아이콘 자리 패딩 */
-
-  /* 팔레트 */
-  --bg-input: #121317;
-  --bd-muted: rgba(148,163,184,.25);
-  --fg: #e5e7eb;
-  --fg-dim: rgba(229,231,235,.45);
+  --layout-max: 1200px;
+  --bg-dark: #0f172a;
+  --bg-card: #1e293b;
+  --text-main: #f1f5f9;
+  --text-sub: #94a3b8;
+  --accent: #3b82f6;
 }
 
-/* ---------- 컨테이너/레이아웃 ---------- */
 .block-container{
   max-width: var(--layout-max) !important;
-  margin: 0 auto !important;
-  padding: 0 16px !important;
-  box-sizing: border-box;
+  padding-top: 2rem !important;
+  padding-bottom: 4rem !important;
 }
 
-.layout-boundary{ max-width: var(--layout-max); margin: 0 auto; }
-
-.toolbar-row{
-  padding-top: var(--toolbar-top);
-  margin-bottom: 0 !important;
+/* 툴바 스타일 */
+.stTextInput > div > div > input {
+    background-color: var(--bg-card);
+    color: var(--text-main);
+    border: 1px solid #334155;
 }
 
-.layout-boundary [data-testid="stVerticalBlock"]{ 
-  row-gap: 0 !important; 
+/* 테이블 컨테이너: 가로 스크롤 허용 */
+div[data-testid="stVerticalBlock"] > div {
+    overflow-x: auto;
 }
 
-/* ---------- 차트(Plotly) 영역 ---------- */
-div[data-testid="stPlotlyChart"]{
-  margin-top: -35px !important;   /* 0 ~ -10px 사이로 조절 */
-}
-div[data-testid="stPlotlyChart"] > div:first-child > div{
-  width: 100% !important;
-  margin: 0 auto !important;
+/* Plotly 차트 여백 제거 */
+.js-plotly-plot .plotly .main-svg {
+    background: transparent !important;
 }
 
-/* ---------- 검색 입력 ---------- */
-.symbol-search,
-.symbol-search .stTextInput,
-.symbol-search .stTextInput > div,
-.stRadio,
-.stRadio [role="radiogroup"]{
-  margin-bottom: 0 !important;
-  padding-bottom: 0 !important;
+/* 새로고침 버튼 스타일 */
+.stButton button {
+    background-color: var(--bg-card);
+    color: var(--text-sub);
+    border: 1px solid #334155;
+    font-size: 0.8rem;
+    padding: 0.25rem 0.5rem;
 }
-.symbol-search .stTextInput > div > div input{
-  height: var(--input-h) !important;
-  width: 100% !important;
-  padding-left: var(--input-pl) !important;
-  border-radius: var(--input-radius) !important;
-  background: var(--bg-input) !important;
-  border: 1px solid var(--bd-muted) !important;
-  color: var(--fg) !important;
-  font-size: .8rem !important;
-}
-.symbol-search .stTextInput > div > div::before{
-  content: "🔍";
-  position: absolute;
-  left: 8px; top: 50%;
-  transform: translateY(-50%);
-  opacity: .55; pointer-events: none; font-size: 12px;
-}
-/* placeholder 톤 다운 */
-.symbol-search input::placeholder{ color: var(--fg-dim) !important; }
-
-/* 검색창 아래 여백 통제 */
-.symbol-search{ margin-bottom: 0 !important; }
-
-/* ---------- 차트 제목 ---------- */
-.chart-title{
-  margin: var(--title-offset) 0 0 0 !important; 
-  line-height: 0 !important;
-  padding: 0 !important;
+.stButton button:hover {
+    border-color: var(--text-sub);
+    color: var(--text-main);
 }
 </style>
 """, unsafe_allow_html=True)
