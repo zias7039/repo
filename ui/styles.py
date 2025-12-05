@@ -5,146 +5,100 @@ def inject(st):
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  /* ---------- Theme Variables ---------- */
-  --bg-app: #0b0e11;          /* 더 깊은 검은색 배경 */
-  --bg-card: #151a21;         /* 카드 배경 */
-  --bg-card-hover: #1b2129;   /* 카드 호버/강조 */
-  --border-color: #2b313a;    /* 은은한 테두리 */
-  
-  /* Text Colors */
+  --bg-app: #0b0e11;
+  --bg-card: #151a21;
+  --bg-card-hover: #1b2129;
+  --border-color: #2b313a;
   --text-primary: #eaecef;
   --text-secondary: #848e9c;
   --text-tertiary: #5e6673;
-
-  /* Accent Colors */
-  --color-up: #2ebd85;        /* 매수/수익 (Green) */
-  --color-down: #f6465d;      /* 매도/손실 (Red) */
-  --color-accent: #fcd535;    /* 포인트 (Yellow/Gold) */
-  
-  /* Layout */
+  --color-up: #2ebd85;
+  --color-down: #f6465d;
+  --color-accent: #fcd535;
   --layout-max-width: 1400px;
   --radius-md: 8px;
-  --radius-sm: 4px;
 }
 
-/* 기본 설정 */
 html, body, [class*="css"] {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     color: var(--text-primary);
 }
-
-/* Streamlit 기본 배경 덮어쓰기 */
-.stApp {
-    background-color: var(--bg-app);
-}
-
+.stApp { background-color: var(--bg-app); }
 .block-container {
     max-width: var(--layout-max-width) !important;
     padding-top: 1.5rem !important;
     padding-bottom: 3rem !important;
 }
 
-/* ---------------- Card Design ---------------- */
-.stat-card {
-    background-color: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    padding: 16px;
-    transition: all 0.2s ease-in-out;
-}
-.stat-card:hover {
-    border-color: #474d57;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-}
-
-/* ---------------- Table Design ---------------- */
+/* ---------------- Table & Layout ---------------- */
 .trade-table-container {
     background-color: var(--bg-card);
     border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    overflow: hidden;
+    border-radius: 8px 8px 0 0; /* 위쪽만 둥글게 */
     margin-top: 12px;
 }
-
-.trade-row {
-    display: grid;
-    grid-template-columns: 1fr 0.8fr 1.5fr 1.2fr 1fr 1fr 1fr 1fr 1.2fr;
-    gap: 8px;
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--border-color);
-    align-items: center;
-    font-size: 0.9rem;
-}
-
 .trade-header {
-    background-color: #1e2329;
-    color: var(--text-secondary);
+    display: grid;
+    /* 헤더 그리드 비율 (st.columns 비율과 유사하게 시각적 조정) */
+    grid-template-columns: 1.1fr 0.7fr 1.5fr 1.3fr 1fr 1fr 1fr 1fr 1.1fr;
+    gap: 1rem; /* st.columns 기본 갭과 맞춤 */
+    padding: 12px 0; /* 좌우 패딩 제거 (Streamlit 컬럼 정렬 맞춤) */
     font-size: 0.75rem;
     font-weight: 500;
-    border-bottom: 1px solid var(--border-color);
+    color: var(--text-secondary);
 }
 
-.trade-item:last-child {
-    border-bottom: none;
-}
-.trade-item:hover {
-    background-color: var(--bg-card-hover);
+/* 데이터 행 사이의 구분선 */
+.table-row-divider {
+    border-top: 1px solid var(--border-color);
+    margin: 4px 0;
 }
 
 /* ---------------- Badges ---------------- */
 .badge {
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    line-height: 1.2;
+    padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;
     display: inline-block;
 }
 .badge-long { background: rgba(46, 189, 133, 0.15); color: var(--color-up); }
 .badge-short { background: rgba(246, 70, 93, 0.15); color: var(--color-down); }
 
-/* ---------------- Inputs & Buttons ---------------- */
-/* 입력창 스타일 */
-.stTextInput > div > div > input {
-    background-color: var(--bg-card) !important;
+/* ---------------- Buttons (Symbol Click) ---------------- */
+/* 테이블 내부 버튼 스타일 커스텀 */
+div[data-testid="stVerticalBlock"] button {
+    width: 100%;
+    border: none !important;
+    background: transparent !important;
     color: var(--text-primary) !important;
-    border: 1px solid var(--border-color) !important;
-    border-radius: var(--radius-sm);
+    text-align: left !important;
+    padding: 0 !important;
+    font-weight: 600 !important;
+    font-size: 0.9rem !important;
+    line-height: 1.2 !important;
+    transition: color 0.2s;
 }
-.stTextInput > div > div > input:focus {
-    border-color: var(--color-accent) !important;
-    box-shadow: none !important;
+div[data-testid="stVerticalBlock"] button:hover {
+    color: var(--color-accent) !important;
 }
-
-/* 라디오 버튼 (차트 간격) */
-.stRadio [role="radiogroup"] {
-    background-color: var(--bg-card);
-    padding: 4px;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border-color);
+div[data-testid="stVerticalBlock"] button p {
+    font-size: 0.9rem;
 }
 
-/* 새로고침 버튼 */
-.stButton button {
-    background-color: var(--bg-card);
-    color: var(--text-primary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-sm);
-    font-weight: 500;
-    transition: 0.2s;
-}
-.stButton button:hover {
-    border-color: var(--text-secondary);
-    background-color: var(--bg-card-hover);
-    color: var(--color-accent);
-}
-
-/* 차트 영역 조정 */
-div[data-testid="stPlotlyChart"] {
+/* ---------------- Other UI ---------------- */
+/* 상단 카드 */
+.stat-card {
     background-color: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
-    padding: 8px;
+    padding: 16px;
 }
+
+/* 입력창 및 기타 버튼 */
+.stTextInput input {
+    background-color: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-color) !important;
+}
+/* 차트 스크롤 숨김 */
+div[data-testid="stPlotlyChart"] > div { overflow-y: hidden !important; }
 </style>
 """, unsafe_allow_html=True)
