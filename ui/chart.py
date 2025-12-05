@@ -1,54 +1,50 @@
-# ui/cards.py
-from utils.format import render_html
+# ui/chart.py
+import plotly.graph_objects as go
+import streamlit as st
 
-def krw_line(amount_usd: float, usdt_krw: float, color: str = "#848e9c") -> str:
-    if not usdt_krw: return ""
-    won = amount_usd * usdt_krw
-    return f"<div style='font-size:0.8rem;color:{color};margin-top:2px;'>≈ ₩{won:,.0f}</div>"
+def render_chart(df, title):
+    # 차트 데이터 없음 처리
+    if df is None or df.empty:
+        st.warning(f"⚠️ {title} 차트 데이터를 불러올 수 없습니다.")
+        return
 
-def top_card(st, *, total_equity, available, withdrawable_pct, est_leverage,
-             total_position_value, unrealized_total_pnl, roe_pct, usdt_krw):
+    # [수정됨] 스크롤바 숨김 CSS (전역 적용)
+    st.markdown("""
+        <style>
+        div[data-testid="stPlotlyChart"] { overflow: hidden !important; }
+        div[data-testid="stPlotlyChart"] > div { overflow: hidden !important; }
+        </style>
+    """, unsafe_allow_html=True)
+
+    # 보조지표(MA) 계산
+    df["MA7"] = df["close"].rolling(window=7).mean()
+    df["MA25"] = df["close"].rolling(window=25).mean()
+    df["MA99"] = df["close"].rolling(window=99).mean()
+
+    # 캔들스틱 차트 생성
+    fig = go.Figure(data=[go.Candlestick(
+        x=df["timestamp"],
+        open=df["open"], high=df["high"], low=df["low"], close=df["close"],
+        increasing_line_color="#2ebd85", decreasing_line_color="#f6465d", name="Price"
+    )])
+
+    # MA 선 추가
+    fig.add_trace(go.Scatter(x=df["timestamp"], y=df["MA7"], line=dict(color='#fcd535', width=1), name='MA 7'))
+    fig.add_trace(go.Scatter(x=df["timestamp"], y=df["MA25"], line=dict(color='#3b82f6', width=1), name='MA 25'))
+    fig.add_trace(go.Scatter(x=df["timestamp"], y=df["MA99"], line=dict(color='#8b5cf6', width=1), name='MA 99'))
+
+    # 레이아웃
+    fig.update_layout(
+        template="plotly_dark",
+        paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
+        margin=dict(l=0, r=50, t=30, b=0), height=400,
+        title=dict(text=title, font=dict(size=14, color="#848e9c"), x=0.02, y=0.95),
+        xaxis=dict(rangeslider_visible=False, showgrid=True, gridcolor="#2b313a"),
+        yaxis=dict(side="right", showgrid=True, gridcolor="#2b313a", tickformat=",.1f"),
+        hovermode='x unified',
+        legend=dict(x=0, y=1, orientation="h", bgcolor='rgba(0,0,0,0)')
+    )
     
-    # 색상 설정
-    upl_color = "var(--color-up)" if unrealized_total_pnl >= 0 else "var(--color-down)"
-    upl_bg = "rgba(46, 189, 133, 0.1)" if unrealized_total_pnl >= 0 else "rgba(246, 70, 93, 0.1)"
-    
-    # USDT 가격 포맷팅
-    usdt_display = f"₩{usdt_krw:,.0f}" if usdt_krw else "-"
-
-    html = f"""
-<div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px;'>
-
-<div class="stat-card">
-    <div style="color:var(--text-secondary); font-size:0.85rem; margin-bottom:4px;">총 자산 (Equity)</div>
-    <div style="font-size:1.4rem; font-weight:700; color:var(--text-primary);">${total_equity:,.2f}</div>
-    {krw_line(total_equity, usdt_krw)}
-</div>
-
-<div class="stat-card">
-    <div style="color:var(--text-secondary); font-size:0.85rem; margin-bottom:4px;">총 포지션 / 레버리지</div>
-    <div style="font-size:1.4rem; font-weight:700; color:var(--text-primary);">
-        ${total_position_value:,.0f}
-        <span style="font-size:0.9rem; color:var(--color-accent); margin-left:4px; vertical-align:middle;">{est_leverage:.1f}x</span>
-    </div>
-    <div style="font-size:0.8rem; color:var(--text-secondary); margin-top:2px;">실질 레버리지</div>
-</div>
-
-<div class="stat-card" style="border:1px solid {upl_color}; background: linear-gradient(145deg, var(--bg-card), {upl_bg});">
-    <div style="color:var(--text-secondary); font-size:0.85rem; margin-bottom:4px;">미실현 손익 (Unrealized)</div>
-    <div style="font-size:1.4rem; font-weight:700; color:{upl_color};">
-        ${unrealized_total_pnl:,.2f}
-        <span style="font-size:0.9rem; margin-left:4px;">({roe_pct:+.2f}%)</span>
-    </div>
-    {krw_line(unrealized_total_pnl, usdt_krw, color=upl_color)}
-</div>
-
-<div class="stat-card">
-    <div style="color:var(--text-secondary); font-size:0.85rem; margin-bottom:4px;">USDT 가격 (Upbit)</div>
-    <div style="font-size:1.4rem; font-weight:700; color:var(--color-accent);">{usdt_display}</div>
-    <div style="font-size:0.8rem; color:var(--text-secondary); margin-top:2px;">1 USDT = KRW</div>
-</div>
-
-</div>
-"""
-    render_html(st, html)
+    st.plotly_chart(fig, use_container_width=True, config={
+        "displayModeBar": True, "modeBarButtonsToRemove": ['select2d', 'lasso2d'], "displaylogo": False
+    })
