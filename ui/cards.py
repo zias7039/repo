@@ -1,21 +1,37 @@
-# ui/cards.py
+# ui/cards.py (기존 내용 덮어쓰기 또는 render_header 함수 교체)
 from utils.format import render_html
 import streamlit as st
 
-def render_header(now_kst):
-    """상단 로고 및 시스템 상태 바"""
-    time_str = now_kst.strftime("%H:%M:%S")
+def render_header(now_kst, nav, nav_change, total_units):
+    """상단 헤더: NAV 및 펀드 정보 표시"""
+    
+    # 변동률 색상 및 부호
+    color = "#2ebd85" if nav_change >= 0 else "#f6465d"
+    sign = "+" if nav_change >= 0 else ""
+    
     html = f"""
     <div class="dashboard-header">
         <div style="display:flex; align-items:center;">
             <span class="header-title">QUANTUM FUND</span>
             <span class="header-badge">MASTER</span>
+            
+            <div style="margin-left: 24px; display:flex; align-items:baseline; gap:6px;">
+                <span style="font-size:0.8rem; color:var(--text-secondary);">NAV</span>
+                <span style="font-size:1.3rem; font-weight:700; color:{color}; font-family:'JetBrains Mono';">
+                    {nav:.4f}
+                </span>
+                <span style="font-size:0.85rem; font-weight:600; color:{color}; background:{color}20; padding:2px 6px; border-radius:4px;">
+                    {sign}{nav_change:.2f}%
+                </span>
+            </div>
+            
             <div style="margin-left: 20px; font-size:0.8rem; color:var(--text-secondary);">
-                NAV <span style="color:#2ebd85; font-weight:bold; margin-left:4px;">1.0000</span>
+                TOTAL UNITS <span style="color:var(--text-primary); font-weight:bold; margin-left:4px;">{total_units:,.2f}</span>
             </div>
         </div>
+
         <div style="display:flex; align-items:center; gap:15px; font-size:0.8rem;">
-            <div style="color:var(--text-secondary);">Next Rebalance <span style="color:var(--text-primary); font-weight:bold;">04:00:00</span></div>
+            <div style="color:var(--text-secondary);">Next Rebalance <span style="color:var(--text-primary); font-weight:bold;">09:00:00</span></div>
             <div style="background:#2ebd85; color:#000; font-weight:bold; padding:4px 12px; border-radius:4px; cursor:pointer;">Mint</div>
             <div style="background:#2b313a; color:#eaecef; padding:4px 12px; border-radius:4px; border:1px solid #444; cursor:pointer;">Redeem</div>
             <div style="width:30px; height:30px; background:#3b82f6; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; color:white;">JS</div>
@@ -24,9 +40,9 @@ def render_header(now_kst):
     """
     render_html(st, html)
 
+# ... (render_side_stats, render_system_logs 등 다른 함수는 기존 유지) ...
 def render_side_stats(total_equity, unrealized_total_pnl, roe_pct, usdt_krw):
     """우측 사이드바: 자산 현황 카드"""
-    
     # 색상 로직
     upl_color = "var(--color-up)" if unrealized_total_pnl >= 0 else "var(--color-down)"
     krw_equity = total_equity * usdt_krw if usdt_krw else 0
@@ -58,7 +74,7 @@ def render_side_stats(total_equity, unrealized_total_pnl, roe_pct, usdt_krw):
     render_html(st, html)
 
 def render_system_logs(logs):
-    """우측 사이드바: 시스템 로그 (예시)"""
+    """우측 사이드바: 시스템 로그"""
     log_html = ""
     for log in logs:
         color = "#2ebd85" if "Buy" in log['msg'] or "Mint" in log['msg'] else "#848e9c"
@@ -71,7 +87,6 @@ def render_system_logs(logs):
             <span style="color:var(--text-secondary);">{log['time']}</span>
         </div>
         """
-    
     html = f"""
     <div class="side-card">
         <div class="stat-label" style="margin-bottom:10px;">System Logs</div>
