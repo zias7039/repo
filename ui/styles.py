@@ -25,13 +25,18 @@ html, body, [class*="css"] {
 }
 .stApp { background-color: var(--bg-app); }
 
-/* 상단 여백 최소화 */
+/* [수정됨] 상단 여백 확보 (Toolbar 겹침 방지) */
 .block-container {
     max-width: 100% !important;
-    padding-top: 1rem !important;
+    padding-top: 3.5rem !important; /* 1rem -> 3.5rem으로 변경 */
     padding-bottom: 2rem !important;
     padding-left: 2rem !important;
     padding-right: 2rem !important;
+}
+
+/* Streamlit 기본 헤더(햄버거 메뉴 등) 배경 투명화 (선택사항) */
+header[data-testid="stHeader"] {
+    background-color: transparent !important;
 }
 
 /* 커스텀 헤더 */
