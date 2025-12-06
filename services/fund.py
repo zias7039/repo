@@ -5,44 +5,60 @@ import os
 DATA_FILE = "data/fund_state.json"
 
 def load_fund_state():
-    """발행 좌수(Units) 정보를 불러옵니다. 파일이 없으면 초기값 1000 설정"""
-    if not os.path.exists(DATA_FILE):
-        # 초기 설정: 1000 Units (필요에 따라 수정 가능)
-        return {"total_units": 1000.0}
-    try:
-        with open(DATA_FILE, "r") as f:
-            return json.load(f)
-    except:
-        return {"total_units": 1000.0}
+    """
+    투자자별 Units 정보를 불러옵니다. 
+    파일이 없거나 구버전일 경우, 기본적으로 Investor A/B에게 500좌씩 분배합니다.
+    """
+    default_state = {
+        "investors": {
+            "Investor A": 500.0,
+            "Investor B": 500.0
+        }
+    }
 
-def save_fund_state(total_units):
-    """발행 좌수 변경 시 저장"""
-    # data 폴더가 없으면 생성
+    if not os.path.exists(DATA_FILE):
+        return default_state
+    
+    try:
+        with open(DATA_FILE, "r", encoding='utf-8') as f:
+            data = json.load(f)
+            # 호환성 체크: investors 키가 없으면 기본값 리턴
+            if "investors" not in data:
+                return default_state
+            return data
+    except:
+        return default_state
+
+def save_fund_state(investors_dict):
+    """투자자별 현황 저장"""
     os.makedirs(os.path.dirname(DATA_FILE), exist_ok=True)
-    with open(DATA_FILE, "w") as f:
-        json.dump({"total_units": float(total_units)}, f)
+    with open(DATA_FILE, "w", encoding='utf-8') as f:
+        json.dump({"investors": investors_dict}, f, indent=2, ensure_ascii=False)
 
 def get_nav_metrics(current_equity, history_df):
-    """NAV 및 변동률 계산"""
+    """NAV, 변동률, 그리고 투자자별 평가액 계산"""
     state = load_fund_state()
-    total_units = state.get("total_units", 1000.0)
+    investors = state.get("investors", {})
     
-    # 0으로 나누기 방지
+    # 총 발행 좌수 = 모든 투자자 좌수의 합
+    total_units = sum(investors.values())
     if total_units <= 0: total_units = 1.0
         
     current_nav = current_equity / total_units
     
-    # 변동률 계산 (전일 자산 데이터 활용)
-    # history_df에 기록된 가장 최근(어제/오늘 아침) 자산과 비교
+    # NAV 변동률 (전일 대비)
     nav_change_pct = 0.0
     if not history_df.empty:
-        # 가장 최근 기록된 스냅샷(보통 오늘 아침 9시 or 어제)
         last_equity = history_df["equity"].iloc[-1]
+        # (주의) 과거의 Total Units를 정확히 알 수 없으므로, 
+        # 간략히 자산(Equity) 변동률을 NAV 변동률로 근사하거나, 
+        # 기록된 NAV가 있다면 그것을 써야 합니다. 여기선 자산 변동률 사용.
         if last_equity > 0:
             nav_change_pct = ((current_equity - last_equity) / last_equity) * 100.0
             
     return {
         "nav": current_nav,
         "total_units": total_units,
-        "change_pct": nav_change_pct
+        "change_pct": nav_change_pct,
+        "investors": investors  # 투자자별 좌수 정보 포함
     }
