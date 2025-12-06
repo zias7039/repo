@@ -10,10 +10,11 @@ from utils.format import fnum
 from services.upbit import fetch_usdt_krw
 from services.bitget import fetch_positions, fetch_account, fetch_account_bills, fetch_kline_futures
 from services.history import try_record_snapshot, load_history
+from services.fund import get_nav_metrics  # [추가됨] NAV 계산 서비스
 from ui.styles import inject as inject_styles
 from ui.toolbar import render_toolbar
 from ui.chart import render_chart
-from ui.cards import render_header, render_side_stats, render_system_logs # 변경됨
+from ui.cards import render_header, render_side_stats, render_system_logs 
 from ui.table import positions_table
 
 # ============ CONFIG ============
@@ -30,7 +31,7 @@ API_SECRET = st.secrets["bitget"]["api_secret"]
 PASSPHRASE = st.secrets["bitget"]["passphrase"]
 REFRESH_INTERVAL_SEC = 10
 
-# ============ LOGIC HELPERS (기존 유지) ============
+# ============ LOGIC HELPERS ============
 def load_data():
     pos_data, pos_res = fetch_positions(API_KEY, API_SECRET, PASSPHRASE, PRODUCT_TYPE, MARGIN_COIN)
     acct_data, acct_res = fetch_account(API_KEY, API_SECRET, PASSPHRASE, PRODUCT_TYPE, MARGIN_COIN)
@@ -100,34 +101,36 @@ def main():
     metrics = calculate_metrics(account, positions)
     funding_data = process_funding(bills)
     
-    # 자산 기록 (09:00 Snapshot)
+    # 자산 기록 및 로드 (History)
     history_df, is_recorded_now = try_record_snapshot(metrics["total_equity"])
     if is_recorded_now:
         st.toast("✅ Daily Equity Snapshot Recorded!")
     
-    # 현재 시간 (KST)
+    # [추가됨] NAV 계산 (자산과 히스토리 데이터를 기반으로 계산)
+    nav_data = get_nav_metrics(metrics["total_equity"], history_df)
+
+    # KST 시간
     KST = timezone(timedelta(hours=9))
     now_kst = datetime.now(KST)
 
-    # 2. UI: Header
-    render_header(now_kst)
+    # 2. UI: Header (NAV 정보 전달)
+    render_header(
+        now_kst, 
+        nav=nav_data["nav"], 
+        nav_change=nav_data["change_pct"], 
+        total_units=nav_data["total_units"]
+    )
 
-    # 3. UI: Main Grid (Left: Chart/Table, Right: Stats/Logs)
+    # 3. UI: Main Grid
     col_main, col_side = st.columns([3, 1])
 
-    # [Left Column] 차트와 포지션 테이블
     with col_main:
-        # Toolbar (Symbol & Timeframe)
         selected_symbol, selected_gran = render_toolbar(positions)
-        
-        # Chart
         df = fetch_kline_futures(symbol=selected_symbol, granularity=selected_gran, product_type=PRODUCT_TYPE, limit=100)
         render_chart(df, f"{selected_symbol}")
         
-        # Tabs for Table (이미지와 유사하게 구성)
         st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
         tab1, tab2, tab3 = st.tabs([f"Positions ({len(positions)})", "Open Orders (0)", "Order History"])
-        
         with tab1:
             positions_table(st, positions, funding_data)
         with tab2:
@@ -135,9 +138,7 @@ def main():
         with tab3:
             st.info("History feature coming soon.")
 
-    # [Right Column] 자산 현황 및 NAV 차트
     with col_side:
-        # 1. Asset Card
         render_side_stats(
             total_equity=metrics["total_equity"],
             unrealized_total_pnl=metrics["unrealized_total_pnl"],
@@ -145,35 +146,35 @@ def main():
             usdt_krw=data["usdt_krw"]
         )
 
-        # 2. NAV Performance (History Chart)
         st.markdown("""<div class="side-card"><div class="stat-label">NAV Performance</div>""", unsafe_allow_html=True)
         
-        # 데이터가 없어도 빈 차트라도 그리기
+        # NAV 차트 (데이터가 없으면 현재 포인트만 찍음)
         if history_df.empty:
-            history_df = pd.DataFrame({"date": [now_kst.strftime("%Y-%m-%d")], "equity": [metrics["total_equity"]]})
-        
+            chart_df = pd.DataFrame({"date": [now_kst.strftime("%Y-%m-%d")], "equity": [metrics["total_equity"]]})
+        else:
+            chart_df = history_df.copy()
+            
         fig = go.Figure()
         fig.add_trace(go.Scatter(
-            x=history_df["date"], 
-            y=history_df["equity"],
+            x=chart_df["date"], 
+            y=chart_df["equity"], # 엄밀히는 NAV=Equity/Units 이지만 Units 불변 가정 시 Equity 추이와 동일
             mode='lines',
             line=dict(color='#2ebd85', width=2),
-            fill='tozeroy', # 하단 채우기 효과
+            fill='tozeroy',
             fillcolor='rgba(46, 189, 133, 0.1)'
         ))
         fig.update_layout(
             template="plotly_dark",
-            paper_bgcolor='rgba(0,0,0,0)',
-            plot_bgcolor='rgba(0,0,0,0)',
+            paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
             height=200,
             margin=dict(l=0, r=0, t=10, b=0),
-            xaxis=dict(showgrid=False, showticklabels=False), # X축 간소화
+            xaxis=dict(showgrid=False, showticklabels=False),
             yaxis=dict(showgrid=True, gridcolor="#2b313a", showticklabels=True, tickfont=dict(size=10)),
         )
         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
-        st.markdown("</div>", unsafe_allow_html=True) # Close side-card
+        st.markdown("</div>", unsafe_allow_html=True)
 
-        # 3. System Logs (Dummy Data for visual)
+        # 예시 로그
         logs = [
             {"type": "INFO", "msg": "Rebalance check complete", "time": "12:30:05"},
             {"type": "NAV", "msg": "Settlement updated", "time": "12:00:00"},
