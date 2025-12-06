@@ -2,80 +2,85 @@
 def inject(st):
     st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
 
 :root {
   --bg-app: #0b0e11;
-  --bg-card: #151a21;
+  --bg-card: #161a1e;
   --bg-hover: #2b313a;
   --border-color: #2b313a;
   --text-primary: #eaecef;
   --text-secondary: #848e9c;
+  --text-tertiary: #5e6673;
+  --color-up: #2ebd85;
+  --color-down: #f6465d;
   --color-accent: #fcd535;
-  --radius-md: 8px;
+  --radius-md: 6px;
 }
 
 html, body, [class*="css"] {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'Inter', sans-serif;
     color: var(--text-primary);
+    background-color: var(--bg-app);
 }
 .stApp { background-color: var(--bg-app); }
+
+/* 상단 여백 최소화 */
 .block-container {
-    max-width: 1400px !important;
-    padding-top: 1.5rem !important;
-    padding-bottom: 3rem !important;
+    max-width: 100% !important;
+    padding-top: 1rem !important;
+    padding-bottom: 2rem !important;
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
 }
 
-/* ---------------- Toolbar Area (수정됨) ---------------- */
-.toolbar-container {
-    display: flex;
-    align-items: center;
-    /* 패딩과 마진을 줄여서 차트와 가깝게 붙임 */
-    padding-bottom: 4px; 
-    margin-bottom: 4px;
-    border-bottom: 1px solid var(--border-color);
+/* 커스텀 헤더 */
+.dashboard-header {
+    display: flex; justify-content: space-between; align-items: center;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 12px 20px;
+    margin-bottom: 12px;
+}
+.header-title { font-size: 1.2rem; font-weight: 800; letter-spacing: 1px; }
+.header-badge { font-size: 0.7rem; background: #2b313a; color: #848e9c; padding: 2px 6px; border-radius: 4px; margin-left: 8px; vertical-align: middle; }
+
+/* 사이드바/정보 카드 */
+.side-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    margin-bottom: 12px;
+}
+.stat-label { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px; }
+.stat-value { font-size: 1.5rem; font-weight: 700; color: var(--text-primary); font-family: 'JetBrains Mono', monospace; }
+.stat-sub { font-size: 0.8rem; margin-top: 4px; font-family: 'JetBrains Mono', monospace; }
+
+/* 탭 스타일 재정의 */
+div[data-testid="stTabs"] button {
+    font-size: 0.9rem; font-weight: 600; color: var(--text-secondary);
+}
+div[data-testid="stTabs"] button[aria-selected="true"] {
+    color: var(--text-primary) !important;
+    border-bottom-color: var(--color-accent) !important;
 }
 
-/* [이하 기존 코드 동일] */
-div[role="radiogroup"] {
-    background-color: #1e2329; padding: 4px; border-radius: 8px; display: inline-flex; gap: 0px !important; border: 1px solid var(--border-color);
-}
-div[data-testid="stRadio"] label {
-    margin: 0 !important; padding: 4px 12px !important; border-radius: 6px !important; transition: all 0.2s ease; border: none !important; background: transparent !important;
-}
-div[data-testid="stRadio"] label > div:first-child { display: none; }
-div[data-testid="stRadio"] label p {
-    color: var(--text-secondary); font-size: 0.85rem; font-weight: 600; margin: 0;
-}
-div[data-testid="stRadio"] label:hover { background-color: var(--bg-hover) !important; }
-div[data-testid="stRadio"] label:hover p { color: var(--text-primary); }
-div[data-testid="stRadio"] label[data-checked="true"] {
-    background-color: #2b313a !important; box-shadow: 0 1px 2px rgba(0,0,0,0.2);
-}
-div[data-testid="stRadio"] label[data-checked="true"] p { color: var(--color-accent) !important; }
-
-div[data-testid="stPlotlyChart"] { overflow: hidden !important; }
-div[data-testid="stPlotlyChart"] > div { overflow: hidden !important; }
-
+/* 테이블 스타일 */
 .trade-table-container {
-    background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px 8px 0 0; margin-top: 12px;
+    background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); margin-top: 0px;
 }
 .trade-header {
-    display: grid; grid-template-columns: 1.2fr 0.7fr 1.5fr 1.3fr 1fr 1fr 1fr 1fr 1fr; gap: 1rem; padding: 12px 16px; font-size: 0.75rem; font-weight: 500; color: var(--text-secondary);
+    display: grid; grid-template-columns: 1.2fr 0.7fr 1.5fr 1.3fr 1.0fr 1.0fr 1.0fr 1.0fr 1.0fr; 
+    gap: 8px; padding: 12px 16px; font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); border-bottom: 1px solid var(--border-color);
 }
-.table-row-divider { border-top: 1px solid var(--border-color); margin: 4px 0; }
-
-.stat-card {
-    background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px;
-}
+.table-row-divider { border-top: 1px solid var(--border-color); margin: 6px 0; }
 .badge { padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
 .badge-long { background: rgba(46, 189, 133, 0.15); color: #2ebd85; }
 .badge-short { background: rgba(246, 70, 93, 0.15); color: #f6465d; }
 
-div[data-testid="stVerticalBlock"] button {
-    border: none !important; background: transparent !important; color: var(--text-primary) !important;
-    text-align: left !important; padding: 0 !important; font-weight: 600 !important; font-size: 0.9rem !important;
-}
-div[data-testid="stVerticalBlock"] button:hover { color: var(--color-accent) !important; }
+/* 차트/툴바 영역 조정 */
+.toolbar-container { padding-bottom: 8px; border-bottom: none; }
 </style>
 """, unsafe_allow_html=True)
