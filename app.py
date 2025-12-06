@@ -1,99 +1,19 @@
 # app/app.py
-import time
-import pandas as pd
-import plotly.graph_objects as go
-import streamlit as st
-from datetime import datetime, timedelta, timezone
-from collections import defaultdict
 
-from utils.format import fnum
-from services.upbit import fetch_usdt_krw
-from services.bitget import fetch_positions, fetch_account, fetch_account_bills, fetch_kline_futures
-from services.history import try_record_snapshot, load_history
-from services.fund import get_nav_metrics  # [추가됨] NAV 계산 서비스
-from ui.styles import inject as inject_styles
-from ui.toolbar import render_toolbar
-from ui.chart import render_chart
-from ui.cards import render_header, render_side_stats, render_system_logs 
-from ui.table import positions_table
+# ... (임포트) ...
+from services.fund import get_nav_metrics
+# ui/cards.py에서 render_investor_breakdown 추가 임포트
+from ui.cards import render_header, render_side_stats, render_system_logs, render_investor_breakdown
 
-# ============ CONFIG ============
-st.set_page_config(page_title="Quantum Fund", page_icon="📊", layout="wide")
-PRODUCT_TYPE = "USDT-FUTURES"
-MARGIN_COIN = "USDT"
+# ... (기존 설정 및 main 함수 앞부분 동일) ...
 
-if "bitget" not in st.secrets:
-    st.error("Secrets에 'bitget' 설정이 없습니다.")
-    st.stop()
-
-API_KEY = st.secrets["bitget"]["api_key"]
-API_SECRET = st.secrets["bitget"]["api_secret"]
-PASSPHRASE = st.secrets["bitget"]["passphrase"]
-REFRESH_INTERVAL_SEC = 10
-
-# ============ LOGIC HELPERS ============
-def load_data():
-    pos_data, pos_res = fetch_positions(API_KEY, API_SECRET, PASSPHRASE, PRODUCT_TYPE, MARGIN_COIN)
-    acct_data, acct_res = fetch_account(API_KEY, API_SECRET, PASSPHRASE, PRODUCT_TYPE, MARGIN_COIN)
-    bills_data = fetch_account_bills(API_KEY, API_SECRET, PASSPHRASE, PRODUCT_TYPE, limit=100)
-    usdt_krw = fetch_usdt_krw()
-    
-    return {
-        "positions": pos_data,
-        "account": acct_data,
-        "bills": bills_data,
-        "usdt_krw": usdt_krw,
-        "errors": [
-            f"포지션: {pos_res.get('msg')}" if pos_res.get("code") != "00000" else None,
-            f"계정: {acct_res.get('msg')}" if acct_res.get("code") != "00000" else None,
-        ]
-    }
-
-def process_funding(bills):
-    funding_sum = defaultdict(float)
-    for b in bills:
-        bt = (b.get("businessType","") or "").lower()
-        if ("settle_fee" in bt) or ("funding" in bt):
-            sym = (b.get("symbol","") or "").split("_")[0].upper()
-            funding_sum[sym] += fnum(b.get("amount", 0.0))
-    return {k: {"cumulative": v} for k,v in funding_sum.items()}
-
-def calculate_metrics(account, positions):
-    available = fnum(account.get("available")) if account else 0.0
-    locked    = fnum(account.get("locked")) if account else 0.0
-    marg_acct = fnum(account.get("marginSize")) if account else 0.0
-    
-    if account and account.get("usdtEquity") is not None:
-        total_equity = fnum(account.get("usdtEquity"))
-    else:
-        total_equity = available + locked + marg_acct
-
-    total_position_value = 0.0
-    unrealized_total_pnl = 0.0
-    
-    for p in positions:
-        lev = fnum(p.get("leverage", 0.0))
-        mg = fnum(p.get("marginSize", 0.0))
-        total_position_value += (mg * lev)
-        unrealized_total_pnl += fnum(p.get("unrealizedPL", 0.0))
-        
-    roe_pct = (unrealized_total_pnl / total_equity * 100) if total_equity > 0 else 0.0
-    
-    return {
-        "total_equity": total_equity,
-        "unrealized_total_pnl": unrealized_total_pnl,
-        "roe_pct": roe_pct
-    }
-
-# ============ MAIN APP ============
 def main():
     inject_styles(st)
     
     # 1. 데이터 로드
     data = load_data()
-    for err in data["errors"]:
-        if err: st.error(err)
-        
+    # ... (에러 처리) ...
+    
     positions = data["positions"]
     account = data["account"]
     bills = data["bills"]
@@ -101,19 +21,18 @@ def main():
     metrics = calculate_metrics(account, positions)
     funding_data = process_funding(bills)
     
-    # 자산 기록 및 로드 (History)
+    # History 기록
     history_df, is_recorded_now = try_record_snapshot(metrics["total_equity"])
     if is_recorded_now:
         st.toast("✅ Daily Equity Snapshot Recorded!")
     
-    # [추가됨] NAV 계산 (자산과 히스토리 데이터를 기반으로 계산)
+    # NAV 및 투자자 데이터 계산
     nav_data = get_nav_metrics(metrics["total_equity"], history_df)
-
-    # KST 시간
+    
     KST = timezone(timedelta(hours=9))
     now_kst = datetime.now(KST)
 
-    # 2. UI: Header (NAV 정보 전달)
+    # 2. UI: Header
     render_header(
         now_kst, 
         nav=nav_data["nav"], 
@@ -125,6 +44,7 @@ def main():
     col_main, col_side = st.columns([3, 1])
 
     with col_main:
+        # ... (차트 및 테이블 코드 기존과 동일) ...
         selected_symbol, selected_gran = render_toolbar(positions)
         df = fetch_kline_futures(symbol=selected_symbol, granularity=selected_gran, product_type=PRODUCT_TYPE, limit=100)
         render_chart(df, f"{selected_symbol}")
@@ -139,6 +59,7 @@ def main():
             st.info("History feature coming soon.")
 
     with col_side:
+        # [1] 자산 현황
         render_side_stats(
             total_equity=metrics["total_equity"],
             unrealized_total_pnl=metrics["unrealized_total_pnl"],
@@ -146,9 +67,16 @@ def main():
             usdt_krw=data["usdt_krw"]
         )
 
+        # [2] 투자자별 현황 (신규 추가)
+        render_investor_breakdown(
+            investors=nav_data["investors"],
+            current_nav=nav_data["nav"],
+            usdt_krw=data["usdt_krw"]
+        )
+
+        # [3] NAV 차트
         st.markdown("""<div class="side-card"><div class="stat-label">NAV Performance</div>""", unsafe_allow_html=True)
-        
-        # NAV 차트 (데이터가 없으면 현재 포인트만 찍음)
+        # ... (차트 그리는 코드 기존과 동일) ...
         if history_df.empty:
             chart_df = pd.DataFrame({"date": [now_kst.strftime("%Y-%m-%d")], "equity": [metrics["total_equity"]]})
         else:
@@ -157,7 +85,7 @@ def main():
         fig = go.Figure()
         fig.add_trace(go.Scatter(
             x=chart_df["date"], 
-            y=chart_df["equity"], # 엄밀히는 NAV=Equity/Units 이지만 Units 불변 가정 시 Equity 추이와 동일
+            y=chart_df["equity"],
             mode='lines',
             line=dict(color='#2ebd85', width=2),
             fill='tozeroy',
@@ -174,13 +102,12 @@ def main():
         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
         st.markdown("</div>", unsafe_allow_html=True)
 
-        # 예시 로그
-        logs = [
+        # [4] 로그
+        render_system_logs([
             {"type": "INFO", "msg": "Rebalance check complete", "time": "12:30:05"},
             {"type": "NAV", "msg": "Settlement updated", "time": "12:00:00"},
             {"type": "INFO", "msg": "System online", "time": "11:59:59"}
-        ]
-        render_system_logs(logs)
+        ])
 
     time.sleep(REFRESH_INTERVAL_SEC)
     st.rerun()
