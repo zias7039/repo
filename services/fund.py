@@ -12,7 +12,7 @@ def load_fund_state():
     default_state = {
         "investors": {
             "Investor A": 511.0,
-            "Investor B": 467.0
+            "Investor B": 466.0
         }
     }
 
