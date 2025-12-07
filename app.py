@@ -195,9 +195,21 @@ def main():
             {"type": "INFO", "msg": "System online", "time": "11:59:59"}
         ]
         render_system_logs(logs)
+    # [디버깅용] 사이드바에 강제 저장 버튼 추가
+    with st.sidebar:
+        st.markdown("---")
+        st.write("🔧 관리자 메뉴")
+        if st.button("💾 자산 데이터 강제 저장"):
+            # force=True로 호출
+            _, saved = try_record_snapshot(metrics["total_equity"], force=True)
+            if saved:
+                st.toast(f"✅ 현재 자산(${metrics['total_equity']:,.2f})이 강제 저장되었습니다!")
+                time.sleep(1)
+                st.rerun() # 새로고침하여 차트 즉시 반영
 
     time.sleep(REFRESH_INTERVAL_SEC)
     st.rerun()
 
 if __name__ == "__main__":
     main()
+
