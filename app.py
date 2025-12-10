@@ -160,7 +160,7 @@ def main():
             usdt_krw=data["usdt_krw"]
         )
 
-        # (3) NAV 퍼포먼스 차트
+        # (3) NAV 퍼포먼스 차트 (수정됨)
         st.markdown("""<div class="side-card"><div class="stat-label">NAV Performance</div>""", unsafe_allow_html=True)
         
         if history_df.empty:
@@ -172,18 +172,30 @@ def main():
         fig.add_trace(go.Scatter(
             x=chart_df["date"], 
             y=chart_df["equity"],
-            mode='lines',
+            mode='lines+markers',  # 선과 점을 같이 표시
+            marker=dict(size=4),   # 점 크기 설정
             line=dict(color='#2ebd85', width=2),
-            fill='tozeroy',
-            fillcolor='rgba(46, 189, 133, 0.1)'
+            # fill='tozeroy' 옵션을 제거하여 Y축이 데이터 범위에 맞춰 움직이게 함
         ))
+        
+        # Y축 범위를 데이터보다 조금 더 넓게 잡아주면 더 예쁩니다 (선택 사항)
+        min_val = chart_df['equity'].min()
+        max_val = chart_df['equity'].max()
+        margin = (max_val - min_val) * 0.1 if max_val != min_val else max_val * 0.01
+        
         fig.update_layout(
             template="plotly_dark",
             paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
             height=200,
             margin=dict(l=0, r=0, t=10, b=0),
             xaxis=dict(showgrid=False, showticklabels=False),
-            yaxis=dict(showgrid=True, gridcolor="#2b313a", showticklabels=True, tickfont=dict(size=10)),
+            yaxis=dict(
+                showgrid=True, 
+                gridcolor="#2b313a", 
+                showticklabels=True, 
+                tickfont=dict(size=10),
+                range=[min_val - margin, max_val + margin] # 범위를 데이터에 맞춤
+            ),
         )
         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
         st.markdown("</div>", unsafe_allow_html=True)
@@ -201,5 +213,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
