@@ -1,12 +1,12 @@
 # ui/cards.py
 import streamlit as st
-from utils.format import render_html
+from utils.format import render_html, fnum
 
 def render_top_bar(total_equity, available, leverage, next_refresh="20s"):
     html = f"""
     <div style="display:flex; gap:40px; margin-bottom:16px; align-items:flex-start;">
         <div>
-            <span class="label">Total Value <span style="background:#222; padding:1px 4px; border-radius:3px; font-size:0.6rem;">Combined</span></span>
+            <span class="label">Total Value <span style="background:#222; padding:1px 4px; border-radius:3px; font-size:0.6rem; vertical-align:middle;">Combined</span></span>
             <div class="value-xl">${total_equity:,.2f}</div>
         </div>
         <div>
@@ -28,17 +28,24 @@ def render_top_bar(total_equity, available, leverage, next_refresh="20s"):
     render_html(st, html)
 
 def render_left_summary(perp_equity, margin_usage, unrealized_pnl, roe_pct, positions):
-    # 1. Delta Exposure 계산 (Dollar Delta)
-    # USDT 선물 기준: Notional Value (Size * Price) 자체가 Dollar Delta입니다.
-    # 레버리지를 포함한 포지션 총액을 계산합니다.
-    long_delta = sum(p['marginSize'] * p['leverage'] for p in positions if p.get('holdSide')=='LONG')
-    short_delta = sum(p['marginSize'] * p['leverage'] for p in positions if p.get('holdSide')=='SHORT')
+    # 1. Delta Exposure 계산 (대소문자 정규화 추가)
+    long_delta = 0.0
+    short_delta = 0.0
     
+    for p in positions:
+        # 안전한 숫자 변환 및 대소문자 처리
+        side = str(p.get('holdSide', '')).upper()
+        size = fnum(p.get('marginSize', 0)) * fnum(p.get('leverage', 0))
+        
+        if side == 'LONG':
+            long_delta += size
+        elif side == 'SHORT':
+            short_delta += size
+            
     net_delta = long_delta - short_delta
     total_exposure = long_delta + short_delta
     
-    # 2. Bias 판단 (자산 대비 Net Delta 비중이 5% 이상이면 방향성이 있다고 판단)
-    # perp_equity가 0일 경우 방어 로직 추가
+    # 2. Bias 판단 (자산 대비 5% 이상 치우치면 Bias 표시)
     equity_base = perp_equity if perp_equity > 0 else 1.0
     delta_ratio = net_delta / equity_base
 
@@ -59,9 +66,8 @@ def render_left_summary(perp_equity, margin_usage, unrealized_pnl, roe_pct, posi
     pnl_color = "var(--color-up)" if unrealized_pnl >= 0 else "var(--color-down)"
     pnl_sign = "+" if unrealized_pnl >= 0 else ""
 
-    # 4. HTML 렌더링
     html = f"""
-    <div class="dashboard-card" style="min-height:450px; display:flex; flex-direction:column; justify-content:space-between;">
+    <div class="dashboard-card" style="min-height:420px; display:flex; flex-direction:column; justify-content:space-between;">
         <div>
             <div class="label">Perp Equity</div>
             <div class="value-xl" style="font-size:1.6rem;">${perp_equity:,.2f}</div>
