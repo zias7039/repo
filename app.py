@@ -15,7 +15,7 @@ PRODUCT_TYPE = "USDT-FUTURES"
 MARGIN_COIN = "USDT"
 
 def main():
-    st.set_page_config(page_title="Hyperdash", page_icon="⚡", layout="wide")
+    st.set_page_config(page_title="Hyperdash X1278", page_icon="⚡", layout="wide") # layout="wide" 유지하되 CSS로 제한
     inject_styles(st)
     
     # 1. API Auth
@@ -46,12 +46,10 @@ def main():
     nav_data = get_nav_metrics(equity, history_df) # 투자자 정보 계산
 
     # 5. Render Layout
-    
-    # [Top Bar]
     render_top_bar(equity, available, leverage)
     
-    # [Main Content]
-    c1, c2 = st.columns([1, 2.5])
+    # [Main Content] 비율 조정 (1:3)
+    c1, c2 = st.columns([1, 3])
     
     with c1:
         render_left_summary(equity, usage_pct, upl_pnl, roe, pos_data)
@@ -59,7 +57,6 @@ def main():
     with c2:
         render_chart(history_df, equity)
 
-    # [Bottom] Asset Positions & Investors [변경]
     render_bottom_section(st, pos_data, nav_data)
     
     time.sleep(10)
@@ -67,3 +64,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
