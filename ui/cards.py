@@ -33,7 +33,7 @@ def render_left_summary(perp_equity, margin_usage, unrealized_pnl, roe_pct, posi
     short_delta = 0.0
     
     for p in positions:
-        # 안전한 숫자 변환 및 대소문자 처리
+        # 안전한 숫자 변환 및 대소문자 처리 [핵심 수정]
         side = str(p.get('holdSide', '')).upper()
         size = fnum(p.get('marginSize', 0)) * fnum(p.get('leverage', 0))
         
