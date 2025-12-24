@@ -32,14 +32,14 @@ html, body, .stApp {
     letter-spacing: -0.01em;
 }
 
-/* 폭 1278px 고정 (요청사항 유지) */
+/* [핵심 수정] 폭 1278px 고정 및 중앙 정렬 */
 .main .block-container {
     max-width: 1278px !important;
     padding-top: 2rem !important;
     padding-bottom: 3rem !important;
     padding-left: 1rem !important;
     padding-right: 1rem !important;
-    margin: auto;
+    margin: auto; /* 중앙 정렬 */
 }
 
 /* 기본 헤더 숨김 */
