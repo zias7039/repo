@@ -4,10 +4,11 @@ import streamlit as st
 from utils.format import fnum
 from services.bitget import fetch_positions, fetch_account
 from services.history import try_record_snapshot
+from services.fund import get_nav_metrics  # [추가] 펀드 로직
 from ui.styles import inject as inject_styles
 from ui.cards import render_top_bar, render_left_summary
 from ui.chart import render_chart
-from ui.table import positions_table
+from ui.table import render_bottom_section # [변경] 이름 변경 (positions_table -> render_bottom_section)
 
 # Config
 PRODUCT_TYPE = "USDT-FUTURES"
@@ -40,27 +41,26 @@ def main():
     usage_pct = (margin_used / equity * 100) if equity > 0 else 0
     leverage = (sum(fnum(p.get("marginSize",0)) * fnum(p.get("leverage",0)) for p in pos_data) / equity) if equity > 0 else 0
 
-    # 4. Record Snapshot & Get History
+    # 4. History & Fund Data [추가]
     history_df, _ = try_record_snapshot(equity)
+    nav_data = get_nav_metrics(equity, history_df) # 투자자 정보 계산
 
     # 5. Render Layout
     
     # [Top Bar]
     render_top_bar(equity, available, leverage)
     
-    # [Main Content] Left: Summary, Right: PnL Chart
-    c1, c2 = st.columns([1, 2.5]) # 비율 조정으로 배치 최적화
+    # [Main Content]
+    c1, c2 = st.columns([1, 2.5])
     
     with c1:
-        # 좌측: Equity, Bias, Distribution, PnL 요약
         render_left_summary(equity, usage_pct, upl_pnl, roe, pos_data)
         
     with c2:
-        # 우측: PnL Area Chart
         render_chart(history_df, equity)
 
-    # [Bottom] Asset Positions Table
-    positions_table(st, pos_data)
+    # [Bottom] Asset Positions & Investors [변경]
+    render_bottom_section(st, pos_data, nav_data)
     
     time.sleep(10)
     st.rerun()
