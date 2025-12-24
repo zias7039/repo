@@ -2,90 +2,122 @@
 def inject(st):
     st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+/* 폰트 로드 */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
 :root {
-  --bg-app: #0b0e11;
-  --bg-card: #161a1e;
-  --bg-hover: #2b313a;
+  /* Color Palette */
+  --bg-app: #121418;       /* 더 깊은 배경색 */
+  --bg-card: #1b1f26;      /* 카드 배경 */
+  --bg-hover: #262b34;
   --border-color: #2b313a;
+  
   --text-primary: #eaecef;
   --text-secondary: #848e9c;
   --text-tertiary: #5e6673;
-  --color-up: #2ebd85;
-  --color-down: #f6465d;
-  --color-accent: #fcd535;
-  --radius-md: 6px;
+  
+  --color-up: #2ebd85;     /* 상승색 (초록) */
+  --color-down: #f6465d;   /* 하락색 (빨강) */
+  --color-accent: #3b82f6; /* 강조색 (파랑) */
+  --color-yellow: #fcd535;
+  
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
 }
 
-html, body, [class*="css"] {
-    font-family: 'Inter', sans-serif;
+/* 기본 설정 */
+html, body, .stApp {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--bg-app) !important;
     color: var(--text-primary);
-    background-color: var(--bg-app);
 }
-.stApp { background-color: var(--bg-app); }
 
-/* [수정됨] 상단 여백 확보 (Toolbar 겹침 방지) */
+/* Streamlit 기본 여백 제거 및 패딩 조정 */
 .block-container {
-    max-width: 100% !important;
-    padding-top: 3.5rem !important; /* 1rem -> 3.5rem으로 변경 */
+    padding-top: 3.5rem !important;
     padding-bottom: 2rem !important;
     padding-left: 2rem !important;
     padding-right: 2rem !important;
+    max-width: 100% !important;
 }
 
-/* Streamlit 기본 헤더(햄버거 메뉴 등) 배경 투명화 (선택사항) */
 header[data-testid="stHeader"] {
-    background-color: transparent !important;
+    background: transparent !important;
+    z-index: 1;
 }
 
-/* 커스텀 헤더 */
-.dashboard-header {
+/* 공통 카드 스타일 */
+.dashboard-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow-card);
+}
+
+/* 헤더 스타일 */
+.header-container {
     display: flex; justify-content: space-between; align-items: center;
     background-color: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    padding: 12px 20px;
-    margin-bottom: 12px;
+    border-bottom: 1px solid var(--border-color);
+    padding: 16px 24px;
+    margin: -3.5rem -2rem 20px -2rem; /* 화면 꽉 차게 */
 }
-.header-title { font-size: 1.2rem; font-weight: 800; letter-spacing: 1px; }
-.header-badge { font-size: 0.7rem; background: #2b313a; color: #848e9c; padding: 2px 6px; border-radius: 4px; margin-left: 8px; vertical-align: middle; }
+.app-title { font-size: 1.1rem; font-weight: 800; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px; }
+.badge-master { background: #fcd535; color: #000; font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
 
-/* 사이드바/정보 카드 */
-.side-card {
-    background-color: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    padding: 16px;
-    margin-bottom: 12px;
+/* 텍스트 유틸리티 */
+.text-mono { font-family: 'JetBrains Mono', monospace; }
+.text-up { color: var(--color-up) !important; }
+.text-down { color: var(--color-down) !important; }
+.text-label { font-size: 0.8rem; color: var(--text-secondary); }
+.text-value { font-size: 1.0rem; color: var(--text-primary); font-weight: 600; }
+.text-xl { font-size: 1.5rem; font-weight: 700; }
+
+/* 테이블 (Positions) 스타일 */
+.trade-table-header {
+    display: flex;
+    padding: 12px 16px;
+    background: #232830;
+    border-top-left-radius: var(--radius-md);
+    border-top-right-radius: var(--radius-md);
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.75rem; color: var(--text-secondary); font-weight: 600;
 }
-.stat-label { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px; }
-.stat-value { font-size: 1.5rem; font-weight: 700; color: var(--text-primary); font-family: 'JetBrains Mono', monospace; }
-.stat-sub { font-size: 0.8rem; margin-top: 4px; font-family: 'JetBrains Mono', monospace; }
+.trade-row {
+    display: flex;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    align-items: center;
+    transition: background 0.2s;
+}
+.trade-row:hover { background-color: var(--bg-hover); }
+.trade-row:last-child { border-bottom: none; }
 
-/* 탭 스타일 재정의 */
+/* 버튼 스타일 */
+.btn-primary {
+    background-color: var(--color-accent); color: white;
+    padding: 6px 16px; border-radius: 6px; font-size: 0.85rem; font-weight: 600;
+    cursor: pointer; text-align: center; border: none;
+}
+.btn-outline {
+    background: transparent; color: var(--text-primary);
+    padding: 5px 15px; border-radius: 6px; font-size: 0.85rem;
+    border: 1px solid var(--border-color); cursor: pointer;
+}
+
+/* 탭 스타일 커스텀 */
 div[data-testid="stTabs"] button {
-    font-size: 0.9rem; font-weight: 600; color: var(--text-secondary);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    padding: 0px 16px 10px 16px;
 }
 div[data-testid="stTabs"] button[aria-selected="true"] {
-    color: var(--text-primary) !important;
+    color: var(--color-accent) !important;
     border-bottom-color: var(--color-accent) !important;
 }
-
-/* 테이블 스타일 */
-.trade-table-container {
-    background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); margin-top: 0px;
-}
-.trade-header {
-    display: grid; grid-template-columns: 1.2fr 0.7fr 1.5fr 1.3fr 1.0fr 1.0fr 1.0fr 1.0fr 1.0fr; 
-    gap: 8px; padding: 12px 16px; font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); border-bottom: 1px solid var(--border-color);
-}
-.table-row-divider { border-top: 1px solid var(--border-color); margin: 6px 0; }
-.badge { padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
-.badge-long { background: rgba(46, 189, 133, 0.15); color: #2ebd85; }
-.badge-short { background: rgba(246, 70, 93, 0.15); color: #f6465d; }
-
-/* 차트/툴바 영역 조정 */
-.toolbar-container { padding-bottom: 8px; border-bottom: none; }
 </style>
 """, unsafe_allow_html=True)
