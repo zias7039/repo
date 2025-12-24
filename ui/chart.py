@@ -5,7 +5,6 @@ import pandas as pd
 from utils.format import render_html
 
 def render_chart(history_df, current_equity):
-    # 1. Data Preparation
     if history_df is None or history_df.empty:
         df = pd.DataFrame({'date': [pd.Timestamp.now().strftime('%Y-%m-%d')], 'equity': [current_equity]})
     else:
@@ -17,7 +16,6 @@ def render_chart(history_df, current_equity):
             df = pd.concat([df, new_row], ignore_index=True)
     df['date'] = pd.to_datetime(df['date'])
 
-    # 2. Color & PnL Logic
     start_val = df['equity'].iloc[0]
     end_val = df['equity'].iloc[-1]
     is_profit = end_val >= start_val
@@ -27,18 +25,17 @@ def render_chart(history_df, current_equity):
     pnl_diff = end_val - start_val
     pnl_sign = "+" if pnl_diff >= 0 else ""
 
-    # 3. Header HTML (Seamless integration)
-    # 하단 보더를 제거하고 배경색을 카드와 통일
+    # Header HTML
     header_html = f"""
-    <div class="dashboard-card" style="border-bottom:none; border-bottom-left-radius:0; border-bottom-right-radius:0; padding:16px 20px 0 20px;">
+    <div class="dashboard-card" style="border-bottom:none; border-bottom-left-radius:0; border-bottom-right-radius:0; padding:20px 24px 0 24px;">
         <div class="flex-between">
-            <div style="display:flex; gap:8px; align-items:center;">
-                <span class="label" style="font-weight:600; color:var(--text-primary);">PNL HISTORY</span>
+            <div style="display:flex; gap:12px; align-items:center;">
+                <span class="label" style="font-size:0.9rem; font-weight:600; color:var(--text-primary);">PnL History</span>
                 <span class="badge badge-neutral">30D</span>
             </div>
             <div style="text-align:right;">
-                <div class="label">RECORDED PNL</div>
-                <div class="text-mono" style="color:{color_line}; font-weight:700; font-size:1.1rem;">
+                <div class="label">Recorded PnL</div>
+                <div class="text-mono" style="color:{color_line}; font-weight:700; font-size:1.2rem;">
                     {pnl_sign}${pnl_diff:,.2f}
                 </div>
             </div>
@@ -47,7 +44,7 @@ def render_chart(history_df, current_equity):
     """
     render_html(st, header_html)
 
-    # 4. Plotly Chart
+    # Plotly Chart
     fig = go.Figure()
     fig.add_trace(go.Scatter(
         x=df['date'], y=df['equity'],
@@ -56,24 +53,22 @@ def render_chart(history_df, current_equity):
         hoverinfo='y+x'
     ))
 
-    # 레이아웃: 마진을 완전히 제거하여 헤더와 밀착
     fig.update_layout(
         template="plotly_dark",
-        paper_bgcolor='#111111', # var(--bg-card)와 동일
+        paper_bgcolor='#141414', # var(--bg-card)
         plot_bgcolor='rgba(0,0,0,0)',
-        margin=dict(l=0, r=0, t=10, b=0),
-        height=345, # 좌측 패널 높이(400px) - 헤더 높이 고려
+        margin=dict(l=0, r=0, t=15, b=0),
+        height=335, # Header(65) + Chart(335) = 400px Total
         xaxis=dict(
             showgrid=False, showticklabels=True,
             tickformat="%m-%d", nticks=5,
-            tickfont=dict(size=10, color="#555", family="JetBrains Mono")
+            tickfont=dict(size=11, color="#525252", family="JetBrains Mono")
         ),
-        yaxis=dict(showgrid=False, showticklabels=False), # Y축 완전히 숨김
+        yaxis=dict(showgrid=False, showticklabels=False),
         hovermode="x unified"
     )
 
-    # 차트 렌더링 (컨테이너 없이)
     st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
     
-    # 마감선 (선택적)
-    st.markdown('<div style="height:1px; background:#1f1f1f; margin-top:-1px;"></div>', unsafe_allow_html=True)
+    # Border Bottom Fix
+    st.markdown('<div style="height:1px; background:#262626; margin-top:-1px;"></div>', unsafe_allow_html=True)
