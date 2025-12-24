@@ -46,7 +46,7 @@ def positions_table(st, positions):
         roe = safe_pct(upl, margin)
         pnl_cls = "text-up" if upl >= 0 else "text-down"
         
-        # 뱃지 색상 개선 (더 밝게)
+        # [수정] 뱃지 색상 개선 (더 밝게)
         if side == "SHORT":
             badge = "background:rgba(255, 77, 77, 0.2); color:#ff6666;"
         else:
