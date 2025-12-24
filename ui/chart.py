@@ -7,7 +7,7 @@ def render_chart(history_df, current_equity):
     """
     Daily History Chart
     """
-    # 카드 높이를 좌측 패널과 맞추기 위해 스타일 조정 (overflow hidden)
+    # 카드 높이를 좌측 패널과 맞추기 위해 스타일 조정 (height 고정)
     st.markdown('<div class="dashboard-card" style="padding:15px; height:100%; min-height:420px; overflow:hidden;">', unsafe_allow_html=True)
 
     if history_df is None or history_df.empty:
@@ -50,13 +50,13 @@ def render_chart(history_df, current_equity):
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(0,0,0,0)',
         margin=dict(l=0, r=0, t=10, b=0),
-        height=350, # 차트 영역 높이 설정
+        height=350, # 차트 내부 높이 설정
         xaxis=dict(
             showgrid=False, 
             showticklabels=True,
-            tickformat="%m-%d",  # 날짜 포맷 단축 (월-일)
-            nticks=6,            # 라벨 개수 제한
-            tickfont=dict(size=10, color="#666")
+            tickformat="%m-%d",  # [수정] 날짜 포맷 단축 (월-일)
+            nticks=6,            # [수정] 라벨 개수 제한
+            tickfont=dict(size=11, color="#666")
         ),
         yaxis=dict(
             showgrid=True, 
