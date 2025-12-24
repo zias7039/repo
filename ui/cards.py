@@ -2,15 +2,13 @@
 import streamlit as st
 from utils.format import render_html
 
-def render_header(now_kst, nav, nav_change, total_units):
+def render_header(now_kst, nav, nav_change, total_units, next_rebalance="09:00:00", user_initials="JS"):
     """상단 헤더: 펀드 로고, NAV 현황, 시스템 상태 표시"""
     
-    # 변동률 색상 및 부호 설정
     color = "#2ebd85" if nav_change >= 0 else "#f6465d"
     sign = "+" if nav_change >= 0 else ""
     
-    time_str = now_kst.strftime("%H:%M:%S")
-
+    # HTML 구조 유지
     html = f"""
     <div class="dashboard-header">
         <div style="display:flex; align-items:center;">
@@ -33,10 +31,10 @@ def render_header(now_kst, nav, nav_change, total_units):
         </div>
 
         <div style="display:flex; align-items:center; gap:15px; font-size:0.8rem;">
-            <div style="color:var(--text-secondary);">Next Rebalance <span style="color:var(--text-primary); font-weight:bold;">09:00:00</span></div>
+            <div style="color:var(--text-secondary);">Next Rebalance <span style="color:var(--text-primary); font-weight:bold;">{next_rebalance}</span></div>
             <div style="background:#2ebd85; color:#000; font-weight:bold; padding:4px 12px; border-radius:4px; cursor:pointer;">Mint</div>
             <div style="background:#2b313a; color:#eaecef; padding:4px 12px; border-radius:4px; border:1px solid #444; cursor:pointer;">Redeem</div>
-            <div style="width:30px; height:30px; background:#3b82f6; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; color:white;">JS</div>
+            <div style="width:30px; height:30px; background:#3b82f6; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; color:white;">{user_initials}</div>
         </div>
     </div>
     """
@@ -44,9 +42,8 @@ def render_header(now_kst, nav, nav_change, total_units):
 
 def render_side_stats(total_equity, unrealized_total_pnl, roe_pct, usdt_krw):
     """우측 사이드바: 자산 현황 카드"""
-    
     upl_color = "var(--color-up)" if unrealized_total_pnl >= 0 else "var(--color-down)"
-    krw_equity = total_equity * usdt_krw if usdt_krw else 0
+    krw_equity = total_equity * (usdt_krw or 0)
     
     html = f"""
     <div class="side-card">
@@ -76,11 +73,8 @@ def render_side_stats(total_equity, unrealized_total_pnl, roe_pct, usdt_krw):
 
 def render_investor_breakdown(investors, current_nav, usdt_krw):
     """우측 사이드바: 투자자별 지분 현황 리스트"""
-    
     rows_html = ""
-    # 지분율(Units)이 높은 순서대로 정렬
     sorted_investors = sorted(investors.items(), key=lambda item: item[1], reverse=True)
-    
     total_units = sum(investors.values())
     
     for name, units in sorted_investors:
@@ -118,14 +112,14 @@ def render_system_logs(logs):
     """우측 사이드바: 시스템 로그 표시"""
     log_html = ""
     for log in logs:
-        # 로그 타입별 색상 지정
-        color = "#2ebd85" if "Buy" in log['msg'] or "Mint" in log['msg'] else "#848e9c"
-        if "Sell" in log['msg']: color = "#f6465d"
+        msg = log.get('msg', '')
+        color = "#2ebd85" if "Buy" in msg or "Mint" in msg else "#848e9c"
+        if "Sell" in msg: color = "#f6465d"
         
         log_html += f"""
         <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:6px;">
             <span style="color:{color}; font-weight:600;">{log['type']}</span>
-            <span style="color:var(--text-primary);">{log['msg']}</span>
+            <span style="color:var(--text-primary);">{msg}</span>
             <span style="color:var(--text-secondary);">{log['time']}</span>
         </div>
         """
