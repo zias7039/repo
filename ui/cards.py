@@ -28,29 +28,38 @@ def render_top_bar(total_equity, available, leverage, next_refresh="20s"):
     render_html(st, html)
 
 def render_left_summary(perp_equity, margin_usage, unrealized_pnl, roe_pct, positions):
-    # 1. Bias 및 Long/Short 비율 계산
-    long_size = sum(p['marginSize'] * p['leverage'] for p in positions if p.get('holdSide')=='LONG')
-    short_size = sum(p['marginSize'] * p['leverage'] for p in positions if p.get('holdSide')=='SHORT')
-    total_size = long_size + short_size
+    # 1. Delta Exposure 계산 (Dollar Delta)
+    # USDT 선물 기준: Notional Value (Size * Price) 자체가 Dollar Delta입니다.
+    # 레버리지를 포함한 포지션 총액을 계산합니다.
+    long_delta = sum(p['marginSize'] * p['leverage'] for p in positions if p.get('holdSide')=='LONG')
+    short_delta = sum(p['marginSize'] * p['leverage'] for p in positions if p.get('holdSide')=='SHORT')
     
-    if total_size > 0:
-        long_pct = (long_size / total_size) * 100
-        short_pct = (short_size / total_size) * 100
-    else:
-        long_pct, short_pct = 0, 0
+    net_delta = long_delta - short_delta
+    total_exposure = long_delta + short_delta
+    
+    # 2. Bias 판단 (자산 대비 Net Delta 비중이 5% 이상이면 방향성이 있다고 판단)
+    # perp_equity가 0일 경우 방어 로직 추가
+    equity_base = perp_equity if perp_equity > 0 else 1.0
+    delta_ratio = net_delta / equity_base
 
-    # 2. 텍스트 및 컬러 결정
-    if long_pct > 60:
+    if delta_ratio > 0.05:
         bias_text, bias_color = "LONG", "var(--color-up)"
-    elif short_pct > 60:
+    elif delta_ratio < -0.05:
         bias_text, bias_color = "SHORT", "var(--color-down)"
     else:
         bias_text, bias_color = "NEUTRAL", "#888"
-        
+
+    # 3. 비중 계산 (시각화용)
+    if total_exposure > 0:
+        long_pct = (long_delta / total_exposure) * 100
+        short_pct = (short_delta / total_exposure) * 100
+    else:
+        long_pct, short_pct = 0, 0
+
     pnl_color = "var(--color-up)" if unrealized_pnl >= 0 else "var(--color-down)"
     pnl_sign = "+" if unrealized_pnl >= 0 else ""
 
-    # 3. HTML 렌더링 (이미지 좌측 패널과 동일 구조)
+    # 4. HTML 렌더링
     html = f"""
     <div class="dashboard-card" style="min-height:450px; display:flex; flex-direction:column; justify-content:space-between;">
         <div>
@@ -68,31 +77,22 @@ def render_left_summary(perp_equity, margin_usage, unrealized_pnl, roe_pct, posi
         
         <div style="border-top:1px solid #222; padding-top:16px;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span class="label">Direction Bias</span>
+                <span class="label">Direction Bias (Delta)</span>
                 <span style="color:{bias_color}; font-weight:700; font-size:0.85rem;">{bias_text}</span>
             </div>
             <div style="display:flex; justify-content:space-between; margin-top:4px;">
-                <span class="label">Long Exposure</span>
-                <span style="font-family:var(--font-mono); color:var(--color-up); font-size:0.85rem;">{long_pct:.1f}%</span>
+                <span class="label">Net Exposure</span>
+                <span style="font-family:var(--font-mono); color:{bias_color}; font-size:0.85rem;">{(delta_ratio*100):+.2f}%</span>
             </div>
             
             <div style="margin-top:10px;">
                 <div style="display:flex; justify-content:space-between; font-size:0.7rem; margin-bottom:4px;">
-                    <span style="color:var(--color-up);">● {long_pct:.0f}%</span>
-                    <span style="color:var(--color-down);">● {short_pct:.0f}%</span>
+                    <span style="color:var(--color-up);">L: ${long_delta/1000:.1f}k</span>
+                    <span style="color:var(--color-down);">S: ${short_delta/1000:.1f}k</span>
                 </div>
                 <div class="progress-bg" style="display:flex; background:#2b1d1d;">
                     <div style="width:{long_pct}%; background:var(--color-up); height:100%;"></div>
                     <div style="width:{short_pct}%; background:var(--color-down); height:100%;"></div>
-                </div>
-                
-                <div style="display:flex; gap:8px; margin-top:8px;">
-                    <div style="flex:1; background:#0f1814; color:var(--color-up); text-align:center; padding:4px; border-radius:4px; font-size:0.75rem;">
-                        {long_size/1000:.1f}k
-                    </div>
-                    <div style="flex:1; background:#2b1010; color:var(--color-down); text-align:center; padding:4px; border-radius:4px; font-size:0.75rem;">
-                        {short_size/1000:.1f}k
-                    </div>
                 </div>
             </div>
         </div>
