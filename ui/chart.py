@@ -1,102 +1,96 @@
-# ui/chart.py
-import plotly.graph_objects as go
+# ui/cards.py
 import streamlit as st
-import pandas as pd
-from utils.format import render_html
+from utils.format import render_html, fnum
 
-def render_chart(history_df, current_equity):
-    """
-    Daily History Chart
-    """
-    # 1. 데이터 준비
-    if history_df is None or history_df.empty:
-        df = pd.DataFrame({'date': [pd.Timestamp.now().strftime('%Y-%m-%d')], 'equity': [current_equity]})
-    else:
-        df = history_df.copy()
-        last_date = str(df['date'].iloc[-1])
-        today_str = pd.Timestamp.now().strftime('%Y-%m-%d')
-        if last_date != today_str:
-            new_row = pd.DataFrame({'date': [today_str], 'equity': [current_equity]})
-            df = pd.concat([df, new_row], ignore_index=True)
-
-    df['date'] = pd.to_datetime(df['date'])
-
-    # 2. 색상 및 PnL 계산
-    start_val = df['equity'].iloc[0]
-    end_val = df['equity'].iloc[-1]
-    is_profit = end_val >= start_val
-    
-    color_line = "#3dd995" if is_profit else "#ff4d4d"
-    color_fill = "rgba(61, 217, 149, 0.15)" if is_profit else "rgba(255, 77, 77, 0.15)"
-    
-    pnl_diff = end_val - start_val
-    pnl_sign = "+" if pnl_diff >= 0 else ""
-
-    # 3. HTML 헤더 렌더링 (카드 상단부 역할)
-    # 래퍼 div를 제거하고, 헤더 자체를 카드의 윗부분처럼 스타일링합니다.
-    header_html = f"""
-    <div style="
-        background-color: #131313; 
-        border: 1px solid #222; 
-        border-bottom: none; 
-        border-radius: 6px 6px 0 0; 
-        padding: 16px 20px 0 20px;
-    ">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div style="display:flex; gap:8px;">
-                <span style="background:#222; padding:4px 10px; border-radius:4px; font-size:0.75rem; color:#fff; font-weight:600;">History</span>
+def render_top_bar(total_equity, available, leverage, next_refresh="20s"):
+    html = f"""
+    <div style="display:flex; gap:32px; margin-bottom:20px; align-items:flex-start; padding: 0 4px;">
+        <div>
+            <div class="label" style="margin-bottom:2px;">TOTAL VALUE <span class="badge badge-neutral" style="vertical-align:text-top;">COMBINED</span></div>
+            <div class="value-xl">${total_equity:,.2f}</div>
+        </div>
+        <div>
+            <div class="label" style="margin-bottom:2px;">WITHDRAWABLE</div>
+            <div class="value-xl">${available:,.2f}</div>
+            <div style="font-size:0.65rem; color:var(--text-tertiary); margin-top:2px;">Free margin: 74.5%</div>
+        </div>
+        <div>
+            <div class="label" style="margin-bottom:2px;">LEVERAGE</div>
+            <div class="value-xl" style="display:flex; align-items:center; gap:6px;">
+                {leverage:.2f}x <span class="badge badge-up" style="font-size:0.7rem;">ACTIVE</span>
             </div>
-            <div style="text-align:right;">
-                <div style="font-size:0.8rem; color:#888; margin-bottom:0;">PnL (Recorded)</div>
-                <div style="color:{color_line}; font-family:'JetBrains Mono', monospace; font-weight:700; font-size:1.1rem;">
-                    {pnl_sign}${pnl_diff:,.2f}
-                </div>
+            <div style="font-size:0.65rem; color:var(--text-tertiary); margin-top:2px;">Notional: ${(total_equity * leverage):,.2f}</div>
+        </div>
+        <div style="flex-grow:1; text-align:right; padding-top:4px;">
+             <div style="font-size:0.7rem; color:var(--text-tertiary);">Auto-refresh in {next_refresh}</div>
+        </div>
+    </div>
+    """
+    render_html(st, html)
+
+def render_left_summary(perp_equity, margin_usage, unrealized_pnl, roe_pct, positions):
+    # Delta 계산
+    long_delta = sum(fnum(p.get('marginSize', 0)) * fnum(p.get('leverage', 0)) for p in positions if str(p.get('holdSide')).upper() == 'LONG')
+    short_delta = sum(fnum(p.get('marginSize', 0)) * fnum(p.get('leverage', 0)) for p in positions if str(p.get('holdSide')).upper() == 'SHORT')
+    net_delta = long_delta - short_delta
+    total_exposure = long_delta + short_delta
+    
+    # Bias 판단
+    equity_base = perp_equity if perp_equity > 0 else 1.0
+    delta_ratio = net_delta / equity_base
+    if delta_ratio > 0.05: bias_text, bias_color, bias_badge = "LONG", "var(--color-up)", "badge-up"
+    elif delta_ratio < -0.05: bias_text, bias_color, bias_badge = "SHORT", "var(--color-down)", "badge-down"
+    else: bias_text, bias_color, bias_badge = "NEUTRAL", "var(--text-secondary)", "badge-neutral"
+
+    long_pct = (long_delta / total_exposure * 100) if total_exposure > 0 else 0
+    short_pct = (short_delta / total_exposure * 100) if total_exposure > 0 else 0
+    pnl_cls = "text-up" if unrealized_pnl >= 0 else "text-down"
+    pnl_sign = "+" if unrealized_pnl >= 0 else ""
+
+    # HTML 렌더링 (고정 높이 및 flexbox 배분)
+    html = f"""
+    <div class="dashboard-card" style="height:400px; padding:20px; display:flex; flex-direction:column; justify-content:space-between;">
+        <div>
+            <div class="label">PERP EQUITY</div>
+            <div class="value-xl">${perp_equity:,.2f}</div>
+            
+            <div class="flex-between" style="margin-top:12px;">
+                <span class="label">Margin Usage</span>
+                <span class="text-mono" style="font-size:0.8rem; font-weight:600;">{margin_usage:.2f}%</span>
+            </div>
+            <div class="progress-bg">
+                <div class="progress-fill" style="width:{min(margin_usage,100)}%; background:var(--color-up);"></div>
+            </div>
+        </div>
+        
+        <div style="border-top:1px solid var(--border-color); padding-top:16px;">
+            <div class="flex-between">
+                <span class="label">DIRECTION BIAS</span>
+                <span class="badge {bias_badge}">{bias_text}</span>
+            </div>
+            <div class="flex-between" style="margin-top:6px;">
+                <span class="label">Net Delta</span>
+                <span class="text-mono" style="color:{bias_color}; font-size:0.85rem; font-weight:600;">{(delta_ratio*100):+.2f}%</span>
+            </div>
+            <div class="progress-bg" style="display:flex; background:#222; height:6px; margin-top:8px;">
+                <div style="width:{long_pct}%; background:var(--color-up);"></div>
+                <div style="width:{short_pct}%; background:var(--color-down);"></div>
+            </div>
+            <div class="flex-between" style="margin-top:6px; font-size:0.7rem;">
+                <span style="color:var(--color-up);">${long_delta/1000:.0f}k</span>
+                <span style="color:var(--color-down);">${short_delta/1000:.0f}k</span>
+            </div>
+        </div>
+        
+        <div style="border-top:1px solid var(--border-color); padding-top:16px;">
+            <div class="flex-between">
+                <span class="label">UNREALIZED PNL</span>
+                <span class="{pnl_cls} text-mono" style="font-size:0.9rem; font-weight:600;">{pnl_sign}{roe_pct:.2f}% ROE</span>
+            </div>
+            <div class="value-xl {pnl_cls}" style="margin-top:4px;">
+                {pnl_sign}${unrealized_pnl:,.2f}
             </div>
         </div>
     </div>
     """
-    render_html(st, header_html)
-
-    # 4. 차트 생성
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(
-        x=df['date'], 
-        y=df['equity'],
-        mode='lines',
-        line=dict(color=color_line, width=3),
-        fill='tozeroy',
-        fillcolor=color_fill,
-        hoverinfo='y+x'
-    ))
-
-    # 5. 레이아웃 설정 (카드 하단부 역할)
-    fig.update_layout(
-        template="plotly_dark",
-        paper_bgcolor='#131313', # 카드 배경색과 일치시킴
-        plot_bgcolor='rgba(0,0,0,0)',
-        margin=dict(l=10, r=10, t=10, b=10), # 여백 최소화
-        height=380, # 높이 고정
-        xaxis=dict(
-            showgrid=False, 
-            showticklabels=True,
-            tickformat="%m-%d",
-            nticks=5,
-            tickfont=dict(size=11, color="#666")
-        ),
-        yaxis=dict(
-            showgrid=True, 
-            gridcolor="#1a1a1a", 
-            showticklabels=False
-        ),
-        hovermode="x unified"
-    )
-
-    # 6. 차트 렌더링 (Streamlit 컨테이너 사용 X)
-    # 차트 바로 아래에 border-bottom을 그려주기 위해 차트 자체는 테두리 없이 렌더링하고
-    # CSS나 추가 HTML로 마감하지 않고, 배경색 일치로 시각적 통합을 유도합니다.
-    st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
-    
-    # 카드 하단 마감선 (선택 사항, 깔끔한 마무리를 위함)
-    st.markdown("""
-        <div style="height:1px; background-color:#131313; border-top:1px solid #131313; border-radius:0 0 6px 6px; margin-top:-5px;"></div>
-    """, unsafe_allow_html=True)
+    render_html(st, html)
