@@ -213,5 +213,35 @@ div[data-testid="stTabs"] [role="tabpanel"] { overflow: visible !important; }
 .chart-card iframe{
   min-height: 300px !important;
 }
+
+/* 라디오 버튼을 탭/버튼 스타일로 변경 */
+div[role="radiogroup"] {
+    background-color: #141414;
+    padding: 4px;
+    border-radius: 8px;
+    display: inline-flex;
+    gap: 0px;
+}
+
+div[role="radiogroup"] label {
+    background-color: transparent;
+    border: none;
+    margin-right: 0px !important;
+    padding: 4px 12px;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+/* 선택된 항목 스타일 */
+div[role="radiogroup"] label[data-checked="true"] {
+    background-color: #262626 !important;
+    color: #3dd995 !important; /* Mint Color */
+    font-weight: 600;
+}
+
+/* 텍스트 크기 조정 */
+div[role="radiogroup"] p {
+    font-size: 0.8rem;
+}
 </style>
 """, unsafe_allow_html=True)
