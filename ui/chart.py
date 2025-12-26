@@ -4,7 +4,7 @@ import streamlit as st
 import pandas as pd
 from utils.format import render_html
 
-def render_chart(history_df, current_equity):
+def render_chart(history_df, current_equity, usdt_rate=None):
     # 1. 데이터 준비
     if history_df is None or history_df.empty:
         df = pd.DataFrame({'date': [pd.Timestamp.now().strftime('%Y-%m-%d')], 'equity': [current_equity]})
@@ -37,6 +37,13 @@ def render_chart(history_df, current_equity):
     
     pnl_diff = end_val - start_val
     pnl_sign = "+" if pnl_diff >= 0 else ""
+    
+    # [추가] KRW PnL 표시
+    krw_pnl_html = ""
+    if usdt_rate:
+        val_krw = abs(pnl_diff * usdt_rate)
+        sign_krw = "+" if pnl_diff >= 0 else "-"
+        krw_pnl_html = f"<span style='font-size:0.9rem; color:#737373; margin-left:8px; font-weight:500;'>≈{sign_krw}₩{val_krw:,.0f}</span>"
 
     # 3. Header HTML
     header_html = f"""
@@ -63,7 +70,7 @@ def render_chart(history_df, current_equity):
             <div style="text-align:right; margin-right: 4px;">
                 <div style="font-size:0.75rem; color:#737373; margin-bottom:2px; font-weight:500;">Recorded PnL</div>
                 <div class="text-mono" style="color:{color_line}; font-weight:700; font-size:1.1rem; letter-spacing:-0.5px;">
-                    {pnl_sign}${pnl_diff:,.2f}
+                    {pnl_sign}${pnl_diff:,.2f}{krw_pnl_html}
                 </div>
             </div>
         </div>
@@ -123,9 +130,7 @@ def render_chart(history_df, current_equity):
 
     st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False, 'staticPlot': False})
     
-    # 5. 하단 테두리 마감 (수정됨)
-    # [핵심 수정] background: transparent !important 추가
-    # 배경을 투명하게 만들어 차트의 날짜(X축)를 가리지 않게 함
+    # 5. 하단 테두리 마감
     st.markdown("""
         <div class="dashboard-card" style="
             border-top:none; 
