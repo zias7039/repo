@@ -90,28 +90,17 @@ div[data-testid="stVerticalBlock"] { gap: 0rem; }
 .table-row:last-child { border-bottom: none; }
 .table-row:hover { background-color: var(--bg-hover); }
 
-/* 탭 스타일 */
-div[data-testid="stTabs"] { gap: 0px; }
-div[data-testid="stTabs"] button {
-    font-size: 0.85rem; color: var(--text-secondary); background: transparent; border: none; padding: 10px 20px;
-    font-weight: 500; transition: color 0.2s;
-}
-div[data-testid="stTabs"] button:hover { color: var(--text-primary); }
-div[data-testid="stTabs"] button[aria-selected="true"] {
-    color: var(--text-primary) !important;
-    border-bottom: 2px solid var(--color-up) !important;
-}
-
-/* [사용자 수정] Plotly 차트 및 컨테이너 잘림 방지 (핵심 해결책) */
+/* ✅ Plotly 차트 잘림 방지 (추가) */
 div[data-testid="stPlotlyChart"],
 div[data-testid="stPlotlyChart"] > div,
 div[data-testid="stPlotlyChart"] iframe {
-    min-height: 340px !important;
-    overflow: visible !important;
+  min-height: 340px !important;
+  overflow: visible !important;
 }
 
-div[data-testid="stElementContainer"] {
-    overflow: visible !important;
+/* ✅ 어떤 컨테이너가 잘라먹는 경우 대비 */
+div[data-testid="stElementContainer"]{
+  overflow: visible !important;
 }
 
 </style>
