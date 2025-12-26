@@ -74,7 +74,7 @@ div[data-testid="stVerticalBlock"] { gap: 0rem; }
 
 /* 프로그레스 바 */
 .progress-bg {
-    width: 100%; height: 6px; background: #1a1a1a; border-radius: 3px; overflow: hidden; margin-top: 0px;
+    width: 100%; height: 6px; background: #1a1a1a; border-radius: 3px; overflow: hidden; margin-top: 8px;
 }
 .progress-fill { height: 100%; }
 
