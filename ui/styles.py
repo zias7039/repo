@@ -90,18 +90,41 @@ div[data-testid="stVerticalBlock"] { gap: 0rem; }
 .table-row:last-child { border-bottom: none; }
 .table-row:hover { background-color: var(--bg-hover); }
 
-/* ✅ Plotly 차트 잘림 방지 (추가) */
+/* 1) Streamlit 컨테이너 (버전에 따라 class 기반도 같이 잡기) */
 div[data-testid="stPlotlyChart"],
-div[data-testid="stPlotlyChart"] > div,
-div[data-testid="stPlotlyChart"] iframe {
-  min-height: 340px !important;
+.stPlotlyChart {
+  min-height: 360px !important;
+  height: auto !important;
   overflow: visible !important;
 }
 
-/* ✅ 어떤 컨테이너가 잘라먹는 경우 대비 */
-div[data-testid="stElementContainer"]{
+/* 2) 한 단계 안쪽 wrapper */
+div[data-testid="stPlotlyChart"] > div,
+.stPlotlyChart > div {
+  min-height: 360px !important;
+  height: auto !important;
   overflow: visible !important;
 }
+
+/* 3) Plotly 내부 컨테이너들 (여기가 실제로 잘리는 경우가 있음) */
+div[data-testid="stPlotlyChart"] .js-plotly-plot,
+div[data-testid="stPlotlyChart"] .plot-container,
+div[data-testid="stPlotlyChart"] .svg-container,
+.stPlotlyChart .js-plotly-plot,
+.stPlotlyChart .plot-container,
+.stPlotlyChart .svg-container {
+  min-height: 360px !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+/* 4) Tabs 안에서 잘리는 케이스 방지 (tabpanel이 overflow hidden인 경우) */
+div[data-testid="stTabs"] [role="tabpanel"] {
+  overflow: visible !important;
+}
+
+/* (옵션) 너무 광역이면 이 줄은 빼도 됨 */
+/* div[data-testid="stElementContainer"]{ overflow: visible !important; } */
 
 </style>
 """, unsafe_allow_html=True)
