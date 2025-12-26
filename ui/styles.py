@@ -42,24 +42,6 @@ html, body, .stApp {
     margin: auto; /* 중앙 정렬 */
 }
 
-st.markdown("""
-<style>
-/* Plotly 차트 잘림 방지 */
-div[data-testid="stPlotlyChart"],
-div[data-testid="stPlotlyChart"] > div,
-div[data-testid="stPlotlyChart"] iframe {
-  min-height: 340px !important;
-  overflow: visible !important;
-}
-
-/* 어떤 컨테이너가 잘라먹는 경우 대비 */
-div[data-testid="stElementContainer"]{
-  overflow: visible !important;
-}
-</style>
-""", unsafe_allow_html=True)
-
-
 /* 기본 헤더 숨김 */
 header[data-testid="stHeader"] { display: none; }
 *div[data-testid="stVerticalBlock"] { gap: 0rem; }*
@@ -117,5 +99,18 @@ div[data-testid="stTabs"] button[aria-selected="true"] {
     color: var(--text-primary) !important;
     border-bottom: 2px solid var(--color-up) !important;
 }
+
+/* ✅ Plotly 차트 잘림 방지 (추가) */
+div[data-testid="stPlotlyChart"],
+div[data-testid="stPlotlyChart"] > div,
+div[data-testid="stPlotlyChart"] iframe {
+  min-height: 340px !important;
+  overflow: visible !important;
+}
+
+/* ✅ 어떤 컨테이너가 잘라먹는 경우 대비 */
+div[data-testid="stElementContainer"]{
+  overflow: visible !important;
+
 </style>
 """, unsafe_allow_html=True)
