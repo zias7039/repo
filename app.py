@@ -1,5 +1,4 @@
 # app/app.py
-import time
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
@@ -20,26 +19,23 @@ from ui.table import render_bottom_section
 PRODUCT_TYPE = "USDT-FUTURES"
 MARGIN_COIN = "USDT"
 
-def main():
-    st.set_page_config(page_title="Hyperdash", page_icon="⚡", layout="wide")
-    inject_styles(st)
-    
-    # 1. Init & Secrets
-    if "bitget" not in st.secrets:
-        st.error("Secrets required")
-        st.stop()
-    api_key = st.secrets["bitget"]["api_key"]
-    api_secret = st.secrets["bitget"]["api_secret"]
-    passphrase = st.secrets["bitget"]["passphrase"]
-    
-    # 2. Data Fetch
-    pos_data, _ = fetch_positions(api_key, api_secret, passphrase, PRODUCT_TYPE, MARGIN_COIN)
-    acct_data, _ = fetch_account(api_key, api_secret, passphrase, PRODUCT_TYPE, MARGIN_COIN)
-    
-    # [추가] USDT 환율 조회
-    usdt_rate = fetch_usdt_krw()
+# [핵심 변경 1] 10초마다 이 함수 내부만 부분 새로고침 (전체 리로딩 X)
+# 주의: Streamlit 1.37 이상 버전 필요 (requirements.txt 확인)
+@st.fragment(run_every=10)
+def run_dashboard(api_key, api_secret, passphrase):
+    # ---------------------------
+    # 1. Data Fetch
+    # ---------------------------
+    # API 호출이 실패해도 화면이 깨지지 않도록 예외처리 권장
+    try:
+        pos_data, _ = fetch_positions(api_key, api_secret, passphrase, PRODUCT_TYPE, MARGIN_COIN)
+        acct_data, _ = fetch_account(api_key, api_secret, passphrase, PRODUCT_TYPE, MARGIN_COIN)
+        usdt_rate = fetch_usdt_krw()
+    except Exception as e:
+        st.error(f"API Error: {e}")
+        return
 
-    # Metrics
+    # Metrics Calc
     available = fnum(acct_data.get("available")) if acct_data else 0.0
     equity = fnum(acct_data.get("usdtEquity")) if acct_data else available
     
@@ -54,8 +50,9 @@ def main():
     history_df, _ = try_record_snapshot(equity)
     nav_data = get_nav_metrics(equity, history_df)
 
-    # 3. Layout Render
-    # [수정] usdt_rate 전달
+    # ---------------------------
+    # 2. Layout Render
+    # ---------------------------
     render_top_bar(equity, available, leverage, usdt_rate=usdt_rate)
     
     c1, c2 = st.columns([1, 3])
@@ -66,8 +63,22 @@ def main():
 
     render_bottom_section(st, pos_data, nav_data, usdt_rate=usdt_rate)
     
-    time.sleep(10)
-    st.rerun()
+    # [핵심 변경 2] time.sleep() 및 st.rerun() 삭제됨
+
+def main():
+    st.set_page_config(page_title="Hyperdash", page_icon="⚡", layout="wide")
+    inject_styles(st)
+    
+    if "bitget" not in st.secrets:
+        st.error("Secrets required")
+        st.stop()
+        
+    api_key = st.secrets["bitget"]["api_key"]
+    api_secret = st.secrets["bitget"]["api_secret"]
+    passphrase = st.secrets["bitget"]["passphrase"]
+    
+    # 대시보드 루프 실행
+    run_dashboard(api_key, api_secret, passphrase)
 
 if __name__ == "__main__":
     main()
