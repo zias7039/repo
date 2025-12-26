@@ -27,7 +27,7 @@ def render_chart(history_df, current_equity):
     min_y = df['equity'].min()
     max_y = df['equity'].max()
     
-    # [수정] 위아래 여백 15%로 조정
+    # 위아래 여백 15%
     padding = (max_y - min_y) * 0.15
     if padding == 0: padding = max_y * 0.05
     y_range = [min_y - padding, max_y + padding]
@@ -38,17 +38,32 @@ def render_chart(history_df, current_equity):
     pnl_diff = end_val - start_val
     pnl_sign = "+" if pnl_diff >= 0 else ""
 
-    # 3. Header HTML (구조 개선)
-    # - width: 100% 및 box-sizing 명시
-    # - 우측 텍스트 컨테이너에 margin-right: 20px를 강제로 주어 잘림 방지
+    # 3. Header HTML (Grid Layout 적용 + 강제 여백)
+    # [해결책] display: grid를 사용하여 좌우 공간을 물리적으로 분할
+    # margin-right: 4px를 추가하여 텍스트가 카드 끝에 닿지 않도록 강제함
     header_html = f"""
-    <div class="dashboard-card" style="border-bottom:none; border-bottom-left-radius:0; border-bottom-right-radius:0; padding:20px 24px 0 24px; background:var(--bg-card); box-sizing: border-box;">
-        <div class="flex-between" style="align-items: flex-start; width: 100%;">
+    <div class="dashboard-card" style="
+        border-bottom:none; 
+        border-bottom-left-radius:0; 
+        border-bottom-right-radius:0; 
+        padding: 20px 24px 0 24px; 
+        background: var(--bg-card); 
+        width: 100%; 
+        box-sizing: border-box;
+    ">
+        <div style="
+            display: grid; 
+            grid-template-columns: 1fr auto; 
+            width: 100%; 
+            align-items: start;
+        ">
             <div style="display:flex; gap:8px; align-items:center;">
                 <span style="font-size:0.95rem; font-weight:600; color:#f5f5f5;">PnL History</span>
                 <span style="background:#262626; color:#737373; padding:2px 8px; border-radius:12px; font-size:0.7rem; font-weight:600;">30D</span>
             </div>
-            <div style="text-align:right; margin-right: 4px;"> <div style="font-size:0.75rem; color:#737373; margin-bottom:2px; font-weight:500;">Recorded PnL</div>
+            
+            <div style="text-align:right; margin-right: 4px;">
+                <div style="font-size:0.75rem; color:#737373; margin-bottom:2px; font-weight:500;">Recorded PnL</div>
                 <div class="text-mono" style="color:{color_line}; font-weight:700; font-size:1.1rem; letter-spacing:-0.5px;">
                     {pnl_sign}${pnl_diff:,.2f}
                 </div>
@@ -58,14 +73,14 @@ def render_chart(history_df, current_equity):
     """
     render_html(st, header_html)
 
-    # 4. Plotly Chart 설정
+    # 4. Plotly Chart 설정 (부드러운 곡선)
     fig = go.Figure()
     
     fig.add_trace(go.Scatter(
         x=df['date'], 
         y=df['equity'],
         mode='lines', 
-        line=dict(color=color_line, width=2, shape='spline', smoothing=1.3), # [수정] 부드러운 곡선(spline) 적용
+        line=dict(color=color_line, width=2, shape='spline', smoothing=1.3),
         fill='tozeroy', 
         fillcolor=color_fill,
         hoverinfo='y+x',
