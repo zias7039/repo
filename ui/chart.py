@@ -2,10 +2,13 @@
 import plotly.graph_objects as go
 import streamlit as st
 import pandas as pd
+from datetime import timedelta
 from utils.format import render_html
 
 def render_chart(history_df, current_equity, usdt_rate=None):
-    # 1. 데이터 준비
+    # ---------------------------
+    # 1. 데이터 준비 및 기간 필터링
+    # ---------------------------
     if history_df is None or history_df.empty:
         df = pd.DataFrame({'date': [pd.Timestamp.now().strftime('%Y-%m-%d')], 'equity': [current_equity]})
     else:
@@ -18,126 +21,143 @@ def render_chart(history_df, current_equity, usdt_rate=None):
             df = pd.concat([df, new_row], ignore_index=True)
             
     df['date'] = pd.to_datetime(df['date'])
+    
+    # [기간 필터 UI] - 차트 상단에 배치
+    # Streamlit 1.40+ 에서는 st.pills 사용 가능, 하위 버전은 st.radio로 대체
+    c_filter, c_empty = st.columns([0.4, 0.6])
+    with c_filter:
+        timeframe = st.radio(
+            "Select Timeframe",
+            ["1W", "1M", "All"],
+            index=0,
+            horizontal=True,
+            label_visibility="collapsed",
+            key="chart_tf"
+        )
 
-    # 2. PnL 및 Y축 범위 계산
-    start_val = df['equity'].iloc[0]
-    end_val = df['equity'].iloc[-1]
-    is_profit = end_val >= start_val
+    # [필터 로직]
+    cutoff_date = df['date'].min()
+    if timeframe == "1W":
+        cutoff_date = pd.Timestamp.now() - timedelta(weeks=1)
+    elif timeframe == "1M":
+        cutoff_date = pd.Timestamp.now() - timedelta(days=30)
     
-    min_y = df['equity'].min()
-    max_y = df['equity'].max()
-    
-    # 위아래 여백 15%
-    padding = (max_y - min_y) * 0.15
-    if padding == 0: padding = max_y * 0.05
-    y_range = [min_y - padding, max_y + padding]
-    
-    color_line = "#3dd995" if is_profit else "#ff4d4d"
-    color_fill = "rgba(61, 217, 149, 0.1)" if is_profit else "rgba(255, 77, 77, 0.1)"
-    
+    filtered_df = df[df['date'] >= cutoff_date]
+    if filtered_df.empty:
+        filtered_df = df.tail(1) # 데이터가 없으면 마지막 점이라도 표시
+
+    # ---------------------------
+    # 2. PnL 계산 (필터링된 기간 기준)
+    # ---------------------------
+    start_val = filtered_df['equity'].iloc[0]
+    end_val = filtered_df['equity'].iloc[-1]
     pnl_diff = end_val - start_val
     pnl_sign = "+" if pnl_diff >= 0 else ""
     
-    # [추가] KRW PnL 표시
+    # 색상 테마 (이미지와 유사한 Teal/Mint 컬러)
+    main_color = "#2EBD85" if pnl_diff >= 0 else "#F6465D" # 양수면 민트, 음수면 레드
+    fill_color = "rgba(46, 189, 133, 0.15)" if pnl_diff >= 0 else "rgba(246, 70, 93, 0.15)"
+    
+    # KRW 변환
     krw_pnl_html = ""
     if usdt_rate:
         val_krw = abs(pnl_diff * usdt_rate)
         sign_krw = "+" if pnl_diff >= 0 else "-"
-        krw_pnl_html = f"<span style='font-size:0.9rem; color:#737373; margin-left:8px; font-weight:500;'>≈{sign_krw}₩{val_krw:,.0f}</span>"
+        krw_pnl_html = f"<span style='font-size:0.8rem; color:#848E9C; font-weight:400;'> (≈{sign_krw}₩{val_krw:,.0f})</span>"
 
-    # 3. Header HTML
+    # ---------------------------
+    # 3. Header HTML (오른쪽 상단 배치 스타일)
+    # ---------------------------
     header_html = f"""
-    <div class="dashboard-card" style="
-        border-bottom:none; 
-        border-bottom-left-radius:0; 
-        border-bottom-right-radius:0; 
-        padding: 20px 24px 0 24px; 
-        background: var(--bg-card); 
-        width: 100%; 
-        box-sizing: border-box; 
+    <div style="
+        position: relative;
+        text-align: right;
+        margin-bottom: -40px; 
+        z-index: 10;
+        padding-right: 10px;
+        pointer-events: none; /* 차트 인터랙션 방해 금지 */
     ">
-        <div style="
-            display: grid; 
-            grid-template-columns: 1fr auto; 
-            width: 100%; 
-            align-items: start;
+        <div style="font-size:0.8rem; color:#848E9C; font-weight:500; margin-bottom:4px;">
+            {timeframe} PnL (Combined)
+        </div>
+        <div class="text-mono" style="
+            color: {main_color}; 
+            font-weight: 600; 
+            font-size: 1.5rem; 
+            letter-spacing: -0.5px;
+            text-shadow: 0px 0px 10px {fill_color};
         ">
-            <div style="display:flex; gap:8px; align-items:center;">
-                <span style="font-size:0.95rem; font-weight:600; color:#f5f5f5;">PnL History</span>
-                <span style="background:#262626; color:#737373; padding:2px 8px; border-radius:12px; font-size:0.7rem; font-weight:600;">30D</span>
-            </div>
-            
-            <div style="text-align:right; margin-right: 4px;">
-                <div style="font-size:0.75rem; color:#737373; margin-bottom:2px; font-weight:500;">Recorded PnL</div>
-                <div class="text-mono" style="color:{color_line}; font-weight:700; font-size:1.1rem; letter-spacing:-0.5px;">
-                    {pnl_sign}${pnl_diff:,.2f}{krw_pnl_html}
-                </div>
-            </div>
+            {pnl_sign}${pnl_diff:,.2f}{krw_pnl_html}
         </div>
     </div>
     """
     render_html(st, header_html)
 
-    # 4. Plotly Chart 설정
+    # ---------------------------
+    # 4. Plotly Chart 설정 (이미지 스타일 적용)
+    # ---------------------------
     fig = go.Figure()
     
     fig.add_trace(go.Scatter(
-        x=df['date'], 
-        y=df['equity'],
-        mode='lines', 
-        line=dict(color=color_line, width=2, shape='spline', smoothing=1.3),
+        x=filtered_df['date'], 
+        y=filtered_df['equity'],
+        mode='lines+markers', # 선과 마커(점) 모두 표시
+        line=dict(
+            color=main_color, 
+            width=2, 
+            shape='spline', # 부드러운 곡선
+            smoothing=1.0
+        ),
+        marker=dict(
+            size=4,
+            color=main_color,
+            symbol='circle'
+        ),
         fill='tozeroy', 
-        fillcolor=color_fill,
+        fillcolor=fill_color,
         hoverinfo='y+x',
-        hovertemplate='%{y:,.2f}<extra></extra>'
+        hovertemplate='<span style="color:#000">Date: %{x|%m-%d}<br>Equity: $%{y:,.2f}</span><extra></extra>'
     ))
+
+    # Y축 범위 계산 (여백 추가)
+    min_y = filtered_df['equity'].min()
+    max_y = filtered_df['equity'].max()
+    padding = (max_y - min_y) * 0.2 if max_y != min_y else max_y * 0.05
+    y_range = [min_y - padding, max_y + padding]
 
     fig.update_layout(
         template="plotly_dark",
-        paper_bgcolor='#141414',
+        paper_bgcolor='rgba(0,0,0,0)', # 배경 투명
         plot_bgcolor='rgba(0,0,0,0)',
-        margin=dict(l=0, r=0, t=10, b=20),
-        height=320,
+        margin=dict(l=40, r=20, t=50, b=30), # Header 공간(t=50) 확보
+        height=350,
         xaxis=dict(
-            showgrid=False, 
+            showgrid=False, # X축 격자 숨김
             showline=False,
             showticklabels=True,
-            tickformat="%-m-%d",
-            tickfont=dict(size=11, color="#525252", family="JetBrains Mono"),
-            ticks="",
-            nticks=5,
+            tickformat="%-d %b", # 예: 21 Dec
+            tickfont=dict(size=11, color="#848E9C", family="Inter"),
             fixedrange=True
         ),
         yaxis=dict(
-            showgrid=False, 
+            showgrid=True,       # Y축 격자 표시
+            gridcolor='#2B3139', # 아주 어두운 회색 (Dotted Line 효과용)
+            griddash='dot',      # 점선 스타일
+            gridwidth=1,
             showline=False,
-            showticklabels=False,
-            zeroline=False,
+            showticklabels=True,
+            tickfont=dict(size=11, color="#848E9C", family="Inter"),
             range=y_range,
-            fixedrange=True
+            fixedrange=True,
+            side='left'          # Y축 왼쪽 배치
         ),
         hovermode="x unified",
-        showlegend=False
-    )
-
-    fig.update_layout(
+        showlegend=False,
         hoverlabel=dict(
-            bgcolor="#1f1f1f",
-            bordercolor="#333",
-            font=dict(color="#fff", family="JetBrains Mono")
+            bgcolor="#1E2329",
+            bordercolor=main_color,
+            font=dict(color="#fff")
         )
     )
 
     st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False, 'staticPlot': False})
-    
-    # 5. 하단 테두리 마감
-    st.markdown("""
-        <div class="dashboard-card" style="
-            border-top:none; 
-            border-top-left-radius:0; 
-            border-top-right-radius:0; 
-            height:1px; 
-            margin-top:-6px; 
-            background: transparent !important;
-        "></div>
-    """, unsafe_allow_html=True)
