@@ -134,5 +134,5 @@ def render_chart(history_df, current_equity):
 
     # 5. 하단 테두리 마감
     st.markdown("""
-        <div class="dashboard-card" style="border-top:none; border-top-left-radius:0; border-top-right-radius:0; height:1px; margin-top:-6px;"></div>
+        <div class="dashboard-card" style="border-top:none; border-top-left-radius:0; border-top-right-radius:0; height:1px; margin-top:0px;"></div>
     """, unsafe_allow_html=True)
