@@ -45,7 +45,7 @@ html, body, .stApp {
 header[data-testid="stHeader"] { display: none; }
 
 /* gap 0은 겹침/클리핑 유발 가능 → 최소 간격 */
-div[data-testid="stVerticalBlock"] { gap: 0.25rem; }
+div[data-testid="stVerticalBlock"] { gap: 1.0rem; }
 
 /* 카드 */
 .dashboard-card {
