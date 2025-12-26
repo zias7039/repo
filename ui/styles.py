@@ -44,7 +44,7 @@ html, body, .stApp {
 
 /* 기본 헤더 숨김 */
 header[data-testid="stHeader"] { display: none; }
-div[data-testid="stVerticalBlock"] { gap: 0rem; }
+*div[data-testid="stVerticalBlock"] { gap: 0rem; }*
 
 /* 카드 스타일 (HyperDash: border-neutral-800) */
 .dashboard-card {
