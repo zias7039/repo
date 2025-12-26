@@ -113,6 +113,5 @@ div[data-testid="stPlotlyChart"] iframe {
 /* ✅ 어떤 컨테이너가 잘라먹는 경우 대비 (사용자 수정) */
 div[data-testid="stElementContainer"] {
     overflow: visible !important;
-}
 </style>
 """, unsafe_allow_html=True)
