@@ -91,7 +91,7 @@ div[data-testid="stVerticalBlock"] { gap: 0rem; }
 .table-row:hover { background-color: var(--bg-hover); }
 
 /* 탭 스타일 */
-div[data-testid="stTabs"] { gap: 0px; }
+*div[data-testid="stTabs"] { gap: 0px; }*
 div[data-testid="stTabs"] button {
     font-size: 0.85rem; color: var(--text-secondary); background: transparent; border: none; padding: 10px 20px;
     font-weight: 500; transition: color 0.2s;
