@@ -44,7 +44,7 @@ html, body, .stApp {
 /* 기본 헤더 숨김 */
 header[data-testid="stHeader"] { display: none; }
 
-/* ✅ (중요) gap 0은 겹침/클리핑 유발 → 최소 간격 부여 */
+/* gap 0은 겹침/클리핑 유발 가능 → 최소 간격 */
 div[data-testid="stVerticalBlock"] { gap: 0.25rem; }
 
 /* 카드 */
@@ -120,24 +120,12 @@ div[data-testid="stTabs"] button[aria-selected="true"] {
     border-bottom: 2px solid var(--color-up) !important;
 }
 
-/* ✅ Plotly 차트 잘림 방지 (강화판: iframe/내부 div 모두 커버) */
-div[data-testid="stPlotlyChart"],
-div[data-testid="stPlotlyChart"] > div,
-div[data-testid="stPlotlyChart"] .js-plotly-plot,
-div[data-testid="stPlotlyChart"] .plot-container,
-div[data-testid="stPlotlyChart"] .svg-container,
-div[data-testid="stPlotlyChart"] iframe {
-    min-height: 340px !important;
-    height: auto !important;
-    overflow: visible !important;
-}
+/* ✅ Tabs 안에서 panel overflow로 잘리는 케이스 방지 (1번만) */
+div[data-testid="stTabs"] [role="tabpanel"] { overflow: visible !important; }
 
-/* ✅ Tabs 안에서 panel overflow로 잘리는 케이스 방지 */
-div[data-testid="stTabs"] [role="tabpanel"] {
-    overflow: visible !important;
-}
-
-/* ===== PnL Chart Card ===== */
+/* =========================
+   PnL Chart Card
+   ========================= */
 .chart-card{
   padding: 16px 18px 14px 18px;
 }
@@ -203,22 +191,24 @@ div[data-testid="stTabs"] [role="tabpanel"] {
   font-weight:500;
 }
 
-/* Plotly 영역: 카드 내부에서 모양 안정화 */
+/* Plotly 영역: 카드 내부 전용(안정판) */
 .chart-card div[data-testid="stPlotlyChart"],
 .chart-card .stPlotlyChart{
   min-height: 300px !important;
-  overflow: visible !important;
 }
 
 .chart-card div[data-testid="stPlotlyChart"] > div,
 .chart-card .stPlotlyChart > div{
   border-radius: 8px;
-  overflow: hidden; /* ✅ 카드 안에서만 깔끔하게 클리핑 */
+  overflow: hidden; /* 카드 라운딩에 맞춰 깔끔하게 클리핑 */
 }
 
-/* Tabs 안 panel이 잘라먹는 경우 방지 */
-div[data-testid="stTabs"] [role="tabpanel"]{
-  overflow: visible !important;
+/* Plotly 내부 렌더 케이스별 높이 보장 */
+.chart-card .js-plotly-plot,
+.chart-card .plot-container,
+.chart-card .svg-container,
+.chart-card iframe{
+  min-height: 300px !important;
 }
 </style>
 """, unsafe_allow_html=True)
