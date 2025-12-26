@@ -42,81 +42,50 @@ html, body, .stApp {
 header[data-testid="stHeader"] { display: none; }
 div[data-testid="stVerticalBlock"] { gap: 0rem; }
 
-
-
 /* 카드 스타일 (HyperDash: border-neutral-800) */
 .dashboard-card {
-
     background-color: var(--bg-card);
-
     border: 1px solid var(--border-color);
-
     border-radius: var(--radius-md);
-
 }
 
 
-
 /* 텍스트 유틸리티 */
-
 .flex-between { display: flex; justify-content: space-between; align-items: center; }
-
 .label { font-size: 0.75rem; color: var(--text-secondary); font-weight: 500; }
-
 .value-xl { font-family: var(--font-mono); font-size: 1.5rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.03em; }
-
 .text-mono { font-family: var(--font-mono); }
-
 .text-up { color: var(--color-up) !important; }
-
 .text-down { color: var(--color-down) !important; }
 
 
 
 /* 뱃지 스타일 */
-
 .badge {
-
     padding: 2px 8px; border-radius: 9999px; /* rounded-full */
-
     font-size: 0.7rem; font-weight: 600; 
-
 }
 
 .badge-neutral { background: #262626; color: #a3a3a3; }
-
 .badge-up { background: rgba(61, 217, 149, 0.1); color: var(--color-up); }
-
 .badge-down { background: rgba(255, 77, 77, 0.1); color: var(--color-down); }
 
 
 
 /* 프로그레스 바 */
-
 .progress-bg {
-
     width: 100%; height: 6px; background: #1a1a1a; border-radius: 3px; overflow: hidden; margin-top: 8px;
-
 }
-
 .progress-fill { height: 100%; }
 
-
-
 /* 테이블 스타일 */
-
 .table-header {
-
     display: flex; padding: 12px 20px; border-bottom: 1px solid var(--border-color);
-
     font-size: 0.75rem; color: var(--text-secondary); font-weight: 500;
-
 }
 
 .table-row {
-
     display: flex; padding: 14px 20px; align-items: center; 
-
     border-bottom: 1px solid var(--border-color); transition: background 0.1s;
 }
 .table-row:last-child { border-bottom: none; }
