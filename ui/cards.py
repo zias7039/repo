@@ -2,16 +2,23 @@
 import streamlit as st
 from utils.format import render_html, fnum
 
-def render_top_bar(total_equity, available, leverage, next_refresh="20s"):
+def render_top_bar(total_equity, available, leverage, next_refresh="20s", usdt_rate=None):
+    # KRW 환산 헬퍼
+    def to_krw(val):
+        return f"<span style='font-size:0.9rem; color:#737373; margin-left:6px; font-weight:500;'>≈₩{val*usdt_rate:,.0f}</span>" if usdt_rate else ""
+
+    # 환율 표시 HTML
+    rate_display = f"<div style='font-size:0.8rem; color:#f5f5f5; font-weight:600; margin-bottom:4px;'>1 USDT ≈ {usdt_rate:,.0f} KRW</div>" if usdt_rate else ""
+
     html = f"""
     <div style="display:flex; gap:40px; margin-bottom:24px; align-items:flex-start; padding: 0 4px;">
         <div>
             <div class="label" style="margin-bottom:4px;">Total Value <span class="badge badge-neutral" style="margin-left:4px;">Combined</span></div>
-            <div class="value-xl">${total_equity:,.2f}</div>
+            <div class="value-xl">${total_equity:,.2f}{to_krw(total_equity)}</div>
         </div>
         <div>
             <div class="label" style="margin-bottom:4px;">Withdrawable</div>
-            <div class="value-xl">${available:,.2f}</div>
+            <div class="value-xl">${available:,.2f}{to_krw(available)}</div>
             <div style="font-size:0.7rem; color:var(--text-tertiary); margin-top:2px;">74.5% Free Margin</div>
         </div>
         <div>
@@ -22,6 +29,7 @@ def render_top_bar(total_equity, available, leverage, next_refresh="20s"):
             <div style="font-size:0.7rem; color:var(--text-tertiary); margin-top:2px;">Notional: ${(total_equity * leverage):,.2f}</div>
         </div>
         <div style="flex-grow:1; text-align:right; padding-top:4px;">
+             {rate_display}
              <div style="font-size:0.75rem; color:var(--text-secondary);">Auto-refresh in {next_refresh}</div>
              <div style="color:var(--color-up); font-size:0.8rem; font-weight:500; cursor:pointer; margin-top:4px;">System Online</div>
         </div>
@@ -29,7 +37,7 @@ def render_top_bar(total_equity, available, leverage, next_refresh="20s"):
     """
     render_html(st, html)
 
-def render_left_summary(perp_equity, margin_usage, unrealized_pnl, roe_pct, positions):
+def render_left_summary(perp_equity, margin_usage, unrealized_pnl, roe_pct, positions, usdt_rate=None):
     # Delta Logic
     long_delta = sum(fnum(p.get('marginSize', 0)) * fnum(p.get('leverage', 0)) for p in positions if str(p.get('holdSide')).upper() == 'LONG')
     short_delta = sum(fnum(p.get('marginSize', 0)) * fnum(p.get('leverage', 0)) for p in positions if str(p.get('holdSide')).upper() == 'SHORT')
@@ -48,11 +56,19 @@ def render_left_summary(perp_equity, margin_usage, unrealized_pnl, roe_pct, posi
     pnl_cls = "text-up" if unrealized_pnl >= 0 else "text-down"
     pnl_sign = "+" if unrealized_pnl >= 0 else ""
 
+    # [수정] KRW 문자열 생성
+    krw_equity = f"<span style='font-size:0.9rem; color:#737373; margin-left:6px; font-weight:500;'>≈₩{perp_equity*usdt_rate:,.0f}</span>" if usdt_rate else ""
+    krw_pnl = ""
+    if usdt_rate:
+        val = abs(unrealized_pnl * usdt_rate)
+        s_sign = "+" if unrealized_pnl >= 0 else "-"
+        krw_pnl = f"<div style='font-size:0.8rem; color:#737373; margin-top:2px;'>≈{s_sign}₩{val:,.0f}</div>"
+
     html = f"""
     <div class="dashboard-card" style="height:400px; padding:24px; display:flex; flex-direction:column; justify-content:space-between;">
         <div>
             <div class="label">Perp Equity</div>
-            <div class="value-xl">${perp_equity:,.2f}</div>
+            <div class="value-xl">${perp_equity:,.2f}{krw_equity}</div>
             
             <div class="flex-between" style="margin-top:16px;">
                 <span class="label">Margin Usage</span>
@@ -90,6 +106,7 @@ def render_left_summary(perp_equity, margin_usage, unrealized_pnl, roe_pct, posi
             <div class="value-xl {pnl_cls}" style="margin-top:4px;">
                 {pnl_sign}${unrealized_pnl:,.2f}
             </div>
+            {krw_pnl}
         </div>
     </div>
     """
