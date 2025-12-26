@@ -19,7 +19,7 @@ def render_chart(history_df, current_equity):
             
     df['date'] = pd.to_datetime(df['date'])
 
-    # 2. PnL 계산 및 Y축 범위 설정 (Zoom-in 강화)
+    # 2. PnL 및 Y축 범위 계산
     start_val = df['equity'].iloc[0]
     end_val = df['equity'].iloc[-1]
     is_profit = end_val >= start_val
@@ -27,10 +27,9 @@ def render_chart(history_df, current_equity):
     min_y = df['equity'].min()
     max_y = df['equity'].max()
     
-    # [수정] 위아래 여백을 20%로 늘려 라인이 중앙에 오도록 함
-    padding = (max_y - min_y) * 0.2 
+    # [수정] 위아래 여백 15%로 조정
+    padding = (max_y - min_y) * 0.15
     if padding == 0: padding = max_y * 0.05
-    
     y_range = [min_y - padding, max_y + padding]
     
     color_line = "#3dd995" if is_profit else "#ff4d4d"
@@ -39,16 +38,17 @@ def render_chart(history_df, current_equity):
     pnl_diff = end_val - start_val
     pnl_sign = "+" if pnl_diff >= 0 else ""
 
-    # 3. Header HTML (우측 강제 여백 추가)
-    # style="... padding-right: 16px;" 추가하여 텍스트가 잘리는 것을 방지
+    # 3. Header HTML (구조 개선)
+    # - width: 100% 및 box-sizing 명시
+    # - 우측 텍스트 컨테이너에 margin-right: 20px를 강제로 주어 잘림 방지
     header_html = f"""
-    <div class="dashboard-card" style="border-bottom:none; border-bottom-left-radius:0; border-bottom-right-radius:0; padding:20px 24px 0 24px; background:var(--bg-card);">
-        <div class="flex-between" style="align-items: flex-start;">
+    <div class="dashboard-card" style="border-bottom:none; border-bottom-left-radius:0; border-bottom-right-radius:0; padding:20px 24px 0 24px; background:var(--bg-card); box-sizing: border-box;">
+        <div class="flex-between" style="align-items: flex-start; width: 100%;">
             <div style="display:flex; gap:8px; align-items:center;">
                 <span style="font-size:0.95rem; font-weight:600; color:#f5f5f5;">PnL History</span>
                 <span style="background:#262626; color:#737373; padding:2px 8px; border-radius:12px; font-size:0.7rem; font-weight:600;">30D</span>
             </div>
-            <div style="text-align:right; padding-right: 12px;"> <div style="font-size:0.75rem; color:#737373; margin-bottom:2px; font-weight:500;">Recorded PnL</div>
+            <div style="text-align:right; margin-right: 4px;"> <div style="font-size:0.75rem; color:#737373; margin-bottom:2px; font-weight:500;">Recorded PnL</div>
                 <div class="text-mono" style="color:{color_line}; font-weight:700; font-size:1.1rem; letter-spacing:-0.5px;">
                     {pnl_sign}${pnl_diff:,.2f}
                 </div>
@@ -65,7 +65,7 @@ def render_chart(history_df, current_equity):
         x=df['date'], 
         y=df['equity'],
         mode='lines', 
-        line=dict(color=color_line, width=2),
+        line=dict(color=color_line, width=2, shape='spline', smoothing=1.3), # [수정] 부드러운 곡선(spline) 적용
         fill='tozeroy', 
         fillcolor=color_fill,
         hoverinfo='y+x',
@@ -76,7 +76,7 @@ def render_chart(history_df, current_equity):
         template="plotly_dark",
         paper_bgcolor='#141414',
         plot_bgcolor='rgba(0,0,0,0)',
-        margin=dict(l=0, r=0, t=10, b=20), # 상단 여백 줄임 (헤더와 더 가까이)
+        margin=dict(l=0, r=0, t=10, b=20),
         height=320,
         xaxis=dict(
             showgrid=False, 
@@ -93,7 +93,7 @@ def render_chart(history_df, current_equity):
             showline=False,
             showticklabels=False,
             zeroline=False,
-            range=y_range, # 계산된 범위 적용
+            range=y_range,
             fixedrange=True
         ),
         hovermode="x unified",
@@ -110,6 +110,7 @@ def render_chart(history_df, current_equity):
 
     st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False, 'staticPlot': False})
     
+    # 5. 하단 테두리 마감
     st.markdown("""
         <div class="dashboard-card" style="border-top:none; border-top-left-radius:0; border-top-right-radius:0; height:1px; margin-top:-6px;"></div>
     """, unsafe_allow_html=True)
