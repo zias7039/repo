@@ -13,6 +13,7 @@ def render_chart(history_df, current_equity):
         last_date = str(df['date'].iloc[-1])
         today_str = pd.Timestamp.now().strftime('%Y-%m-%d')
         
+        # 오늘 날짜 데이터가 없으면 현재 equity로 임시 추가 (차트 표시용)
         if last_date != today_str:
             new_row = pd.DataFrame({'date': [today_str], 'equity': [current_equity]})
             df = pd.concat([df, new_row], ignore_index=True)
