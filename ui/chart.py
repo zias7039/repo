@@ -10,35 +10,42 @@ def render_chart(history_df, current_equity, usdt_rate=None):
         df = pd.DataFrame({'date': [pd.Timestamp.now().strftime('%Y-%m-%d')], 'equity': [current_equity]})
     else:
         df = history_df.copy()
-        last_date = str(df['date'].iloc[-1])
+
+        # ✅ 날짜 비교 정상화
+        last_date = pd.to_datetime(df['date'].iloc[-1]).strftime('%Y-%m-%d')
         today_str = pd.Timestamp.now().strftime('%Y-%m-%d')
-        
+
         if last_date != today_str:
             new_row = pd.DataFrame({'date': [today_str], 'equity': [current_equity]})
             df = pd.concat([df, new_row], ignore_index=True)
-            
+
     df['date'] = pd.to_datetime(df['date'])
+
+    # ✅ x축 패딩(끝 잘림 방지)
+    x_min, x_max = df['date'].min(), df['date'].max()
+    x_pad = max(pd.Timedelta(hours=12), (x_max - x_min) * 0.02)
+    x_range = [x_min - x_pad, x_max + x_pad]
 
     # 2. PnL 및 Y축 범위 계산
     start_val = df['equity'].iloc[0]
     end_val = df['equity'].iloc[-1]
     is_profit = end_val >= start_val
-    
+
     min_y = df['equity'].min()
     max_y = df['equity'].max()
-    
-    # 위아래 여백 15%
+
     padding = (max_y - min_y) * 0.15
-    if padding == 0: padding = max_y * 0.05
+    if padding == 0:
+        padding = max_y * 0.05
     y_range = [min_y - padding, max_y + padding]
-    
+
     color_line = "#3dd995" if is_profit else "#ff4d4d"
     color_fill = "rgba(61, 217, 149, 0.1)" if is_profit else "rgba(255, 77, 77, 0.1)"
-    
+
     pnl_diff = end_val - start_val
     pnl_sign = "+" if pnl_diff >= 0 else ""
-    
-    # [추가] KRW PnL 표시
+
+    # KRW PnL
     krw_pnl_html = ""
     if usdt_rate:
         val_krw = abs(pnl_diff * usdt_rate)
@@ -66,7 +73,7 @@ def render_chart(history_df, current_equity, usdt_rate=None):
                 <span style="font-size:0.95rem; font-weight:600; color:#f5f5f5;">PnL History</span>
                 <span style="background:#262626; color:#737373; padding:2px 8px; border-radius:12px; font-size:0.7rem; font-weight:600;">30D</span>
             </div>
-            
+
             <div style="text-align:right; margin-right: 4px;">
                 <div style="font-size:0.75rem; color:#737373; margin-bottom:2px; font-weight:500;">Recorded PnL</div>
                 <div class="text-mono" style="color:{color_line}; font-weight:700; font-size:1.1rem; letter-spacing:-0.5px;">
@@ -78,38 +85,38 @@ def render_chart(history_df, current_equity, usdt_rate=None):
     """
     render_html(st, header_html)
 
-    # 4. Plotly Chart 설정
+    # 4. Plotly Chart
     fig = go.Figure()
-    
     fig.add_trace(go.Scatter(
-        x=df['date'], 
+        x=df['date'],
         y=df['equity'],
-        mode='lines', 
+        mode='lines',
         line=dict(color=color_line, width=2, shape='spline', smoothing=1.3),
-        fill='tozeroy', 
+        fill='tozeroy',
         fillcolor=color_fill,
-        hoverinfo='y+x',
-        hovertemplate='%{y:,.2f}<extra></extra>'
+        hovertemplate='%{x|%Y-%m-%d}<br>%{y:,.2f}<extra></extra>'
     ))
 
     fig.update_layout(
         template="plotly_dark",
         paper_bgcolor='#141414',
         plot_bgcolor='rgba(0,0,0,0)',
-        margin=dict(l=0, r=0, t=10, b=20),
+        # ✅ 좌우 여백 살짝
+        margin=dict(l=8, r=8, t=10, b=20),
         height=320,
         xaxis=dict(
-            showgrid=False, 
+            showgrid=False,
             showline=False,
             showticklabels=True,
             tickformat="%-m-%d",
             tickfont=dict(size=11, color="#525252", family="JetBrains Mono"),
             ticks="",
             nticks=5,
-            fixedrange=True
+            fixedrange=True,
+            range=x_range,   # ✅ 끝 잘림 방지
         ),
         yaxis=dict(
-            showgrid=False, 
+            showgrid=False,
             showline=False,
             showticklabels=False,
             zeroline=False,
@@ -117,10 +124,7 @@ def render_chart(history_df, current_equity, usdt_rate=None):
             fixedrange=True
         ),
         hovermode="x unified",
-        showlegend=False
-    )
-
-    fig.update_layout(
+        showlegend=False,
         hoverlabel=dict(
             bgcolor="#1f1f1f",
             bordercolor="#333",
@@ -128,8 +132,8 @@ def render_chart(history_df, current_equity, usdt_rate=None):
         )
     )
 
-    st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False, 'staticPlot': False})
-    
+    st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
+
     # 5. 하단 테두리 마감
     st.markdown("""
         <div class="dashboard-card" style="
