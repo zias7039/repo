@@ -127,26 +127,26 @@ div[data-testid="stTabs"] [role="tabpanel"] { overflow: visible !important; }
    PnL Chart Card
    ========================= */
 .chart-card{
-  padding: 16px 18px 14px 18px;
+  padding: 0; /* 카드 자체 패딩 제거 -> 영역을 헤더/바디가 담당 */
 }
 
-/* 헤더 영역 */
+/* 헤더 */
 .chart-head{
-  padding: 2px 6px 12px 6px;
-  border-bottom: 1px solid var(--border-color);
-  margin-bottom: 10px;
+  padding: 14px 16px 12px 16px;  /* ✅ 모서리 붙는 느낌 제거 */
+  border-bottom: 1px solid rgba(38,38,38,0.55); /* ✅ 선을 조금 연하게 */
+  margin: 0; /* ✅ 불필요한 간격 제거 */
 }
 
 .chart-head-grid{
   display: grid;
   grid-template-columns: 1fr auto;
-  align-items: start;
+  align-items: center;  /* ✅ 수직 정렬 안정화 */
   column-gap: 12px;
 }
 
 .chart-left{
   display:flex;
-  gap:8px;
+  gap:10px;
   align-items:center;
 }
 
@@ -154,13 +154,14 @@ div[data-testid="stTabs"] [role="tabpanel"] { overflow: visible !important; }
   font-size:0.95rem;
   font-weight:600;
   color: var(--text-primary);
+  line-height: 1.2;
 }
 
 .chart-badge{
   background:#262626;
-  color:#737373;
+  color:#8a8a8a;
   padding:2px 8px;
-  border-radius:12px;
+  border-radius:999px;
   font-size:0.7rem;
   font-weight:600;
 }
@@ -169,7 +170,7 @@ div[data-testid="stTabs"] [role="tabpanel"] { overflow: visible !important; }
 
 .chart-label{
   font-size:0.75rem;
-  color:#737373;
+  color:#8a8a8a;
   margin-bottom:2px;
   font-weight:500;
 }
@@ -179,6 +180,7 @@ div[data-testid="stTabs"] [role="tabpanel"] { overflow: visible !important; }
   font-weight:700;
   font-size:1.1rem;
   letter-spacing:-0.5px;
+  line-height: 1.15;
   display:flex;
   justify-content:flex-end;
   gap:8px;
@@ -186,21 +188,22 @@ div[data-testid="stTabs"] [role="tabpanel"] { overflow: visible !important; }
 }
 
 .chart-krw{
-  font-size:0.9rem;
-  color:#737373;
+  font-size:0.85rem;
+  color:#8a8a8a;
   font-weight:500;
 }
 
-/* Plotly 영역: 카드 내부 전용(안정판) */
+/* ✅ 차트 영역에 “카드 안쪽 여백” 만들기 */
 .chart-card div[data-testid="stPlotlyChart"],
 .chart-card .stPlotlyChart{
+  padding: 10px 12px 12px 12px;  /* ✅ 차트가 너무 꽉 차 보이는 문제 해결 */
   min-height: 300px !important;
 }
 
 .chart-card div[data-testid="stPlotlyChart"] > div,
 .chart-card .stPlotlyChart > div{
-  border-radius: 8px;
-  overflow: hidden; /* 카드 라운딩에 맞춰 깔끔하게 클리핑 */
+  border-radius: 10px;
+  overflow: hidden; /* ✅ 라운딩에 맞춰 깔끔하게 클리핑 */
 }
 
 /* Plotly 내부 렌더 케이스별 높이 보장 */
