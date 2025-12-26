@@ -137,7 +137,7 @@ def render_chart(history_df, current_equity, usdt_rate=None):
             border-top-left-radius:0; 
             border-top-right-radius:0; 
             height:1px; 
-            margin-top:-6px; 
+            margin-top: 0px; 
             background: transparent !important;
         "></div>
     """, unsafe_allow_html=True)
