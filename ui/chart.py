@@ -103,7 +103,7 @@ def render_chart(history_df, current_equity, usdt_rate=None):
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
         # ✅ 카드 안에서 여백은 CSS로 관리
-        margin=dict(l=0, r=0, t=0, b=0),
+        margin=dict(l=6, r=6, t=6, b=18),
         height=300,
         xaxis=dict(
             showgrid=False,
