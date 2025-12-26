@@ -21,52 +21,30 @@ def inject(st):
     --radius-md: 8px; /* rounded-lg */
 }
 
-
-
 html, body, .stApp {
-
     background-color: var(--bg-app) !important;
-
     font-family: var(--font-base);
-
     color: var(--text-primary);
-
     letter-spacing: -0.01em;
-
 }
-
-
 
 /* [핵심 수정] 폭 1278px 고정 및 중앙 정렬 */
-
 .main .block-container {
-
     max-width: 1278px !important;
-
     padding-top: 2rem !important;
-
     padding-bottom: 3rem !important;
-
     padding-left: 1rem !important;
-
     padding-right: 1rem !important;
-
     margin: auto; /* 중앙 정렬 */
-
 }
 
-
-
 /* 기본 헤더 숨김 */
-
 header[data-testid="stHeader"] { display: none; }
-
-*div[data-testid="stVerticalBlock"] { gap: 0rem; }*
+div[data-testid="stVerticalBlock"] { gap: 0rem; }
 
 
 
 /* 카드 스타일 (HyperDash: border-neutral-800) */
-
 .dashboard-card {
 
     background-color: var(--bg-card);
