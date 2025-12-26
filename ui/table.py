@@ -2,13 +2,14 @@
 import streamlit as st
 from utils.format import render_html, normalize_symbol, fnum, safe_pct
 
-def render_bottom_section(st, positions, nav_data):
+def render_bottom_section(st, positions, nav_data, usdt_rate=None):
     st.markdown('<div style="margin-top:24px;"></div>', unsafe_allow_html=True)
     
     tab1, tab2, tab3 = st.tabs(["Positions", "Investors", "Orders"])
     
     with tab1: _render_positions(positions)
-    with tab2: _render_investors(nav_data)
+    # [수정] usdt_rate 전달
+    with tab2: _render_investors(nav_data, usdt_rate)
     with tab3: st.info("No open orders.")
 
 def _render_positions(positions):
@@ -65,7 +66,7 @@ def _render_positions(positions):
         """
     render_html(st, header + rows + "</div>")
 
-def _render_investors(nav_data):
+def _render_investors(nav_data, usdt_rate=None):
     investors = nav_data.get("investors", {})
     current_nav = nav_data.get("nav", 1.0)
     total_units = nav_data.get("total_units", 1.0)
@@ -85,6 +86,12 @@ def _render_investors(nav_data):
         val_usd = units * current_nav
         initial = name.split()[-1][0] if " " in name else name[0]
         
+        # [추가] KRW 표시
+        krw_html = ""
+        if usdt_rate:
+            val_krw = val_usd * usdt_rate
+            krw_html = f"<div style='font-size:0.75rem; color:#525252; margin-top:2px;'>≈₩{val_krw:,.0f}</div>"
+        
         rows += f"""
         <div class="table-row">
             <div style="flex:1.5; display:flex; align-items:center; gap:12px;">
@@ -93,7 +100,10 @@ def _render_investors(nav_data):
             </div>
             <div style="flex:1.2; text-align:right;"><span class="text-mono" style="color:var(--text-secondary);">{units:,.2f}</span></div>
             <div style="flex:1.2; text-align:right;"><span class="text-mono text-up">{pct:.1f}%</span></div>
-            <div style="flex:1.5; text-align:right;"><span class="text-mono" style="font-weight:600; color:var(--text-primary);">${val_usd:,.2f}</span></div>
+            <div style="flex:1.5; text-align:right;">
+                <div class="text-mono" style="font-weight:600; color:var(--text-primary);">${val_usd:,.2f}</div>
+                {krw_html}
+            </div>
         </div>
         """
     footer = f"""<div style="padding:12px 20px; background:#141414; border-top:1px solid var(--border-color); text-align:right; font-size:0.75rem; color:var(--text-tertiary);">Current NAV: <span class="text-mono" style="color:#fff;">${current_nav:,.4f}</span></div></div>"""
