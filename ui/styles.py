@@ -7,17 +7,17 @@ def inject(st):
 
 :root {
     /* HyperDash Original Palette */
-    --bg-app: #0f0f0f;       /* 메인 배경 (Deep Dark) */
-    --bg-card: #141414;      /* 카드/네비게이션 배경 */
-    --bg-hover: #1f1f1f;     /* 호버 효과 */
-    --border-color: #262626; /* neutral-800 (테두리) */
+    --bg-app: #0f0f0f;        /* 메인 배경 (Deep Dark) */
+    --bg-card: #141414;       /* 카드/네비게이션 배경 */
+    --bg-hover: #1f1f1f;      /* 호버 효과 */
+    --border-color: #262626;  /* neutral-800 (테두리) */
     
     --text-primary: #f5f5f5;   /* neutral-100 */
     --text-secondary: #a3a3a3; /* neutral-400 */
     --text-tertiary: #525252;  /* neutral-600 */
     
-    --color-up: #3dd995;     /* Emerald/Green */
-    --color-down: #ff4d4d;   /* Red */
+    --color-up: #3dd995;      /* Emerald/Green */
+    --color-down: #ff4d4d;    /* Red */
     
     --font-base: 'Inter', sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
@@ -44,7 +44,9 @@ html, body, .stApp {
 
 /* 기본 헤더 숨김 */
 header[data-testid="stHeader"] { display: none; }
-*div[data-testid="stVerticalBlock"] { gap: 0rem; }*
+
+/* [사용자 수정] 수직 블록 간격 제거 */
+div[data-testid="stVerticalBlock"] { gap: 0rem; }
 
 /* 카드 스타일 (HyperDash: border-neutral-800) */
 .dashboard-card {
@@ -100,17 +102,17 @@ div[data-testid="stTabs"] button[aria-selected="true"] {
     border-bottom: 2px solid var(--color-up) !important;
 }
 
-/* ✅ Plotly 차트 잘림 방지 (추가) */
+/* [사용자 수정] Plotly 차트 및 컨테이너 잘림 방지 (핵심 해결책) */
 div[data-testid="stPlotlyChart"],
 div[data-testid="stPlotlyChart"] > div,
 div[data-testid="stPlotlyChart"] iframe {
-  min-height: 340px !important;
-  overflow: visible !important;
+    min-height: 340px !important;
+    overflow: visible !important;
 }
 
-/* ✅ 어떤 컨테이너가 잘라먹는 경우 대비 */
-div[data-testid="stElementContainer"]{
-  overflow: visible !important;
+div[data-testid="stElementContainer"] {
+    overflow: visible !important;
+}
 
 </style>
 """, unsafe_allow_html=True)
