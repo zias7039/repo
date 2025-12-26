@@ -36,6 +36,9 @@ def main():
     pos_data, _ = fetch_positions(api_key, api_secret, passphrase, PRODUCT_TYPE, MARGIN_COIN)
     acct_data, _ = fetch_account(api_key, api_secret, passphrase, PRODUCT_TYPE, MARGIN_COIN)
     
+    # [추가] USDT 환율 조회
+    usdt_rate = fetch_usdt_krw()
+
     # Metrics
     available = fnum(acct_data.get("available")) if acct_data else 0.0
     equity = fnum(acct_data.get("usdtEquity")) if acct_data else available
@@ -52,15 +55,16 @@ def main():
     nav_data = get_nav_metrics(equity, history_df)
 
     # 3. Layout Render
-    render_top_bar(equity, available, leverage)
+    # [수정] usdt_rate 전달
+    render_top_bar(equity, available, leverage, usdt_rate=usdt_rate)
     
     c1, c2 = st.columns([1, 3])
     with c1:
-        render_left_summary(equity, usage_pct, upl_pnl, roe, pos_data)
+        render_left_summary(equity, usage_pct, upl_pnl, roe, pos_data, usdt_rate=usdt_rate)
     with c2:
-        render_chart(history_df, equity)
+        render_chart(history_df, equity, usdt_rate=usdt_rate)
 
-    render_bottom_section(st, pos_data, nav_data)
+    render_bottom_section(st, pos_data, nav_data, usdt_rate=usdt_rate)
     
     time.sleep(10)
     st.rerun()
