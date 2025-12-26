@@ -99,5 +99,6 @@ div[data-testid="stPlotlyChart"] iframe {
 /* [수정 2] 닫는 중괄호(}) 추가 */
 div[data-testid="stElementContainer"] {
     overflow: visible !important;
+}
 </style>
 """, unsafe_allow_html=True)
