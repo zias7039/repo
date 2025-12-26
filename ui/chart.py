@@ -38,10 +38,9 @@ def render_chart(history_df, current_equity):
     pnl_diff = end_val - start_val
     pnl_sign = "+" if pnl_diff >= 0 else ""
 
-    # 3. Header HTML (Grid Layout 적용 + 강제 여백)
-    # [해결책 1] display: grid를 사용하여 좌우 공간을 물리적으로 분할 (밀림 방지)
-    # [해결책 2] box-sizing: border-box를 추가하여 패딩 때문에 카드가 커지는 현상 차단
-    # [해결책 3] margin-right: 4px를 추가하여 텍스트가 카드 끝에 닿지 않도록 안전거리 확보
+    # 3. Header HTML (Grid Layout 적용 - Flex 제거됨)
+    # [핵심] class="flex-between"을 삭제하고 display: grid로 교체했습니다.
+    # 이제 우측 텍스트가 절대 밀려나지 않습니다.
     header_html = f"""
     <div class="dashboard-card" style="
         border-bottom:none; 
