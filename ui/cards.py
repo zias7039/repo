@@ -99,8 +99,10 @@ def render_left_summary(perp_equity, margin_usage, unrealized_pnl, roe_pct, posi
         
         <div style="border-top:1px solid var(--border-color); padding-top:20px;">
             <div class="flex-between">
-                              <span class="label">미실현 손익</span>                 <span class="{pnl_cls} text-mono" style="font-size:0.9rem; font-weight:600;">{pnl_sign}{roe_pct:.2f}% 수익률</span>/div>
-            <div class="value-xl {pnl_cls}" style="margin-top:4px;">
+                              <span class="label">미실현 손익</span>                 
+                              <span class="{pnl_cls} text-mono" style="font-size:0.9rem; font-weight:600;">{pnl_sign}{roe_pct:.2f}% 수익률</span>
+                            </div>
+                    <div class="value-xl {pnl_cls}" style="margin-top:4px;">
                 {pnl_sign}${unrealized_pnl:,.2f}
             </div>
             {krw_pnl}
