@@ -78,7 +78,7 @@ def render_chart(history_df, current_equity, usdt_rate=None):
         pointer-events: none; /* 차트 인터랙션 방해 금지 */
     ">
         <div style="font-size:0.8rem; color:#848E9C; font-weight:500; margin-bottom:4px;">
-            {timeframemefram} 통합 손익  
+            {timeframeme} 통합 손익  
         </div>
         <div class="text-mono" style="
             color: {main_color}; 
