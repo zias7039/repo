@@ -13,25 +13,25 @@ def render_top_bar(total_equity, available, leverage, next_refresh="20s", usdt_r
     html = f"""
     <div style="display:flex; gap:40px; margin-bottom:24px; align-items:flex-start; padding: 0 4px;">
         <div>
-            <div class="label" style="margin-bottom:4px;">Total Value <span class="badge badge-neutral" style="margin-left:4px;">Combined</span></div>
+            <div class="label" style="margin-bottom:4px;">총 자산 <span class="badge badge-neutral" style="margin-left:4px;">통합</span></div>
             <div class="value-xl">${total_equity:,.2f}{to_krw(total_equity)}</div>
         </div>
         <div>
-            <div class="label" style="margin-bottom:4px;">Withdrawable</div>
+            <div class="label" style="margin-bottom:4px;">출금 가능 금액</div>
             <div class="value-xl">${available:,.2f}{to_krw(available)}</div>
-            <div style="font-size:0.7rem; color:var(--text-tertiary); margin-top:2px;">74.5% Free Margin</div>
+            <div style="font-size:0.7rem; color:var(--text-tertiary); margin-top:2px;">여유 증거금 비중: 74.5%</div>
         </div>
         <div>
-            <div class="label" style="margin-bottom:4px;">Leverage</div>
+            <div class="label" style="margin-bottom:4px;">레버리지</div>
             <div class="value-xl" style="display:flex; align-items:center; gap:8px;">
-                {leverage:.2f}x <span class="badge badge-up">Active</span>
+                {leverage:.2f}x <span class="badge badge-up">활성</span>
             </div>
-            <div style="font-size:0.7rem; color:var(--text-tertiary); margin-top:2px;">Notional: ${(total_equity * leverage):,.2f}</div>
+            <div style="font-size:0.7rem; color:var(--text-tertiary); margin-top:2px;">명목 가치: ${(total_equity * leverage):,.2f}</div>
         </div>
         <div style="flex-grow:1; text-align:right; padding-top:4px;">
              {rate_display}
-             <div style="font-size:0.75rem; color:var(--text-secondary);">Auto-refresh in {next_refresh}</div>
-             <div style="color:var(--color-up); font-size:0.8rem; font-weight:500; cursor:pointer; margin-top:4px;">System Online</div>
+             <div style="font-size:0.75rem; color:var(--text-secondary);">{next_refresh} 후 갱신</div>
+             <div style="color:var(--color-up); font-size:0.8rem; font-weight:500; cursor:pointer; margin-top:4px;">시스템 정상</div>
         </div>
     </div>
     """
@@ -47,9 +47,9 @@ def render_left_summary(perp_equity, margin_usage, unrealized_pnl, roe_pct, posi
     equity_base = perp_equity if perp_equity > 0 else 1.0
     delta_ratio = net_delta / equity_base
 
-    if delta_ratio > 0.05: bias_text, bias_color, bias_badge = "LONG", "var(--color-up)", "badge-up"
-    elif delta_ratio < -0.05: bias_text, bias_color, bias_badge = "SHORT", "var(--color-down)", "badge-down"
-    else: bias_text, bias_color, bias_badge = "NEUTRAL", "var(--text-secondary)", "badge-neutral"
+    if delta_ratio > 0.05: bias_text, bias_color, bias_badge = "롱(매수)", "var(--color-up)", "badge-up"
+    elif delta_ratio < -0.05: bias_text, bias_color, bias_badge = "숏(매도)", "var(--color-down)", "badge-down"
+    else: bias_text, bias_color, bias_badge = "중립", "var(--text-secondary)", "badge-neutral"
 
     long_pct = (long_delta / total_exposure * 100) if total_exposure > 0 else 0
     short_pct = (short_delta / total_exposure * 100) if total_exposure > 0 else 0
@@ -67,11 +67,10 @@ def render_left_summary(perp_equity, margin_usage, unrealized_pnl, roe_pct, posi
     html = f"""
     <div class="dashboard-card" style="height:400px; padding:24px; display:flex; flex-direction:column; justify-content:space-between;">
         <div>
-            <div class="label">Perp Equity</div>
+            <div class="label">선물 자산</div>
             <div class="value-xl">${perp_equity:,.2f}{krw_equity}</div>
-            
             <div class="flex-between" style="margin-top:16px;">
-                <span class="label">Margin Usage</span>
+                <span class="label">증거금 사용률률</span>
                 <span class="text-mono" style="font-size:0.85rem; color:var(--text-primary);">{margin_usage:.2f}%</span>
             </div>
             <div class="progress-bg">
@@ -81,11 +80,11 @@ def render_left_summary(perp_equity, margin_usage, unrealized_pnl, roe_pct, posi
         
         <div style="border-top:1px solid var(--border-color); padding-top:20px;">
             <div class="flex-between">
-                <span class="label">Direction Bias</span>
+                <span class="label">포지션 방향성</span>
                 <span class="badge {bias_badge}">{bias_text}</span>
             </div>
             <div class="flex-between" style="margin-top:8px;">
-                <span class="label">Net Exposure</span>
+                <span class="label">순 노출도</span>
                 <span class="text-mono" style="color:{bias_color}; font-size:0.9rem; font-weight:600;">{(delta_ratio*100):+.2f}%</span>
             </div>
             <div class="progress-bg" style="display:flex; background:#1a1a1a; height:6px; margin-top:10px;">
@@ -100,9 +99,7 @@ def render_left_summary(perp_equity, margin_usage, unrealized_pnl, roe_pct, posi
         
         <div style="border-top:1px solid var(--border-color); padding-top:20px;">
             <div class="flex-between">
-                <span class="label">Unrealized PnL</span>
-                <span class="{pnl_cls} text-mono" style="font-size:0.9rem; font-weight:600;">{pnl_sign}{roe_pct:.2f}% ROE</span>
-            </div>
+                              <span class="label">미실현 손익</span>                 <span class="{pnl_cls} text-mono" style="font-size:0.9rem; font-weight:600;">{pnl_sign}{roe_pct:.2f}% 수익률</span>/div>
             <div class="value-xl {pnl_cls}" style="margin-top:4px;">
                 {pnl_sign}${unrealized_pnl:,.2f}
             </div>
