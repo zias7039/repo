@@ -5,24 +5,24 @@ from utils.format import render_html, normalize_symbol, fnum, safe_pct
 def render_bottom_section(st, positions, nav_data, usdt_rate=None):
     st.markdown('<div style="margin-top:24px;"></div>', unsafe_allow_html=True)
     
-    tab1, tab2, tab3 = st.tabs(["Positions", "Investors", "Orders"])
+    tab1, tab2, tab3 = st.tabs(["보유 포지션", "투자자 현황", "주문 내역"])
     
     with tab1: _render_positions(positions)
     # [수정] usdt_rate 전달
     with tab2: _render_investors(nav_data, usdt_rate)
-    with tab3: st.info("No open orders.")
+    with tab3: st.info("대기 중인 주문이 없습니다.")
 
 def _render_positions(positions):
     header = """
     <div class="dashboard-card" style="padding:0; overflow:hidden; min-height:200px;">
         <div class="table-header">
-            <div style="flex:1;">Asset</div>
-            <div style="flex:0.6; text-align:center;">Side</div>
-            <div style="flex:1.4; text-align:right;">Size / Value</div>
-            <div style="flex:1.4; text-align:right;">Unrealized PnL</div>
-            <div style="flex:1.1; text-align:right;">Entry</div>
-            <div style="flex:1.1; text-align:right;">Mark</div>
-            <div style="flex:1.1; text-align:right;">Liq.</div>
+            <div style="flex:1;">자산</div>
+            <div style="flex:0.6; text-align:center;">포지션</div>
+            <div style="flex:1.4; text-align:right;">수량 / 가치</div>
+            <div style="flex:1.4; text-align:right;">미실현 손익</div>
+            <div style="flex:1.1; text-align:right;">진입가</div>
+            <div style="flex:1.1; text-align:right;">시장가</div>
+            <div style="flex:1.1; text-align:right;">청산</div>
         </div>
     """
     rows = ""
@@ -74,10 +74,10 @@ def _render_investors(nav_data, usdt_rate=None):
     header = """
     <div class="dashboard-card" style="padding:0; overflow:hidden; min-height:200px;">
         <div class="table-header">
-            <div style="flex:1.5;">Investor</div>
-            <div style="flex:1.2; text-align:right;">Units</div>
-            <div style="flex:1.2; text-align:right;">Share</div>
-            <div style="flex:1.5; text-align:right;">Valuation (USDT)</div>
+            <div style="flex:1.5;">투자자</div>
+            <div style="flex:1.2; text-align:right;">보유 좌수</div>
+            <div style="flex:1.2; text-align:right;">지분율</div>
+            <div style="flex:1.5; text-align:right;">평가액 (USDT)</div>
         </div>
     """
     rows = ""
@@ -106,5 +106,5 @@ def _render_investors(nav_data, usdt_rate=None):
             </div>
         </div>
         """
-    footer = f"""<div style="padding:12px 20px; background:#141414; border-top:1px solid var(--border-color); text-align:right; font-size:0.75rem; color:var(--text-tertiary);">Current NAV: <span class="text-mono" style="color:#fff;">${current_nav:,.4f}</span></div></div>"""
+    footer = f"""<div style="padding:12px 20px; background:#141414; border-top:1px solid var(--border-color); text-align:right; font-size:0.75rem; color:var(--text-tertiary);">현재 NAV: <span class="text-mono" style="color:#fff;">${current_nav:,.4f}</span></div></div>"""
     render_html(st, header + rows + footer)
