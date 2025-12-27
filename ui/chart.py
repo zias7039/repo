@@ -27,7 +27,7 @@ def render_chart(history_df, current_equity, usdt_rate=None):
     c_filter, c_empty = st.columns([0.4, 0.6])
     with c_filter:
         timeframe = st.radio(
-            "Select Timeframe",
+            "기간 선",
             ["1W", "1M", "All"],
             index=0,
             horizontal=True,
@@ -78,8 +78,7 @@ def render_chart(history_df, current_equity, usdt_rate=None):
         pointer-events: none; /* 차트 인터랙션 방해 금지 */
     ">
         <div style="font-size:0.8rem; color:#848E9C; font-weight:500; margin-bottom:4px;">
-            {timeframe} PnL (Combined)
-        </div>
+             timeframemefram(} 통합 손익  </div>
         <div class="text-mono" style="
             color: {main_color}; 
             font-weight: 600; 
