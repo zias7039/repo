@@ -13,8 +13,8 @@ def load_fund_state() -> Dict[str, Any]:
     # [수정] 주석과 코드의 초기값 통일 (A: 754, B: 265)
     default_state = {
         "investors": {
-            "Investor A": 754.0,
-            "Investor B": 265.0
+            "Investor A": 740.0,
+            "Investor B": 280.0
         }
     }
 
